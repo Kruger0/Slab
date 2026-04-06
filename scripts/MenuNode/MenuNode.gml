@@ -41,17 +41,22 @@ function MenuNode(name, config = {}) constructor{
     // Public
     colors      = config[$ "colors"] ?? {base: #FFFFFF, focused: #FFFF00};
     enabled     = config[$ "enabled"] ?? true;
+    hAlign      = config[$ "hAlign"] ?? fa_center;
+    vAlign      = config[$ "vAlign"] ?? fa_middle;
     
     // Private
     isFocused   = false;
-    xOff        = new AnimTrack(ac_test, "xOff", 0.3);
-    yOff        = new AnimTrack(ac_test, "yOff", 0.3);
+    xOff        = new AnimTrack(ac_test, "xOff", 0.5);
+    yOff        = new AnimTrack(ac_test, "yOff", 0.5);
+    xScale      = new AnimTrack(ac_test, "xScale", 0.5);
+    yScale      = new AnimTrack(ac_test, "yScale", 0.5);
     
     // Methods
     SetFocused = function(isFocused) {
         if (self.isFocused == isFocused) exit;
         self.isFocused = isFocused;
-        xOff.Play(isFocused ? 16 : 0);
+        //xOff.Play(isFocused ? 16 : 0);
+        yOff.Play(isFocused ? -8 : 0);
     }
     
     Reset = function() {
@@ -60,7 +65,11 @@ function MenuNode(name, config = {}) constructor{
         yOff.Snap(0);
     }
     
-    Update = config[$ "Update"] ?? function(){
+    Update = config[$ "Update"] ?? function(isFocused){
+        // Input
+        SetFocused(isFocused);
+        
+        // Animation
         var _dt = delta_time / 1000000;
         xOff.Update(_dt);
         yOff.Update(_dt);
@@ -71,12 +80,22 @@ function MenuNode(name, config = {}) constructor{
             draw_rectangle(_ctx.x, _ctx.y, _ctx.x+_ctx.w, _ctx.y+_ctx.h, true);
         }
         
-        var _x = _ctx.x + xOff.GetValue();
+        var _x, _y;
+        switch (hAlign) {
+            case fa_left:   _x = _ctx.x + xOff.GetValue(); break;
+            case fa_center: _x = _ctx.x + (_ctx.w / 2) + xOff.GetValue(); break;
+            case fa_right:  _x = _ctx.x + _ctx.w + xOff.GetValue(); break;
+        }
         var _y = _ctx.y + yOff.GetValue() + (_ctx.h / 2);
+        //var _x = _ctx.x + xOff.GetValue();
+        //var _y = _ctx.y + yOff.GetValue() + (_ctx.h / 2);
         var _c = isFocused ? colors.focused : colors.base;
         
-        draw_set_valign(fa_middle);
+        draw_set_halign(hAlign);
+        draw_set_valign(vAlign);
         draw_text_colour(_x, _y, name, _c, _c, _c, _c, 1);
+        draw_set_halign(fa_left);
+        draw_set_valign(fa_top);
     };
     
     OnEnter = config[$ "OnEnter"] ?? function(){};
