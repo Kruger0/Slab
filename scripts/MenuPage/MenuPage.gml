@@ -68,6 +68,9 @@ function MenuPage(name, nodes, config = {}) constructor{
     }
     
     OnSuspend = config[$ "OnSuspend"] ?? function() {
-        
+        for (var i = 0, n = array_length(nodes); i < n; i++) {
+            var _node = nodes[i];
+            _node.Reset();
+        }
     }
 }

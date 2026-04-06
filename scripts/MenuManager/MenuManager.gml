@@ -63,6 +63,7 @@ function MenuManager() constructor{
     }
     
     static PagePop = function() {
+        if (array_length(stack) <= 1) return;
         PageGetActive().OnLeave();
         array_pop(stack);
         PageGetActive().OnReveal();
@@ -77,12 +78,47 @@ global.menuTest = new MenuManager();
 global.menuTest.PageAdd(new MenuPage("menu_main", [
     new MenuNodeButton("ui_playGame", function(){show_debug_message("play_game")}),
     new MenuNodeButton("ui_options", function(mng){mng.PagePush("menu_options")}),
-    new MenuNodeButton("ui_exit", function(){show_debug_message("game_end")}),
+    new MenuNodeButton("ui_credits", function(){}),
+    new MenuNodeButton("ui_exit", function(){game_end()}),
 ]))
 global.menuTest.PageAdd(new MenuPage("menu_options", [
-    new MenuNodeSlider("ui_volume"),
+    new MenuNodeButton("ui_audio", function(mng){mng.PagePush("menu_audio")}),
+    new MenuNodeButton("ui_video", function(mng){mng.PagePush("menu_video")}),
+    new MenuNodeSelector("ui_language"),
+    new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
+]))
+global.menuTest.PageAdd(new MenuPage("menu_audio", [
+    new MenuNodeSlider("ui_volume_master"),
+    new MenuNodeSlider("ui_volume_music"),
+    new MenuNodeSlider("ui_volume_sfx"),
+    new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
+]))
+global.menuTest.PageAdd(new MenuPage("menu_video", [
+    new MenuNodeToggle("ui_fullscreen"),
     new MenuNodeSelector("ui_resolution"),
+    new MenuNodeToggle("ui_bloom"),
+    new MenuNodeToggle("ui_vsync"),
     new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
 ]))
 
 global.menuTest.PagePush("menu_main");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
