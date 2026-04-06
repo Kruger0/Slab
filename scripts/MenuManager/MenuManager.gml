@@ -1,8 +1,9 @@
 
-function MenuManager() constructor{
+function MenuManager(config = {}) constructor{
     // Private
     stack   = [];
     pages   = {};
+    page    = -1;
     
     // Statics
     static Update = function() {
@@ -33,7 +34,7 @@ function MenuManager() constructor{
         // Node Update
         var _node = _page.NodeGetCurrent();
         if (_inputSelect) {
-            _node.OnSelect(self);
+            _node.Select(self);
         }
         
         // Global Back
@@ -56,35 +57,43 @@ function MenuManager() constructor{
     }
     
     static PagePush = function(page) {
-        var _active = PageGetActive();
-        if !(is_undefined(_active)) _active.OnSuspend();
-        array_push(stack, pages[$ page]);
-        PageGetActive().OnEnter();
+        var _pageCurr = PageGetActive();
+        if !(is_undefined(_pageCurr)) _pageCurr.OnSuspend();
+        array_push(stack, page);
+        var _pageNext = PageGetActive();
+        if !(is_undefined(_pageNext)) _pageNext.OnEnter();
     }
     
     static PagePop = function() {
         if (array_length(stack) <= 1) return;
-        PageGetActive().OnLeave();
+        var _pageCurr = PageGetActive();
+        if (is_undefined(_pageCurr)) return;
+        _pageCurr.OnLeave();
         array_pop(stack);
-        PageGetActive().OnReveal();
+        var _pageNext = PageGetActive();
+        if (is_undefined(_pageNext)) return;
+        _pageNext.OnReveal();
     }
     
     static PageGetActive = function() {
-        return array_last(stack);
+        var _page = array_last(stack);
+        if (is_undefined(_page)) return;
+        return pages[$ _page];
     }
 }
 
 global.menuTest = new MenuManager();
 global.menuTest.PageAdd(new MenuPage("menu_main", [
-    new MenuNodeButton("ui_playGame", function(){show_debug_message("play_game")}),
+    new MenuNodeButton("ui_playGame"),
+    new MenuNodeButton("ui_continue"),
     new MenuNodeButton("ui_options", function(mng){mng.PagePush("menu_options")}),
-    new MenuNodeButton("ui_credits", function(){}),
+    new MenuNodeButton("ui_credits"),
     new MenuNodeButton("ui_exit", function(){game_end()}),
 ]))
 global.menuTest.PageAdd(new MenuPage("menu_options", [
+    new MenuNodeSelector("ui_language"),
     new MenuNodeButton("ui_audio", function(mng){mng.PagePush("menu_audio")}),
     new MenuNodeButton("ui_video", function(mng){mng.PagePush("menu_video")}),
-    new MenuNodeSelector("ui_language"),
     new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
 ]))
 global.menuTest.PageAdd(new MenuPage("menu_audio", [

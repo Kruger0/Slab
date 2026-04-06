@@ -9,7 +9,7 @@ function MenuPage(name, nodes, config = {}) constructor{
     yPad    = config[$ "yPad"] ?? 32;
     xMarg   = config[$ "xMarg"] ?? 32;
     yMarg   = config[$ "yMarg"] ?? 32;
-    spacing = config[$ "spacing"] ?? 8;
+    spacing = config[$ "spacing"] ?? 0;
     hAlign  = config[$ "hAlign"] ?? fa_center;
     vAlign  = config[$ "vAlign"] ?? fa_middle;
     cycle   = config[$ "cycle"] ?? true;
@@ -39,7 +39,6 @@ function MenuPage(name, nodes, config = {}) constructor{
         var _pageCtx = {
            x:ctx.x + xPad, y:ctx.y + yPad,
            w:ctx.w - xPad*2, h:ctx.h - yPad*2,
-           font, scale,
         }
         
         // Node setup
@@ -51,14 +50,14 @@ function MenuPage(name, nodes, config = {}) constructor{
         var _totalH     = 0;
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
-            _nodeMaxW   = max(_nodeMaxW, _node.GetWidth());
-            _nodeMaxH   = max(_nodeMaxH, _node.GetHeight());
-            _totalH     += _node.GetHeight() + spacing;
+            _nodeMaxW = max(_nodeMaxW, _node.GetWidth() * scale);
+            _nodeMaxH = max(_nodeMaxH, _node.GetHeight() * scale);
+            _totalH  += _node.GetHeight() * scale + spacing * scale;
         }
         _totalH = max(0, _totalH - spacing);
         
         // Node alignment
-        var _nodeX, nodeY;
+        var _nodeX, _nodeY;
         switch (hAlign) {
             case fa_left:   _nodeX = _pageCtx.x; break;
             case fa_center: _nodeX = _pageCtx.x + (_pageCtx.w - _nodeMaxW) / 2; break;
@@ -79,33 +78,38 @@ function MenuPage(name, nodes, config = {}) constructor{
             // Node canvas
             var _nodeCtx = {
                 x: _nodeX, y: _nodeY,
-                w: _nodeMaxW, h: _nodeH,
+                w: _nodeMaxW, h: _nodeH * scale,
+                scale,
             }
             
             _node.Render(_nodeCtx);
-            _nodeY += _nodeH + spacing;
+            _nodeY += (_nodeH + spacing) * scale;
         }
         draw_set_font(-1);
     };
     
-    OnEnter = config[$ "OnEnter"] ?? function(){};
-    
-    OnLeave = config[$ "OnLeave"] ?? function(){
-        cursor = 0;
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _node.Reset();
-        }
+    // Pushing this page on the stack
+    OnEnter = config[$ "OnEnter"] ?? function(){
+        static callback = function(node, i){node.OnEnter()};
+        array_foreach(nodes, callback);
     };
     
+    // Poping this page from the stack
+    OnLeave = config[$ "OnLeave"] ?? function(){
+        cursor = 0;
+        static callback = function(node, i){node.OnLeave()};
+        array_foreach(nodes, callback);
+    };
+    
+    // Coming back from another page
     OnReveal = config[$ "OnReveal"] ?? function() {
-        
+        static callback = function(node, i){node.OnReveal()};
+        array_foreach(nodes, callback);
     }
     
+    // Pushing another page into the stack
     OnSuspend = config[$ "OnSuspend"] ?? function() {
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _node.Reset();
-        }
+        static callback = function(node, i){node.OnSuspend()};
+        array_foreach(nodes, callback);
     }
 }
