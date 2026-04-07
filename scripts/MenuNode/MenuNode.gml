@@ -42,7 +42,7 @@ function MenuNode(name, config = {}) constructor{
     colors      = config[$ "colors"] ?? {
         base        : #FFFFFF,
         focused     : #FFFF00,
-        confirm     : #FF0000,
+        pending     : #FF0000,
         disabled    : #606060
     };
     alpha       = config[$ "alpha"] ?? 1;
@@ -53,7 +53,6 @@ function MenuNode(name, config = {}) constructor{
     
     // Private
     isFocused   = false;
-    color       = colors.base;
     angle       = 0;
     xPos        = 0;
     yPos        = 0;
@@ -134,7 +133,7 @@ function MenuNode(name, config = {}) constructor{
         // Custom
         for (var i = 0, n = array_length(onSelectCb); i < n; i++) {
             var _e = onSelectCb[i];
-            _e.callback(mng); // TODO pass this or data?
+            _e.callback(_e.data);
         }
         
         // Debug
@@ -158,7 +157,6 @@ function MenuNode(name, config = {}) constructor{
         yPos += yOffAnim.GetValue();
         xScl  = xSclAnim.GetValue() * ctx.scale;
         yScl  = ySclAnim.GetValue() * ctx.scale;
-        color = isFocused ? colors.focused : colors.base;
         
         // Base zone — subclasses will override or extend this
         zones = [{
@@ -210,26 +208,30 @@ function MenuNode(name, config = {}) constructor{
     
     // Methods
     OnEnter     = config[$ "OnEnter"] ?? function(){
-        xSclAnim.Snap(1);
-        ySclAnim.Snap(1);
+        xSclAnim.Snap(0.5);
+        ySclAnim.Snap(0.5);
+        xSclAnim.Play(1);
+        ySclAnim.Play(1);
     };
     OnLeave     = config[$ "OnLeave"] ?? function(){
         isFocused = false;
         xOffAnim.Snap(0);
         yOffAnim.Snap(0);
-        xSclAnim.Snap(1);
-        ySclAnim.Snap(1);
+        xSclAnim.Snap(0.5);
+        ySclAnim.Snap(0.5);
     };
     OnReveal    = config[$ "OnReveal"] ?? function() {
-        xSclAnim.Snap(1);
-        ySclAnim.Snap(1);
+        xSclAnim.Snap(0.5);
+        ySclAnim.Snap(0.5);
+        xSclAnim.Play(1);
+        ySclAnim.Play(1);
     }
     OnSuspend   = config[$ "OnSuspend"] ?? function() {
         isFocused = false;
         xOffAnim.Snap(0);
         yOffAnim.Snap(0);
-        xSclAnim.Snap(1);
-        ySclAnim.Snap(1);
+        xSclAnim.Snap(0.5);
+        ySclAnim.Snap(0.5);
     }
     
     GetWidth    = config[$ "GetWidth"] ?? function() {
@@ -253,7 +255,7 @@ function MenuNodeLabel(name, config = {}) : MenuNode(name, config) constructor {
     });
 }
 
-function MenuNodeSeparator(config = {}) : MenuNode("", config) constructor {
+function MenuNodeSeparator(config = {}) : MenuNode("separator", config) constructor {
     interactive = false;
     
     drawLine    = config[$ "drawLine"] ?? true;
@@ -276,33 +278,48 @@ function MenuNodeSeparator(config = {}) : MenuNode("", config) constructor {
 
 function MenuNodeButton(name, onSelect = function(){}, config = {}) : MenuNode(name, config) constructor {
     
-    OnSelect(onSelect);
+    OnSelect(method(self, onSelect));
     
     OnRender(function() {
+        var _c = isFocused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
         draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, color, color, color, color, alpha);
+        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
         draw_set_halign(fa_left);
         draw_set_valign(fa_top);
     })
 }
 
-function MenuNodeConfirm(name, onSelect, config = {}) : MenuNodeButton(name, onSelect, config) constructor {
-    confirmPending  = false;
-    confirmTimer    = 0;
-    confirmTimeout  = config[$ "confirmTimeout"] ?? 3; // seconds, 0 = no timeout
+function MenuNodeConfirm(name, onSelect, config = {}) : MenuNode(name, config) constructor {
+    pending = false;
+    msg     = config[$ "msg"] ?? name + "?";
     
-    // Override OnSelect behavior
-    // First press: set pending, play color anim to red
-    // Second press (while pending): run onSelect
-    // If timeout > 0 and timer expires: reset pending
+    OnConfirm = onSelect;
+    OnSelect(function() {
+        if (pending) {
+            OnConfirm()
+        } else {
+            pending = true;
+            colors.focused = colors.pending;
+        }
+    });
+    
+    OnRender(function() {
+        var _c = isFocused ? (pending ? colors.pending : colors.focused) : colors.base;
+        draw_set_halign(hAlign);
+        draw_set_valign(vAlign);
+        draw_text_transformed_color(xPos, yPos, pending ? msg : name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
+        draw_set_halign(fa_left);
+        draw_set_valign(fa_top);
+    })
 }
 
 function MenuNodeToggle(name) : MenuNode(name) constructor {
     OnRender(function() {
+        var _c = isFocused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
         draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, color, color, color, color, alpha);
+        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
         draw_set_halign(fa_left);
         draw_set_valign(fa_top);
     })
@@ -310,9 +327,10 @@ function MenuNodeToggle(name) : MenuNode(name) constructor {
 
 function MenuNodeSlider(name) : MenuNode(name) constructor {
     OnRender(function() {
+        var _c = isFocused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
         draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, color, color, color, color, alpha);
+        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
         draw_set_halign(fa_left);
         draw_set_valign(fa_top);
     })
@@ -320,9 +338,10 @@ function MenuNodeSlider(name) : MenuNode(name) constructor {
 
 function MenuNodeSelector(name) : MenuNode(name) constructor {
     OnRender(function() {
+        var _c = isFocused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
         draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, color, color, color, color, alpha);
+        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
         draw_set_halign(fa_left);
         draw_set_valign(fa_top);
     })

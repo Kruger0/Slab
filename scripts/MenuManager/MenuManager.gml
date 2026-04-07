@@ -110,6 +110,7 @@ function MenuManager(config = {}) constructor{
     }
     static PageAdd = function(page) {
         pages[$ page.name] = page;
+        pages[$ page.name].mng = self;
     }
     static PagePush = function(page) {
         var _pageCurr = PageGetActive();
@@ -129,4 +130,3 @@ function MenuManager(config = {}) constructor{
         _pageNext.OnReveal();
     }
 }
-
