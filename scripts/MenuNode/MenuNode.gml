@@ -130,12 +130,12 @@ function MenuNode(name, config = {}) constructor{
             draw_text(xPos + 100, yPos, hoveredZone)
         }
     }
-    static Select = function(mng) {
+    static Select = function() {
         // Animate
         xSclAnim.Snap(1);
         ySclAnim.Snap(1);
-        xSclAnim.Play(1.2);
-        ySclAnim.Play(1.2);
+        xSclAnim.Play(1.1);
+        ySclAnim.Play(1.1);
         
         // Custom
         for (var i = 0, n = array_length(onSelectCb); i < n; i++) {
@@ -220,8 +220,8 @@ function MenuNode(name, config = {}) constructor{
     
     // Methods
     OnEnter     = config[$ "OnEnter"] ?? function(){
-        xSclAnim.Snap(0.5);
-        ySclAnim.Snap(0.5);
+        xSclAnim.Snap(0.8);
+        ySclAnim.Snap(0.8);
         xSclAnim.Play(1);
         ySclAnim.Play(1);
     };
@@ -298,8 +298,8 @@ function MenuNodeConfirm(name, onSelect, config = {}) : MenuNode(name, config) c
             pending = true;
             xSclAnim.Snap(1);
             ySclAnim.Snap(1);
-            xSclAnim.Play(1.2);
-            ySclAnim.Play(1.2);
+            xSclAnim.Play(1.1);
+            ySclAnim.Play(1.1);
         }
     });
     

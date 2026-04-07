@@ -39,25 +39,29 @@ function MenuPage(name, nodes, config = {}) constructor{
     }
     
     static OnEnter = function(){
-        static callback = function(node, i){node.OnEnter()};
         CursorFindFirst();
-        array_foreach(nodes, callback);
-    };
-    static OnLeave = function(resetCursor){
-        if (resetCursor) cursor = 0;
-        static callback = function(node, i){node.OnLeave()};
-        array_foreach(nodes, callback);
-    };
-    
-    // Methods
-    Update      = config[$ "Update"] ?? function(useMouse){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
-            _node.Update(useMouse ? undefined : (cursor == i));
+            _node.OnEnter();
             _node.mng = mng;
         }
     };
-    Render      = config[$ "Render"] ?? function(ctx){
+    static OnLeave = function(resetCursor){
+        if (resetCursor) cursor = 0;
+        for (var i = 0, n = array_length(nodes); i < n; i++) {
+            var _node = nodes[i];
+            _node.OnLeave();
+        }
+    };
+    
+    // Methods
+    Update  = config[$ "Update"] ?? function(useMouse){
+        for (var i = 0, n = array_length(nodes); i < n; i++) {
+            var _node = nodes[i];
+            _node.Update(useMouse ? undefined : (cursor == i));
+        }
+    };
+    Render  = config[$ "Render"] ?? function(ctx){
         
         // Page canvas
         var _pageCtx = {

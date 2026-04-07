@@ -10,6 +10,7 @@ function MenuManager(config = {}) constructor{
     mx          = 0;
     my          = 0;
     useMouse    = false;
+    mouseFocus  = -1;
     
     // Statics
     static Update = function(x, y, w, h, mx, my) {
@@ -34,7 +35,7 @@ function MenuManager(config = {}) constructor{
         var _page  = PageGetActive();
         if (is_undefined(_page)) return;
         var _count = array_length(_page.nodes);
-        var _mouseFocus = -1;
+        mouseFocus = -1;
         
         var _useMouse = useMouse;
         if (InputMouseMoved()) useMouse = true;
@@ -48,16 +49,16 @@ function MenuManager(config = {}) constructor{
         if (useMouse) {
             for (var i = 0; i < _count; i++) {
                 var _node = _page.nodes[i];
-                var _isOver = _node.ContainsPoint(mx - x, my - y);
+                var _isOver = _node.ContainsPoint(mx-x, my-y);
                 if (_isOver && !_node.interactive) {
                     _node.isFocused = false;
                     continue;
                 }
                 if (_isOver && !_node.isFocused) _node.SetFocused(true);
                 if (!_isOver && _node.isFocused) _node.SetFocused(false);
-                if (_isOver) _mouseFocus = i;
+                if (_isOver) mouseFocus = i;
             }
-            if (_mouseFocus != -1) _page.cursor = _mouseFocus;
+            if (mouseFocus != -1) _page.cursor = mouseFocus;
         } else {
             if (_yDelta != 0) {
                 var _next = _page.cursor;
@@ -81,12 +82,12 @@ function MenuManager(config = {}) constructor{
         // Select & Zones
         if (_node.interactive) {
             if (useMouse) {
-                if (_mouseFocus != -1) {
-                    _node.UpdateHoveredZone(mx - x, my - y);
-                    if (_mousePress) _node.Select(self);
+                if (mouseFocus != -1) {
+                    _node.UpdateHoveredZone(mx-x, my-y);
+                    if (_mousePress) _node.Select();
                 }
             } else {
-                if (_inputSelect) _node.Select(self);
+                if (_inputSelect) _node.Select();
             }
         }
         
@@ -128,4 +129,16 @@ function MenuManager(config = {}) constructor{
         if (is_undefined(_pageNext)) return;
         _pageNext.OnEnter();
     }
+    
+    static MouseGetState = function() {
+        if (!useMouse) return MENU_MOUSE.INACTIVE;
+        if (mouseFocus == -1) return MENU_MOUSE.IDLE;
+        return MENU_MOUSE.HOVER;
+    }
+}
+
+enum MENU_MOUSE {
+    INACTIVE,
+    IDLE,
+    HOVER
 }
