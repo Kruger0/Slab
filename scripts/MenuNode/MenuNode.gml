@@ -76,6 +76,13 @@ function MenuNode(name, config = {}) constructor{
     interactive = true;
     
     // Statics
+    static PagePush = function(page) {
+        mng.PagePush(page);
+    }
+    static PagePop = function() {
+        mng.PagePop();
+    }
+    
     static OnUpdate = function(callback, data = undefined) {
         array_push(onUpdateCb, {callback, data});
     }
@@ -264,9 +271,9 @@ function MenuNodeSeparator(config = {}) : MenuNode("separator", config) construc
     });
 }
 
-function MenuNodeButton(name, onSelect = function(){}, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeButton(name, onSelect, config = {}) : MenuNode(name, config) constructor {
     
-    OnSelect(method(self, onSelect));
+    if (is_callable(onSelect)) OnSelect(method(self, onSelect));
     
     OnRender(function() {
         var _c = isFocused ? colors.focused : colors.base;
@@ -282,13 +289,17 @@ function MenuNodeConfirm(name, onSelect, config = {}) : MenuNode(name, config) c
     pending = false;
     msg     = config[$ "msg"] ?? name + "?";
     
-    OnConfirm = method(self, onSelect);
+    OnConfirm = is_callable(onSelect) ? method(self, onSelect) : undefined;
     
     OnSelect(function() {
         if (pending) {
-            OnConfirm();
+            if (is_callable(OnConfirm)) OnConfirm();
         } else {
             pending = true;
+            xSclAnim.Snap(1);
+            ySclAnim.Snap(1);
+            xSclAnim.Play(1.2);
+            ySclAnim.Play(1.2);
         }
     });
     
