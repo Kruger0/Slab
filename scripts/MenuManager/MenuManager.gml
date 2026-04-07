@@ -100,7 +100,9 @@ function MenuManager(config = {}) constructor{
         var _page = PageGetActive();
         if (is_undefined(_page)) return;
         _page.Render(_ctx);
-        draw_circle_color(mx, my, 2, c_lime, c_lime, false);
+        if (global.debug) {
+            draw_circle_color(mx, my, 2, c_lime, c_lime, false);
+        }
     }
     
     static PageGetActive = function() {
@@ -134,28 +136,29 @@ function MenuManager(config = {}) constructor{
 
 global.menuTest = new MenuManager();
 global.menuTest.PageAdd(new MenuPage("menu_main", [
-    new MenuNodeLabel("SUPER FUN MENU"),
+    new MenuNodeLabel("SUPER FUN MENU SYSTEM"),
     new MenuNodeButton("ui_playGame"),
     new MenuNodeButton("ui_continue"),
-    new MenuNodeLabel("SUPER FUN MENU"),
     new MenuNodeButton("ui_options", function(mng){mng.PagePush("menu_options")}),
     new MenuNodeButton("ui_credits"),
     new MenuNodeButton("ui_exit", function(){game_end()}),
-    new MenuNodeLabel("SUPER FUN MENU"),
 ]))
 global.menuTest.PageAdd(new MenuPage("menu_options", [
+    new MenuNodeLabel("OPTIONS"),
     new MenuNodeSelector("ui_language"),
     new MenuNodeButton("ui_audio", function(mng){mng.PagePush("menu_audio")}),
     new MenuNodeButton("ui_video", function(mng){mng.PagePush("menu_video")}),
     new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
 ]))
 global.menuTest.PageAdd(new MenuPage("menu_audio", [
+    new MenuNodeLabel("AUDIO"),
     new MenuNodeSlider("ui_volume_master"),
     new MenuNodeSlider("ui_volume_music"),
     new MenuNodeSlider("ui_volume_sfx"),
     new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
 ]))
 global.menuTest.PageAdd(new MenuPage("menu_video", [
+    new MenuNodeLabel("VIDEO"),
     new MenuNodeToggle("ui_fullscreen"),
     new MenuNodeSelector("ui_resolution"),
     new MenuNodeToggle("ui_bloom"),

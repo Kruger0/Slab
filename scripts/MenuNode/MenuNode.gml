@@ -115,21 +115,27 @@ function MenuNode(name, config = {}) constructor{
         }
         
         // Debug
-        for (var i = 0, n = array_length(zones); i < n; i++) {
-            var _z = zones[i];
-            var _c = (hoveredZone == _z.name ? #00FF00 : #0000FF)
-            draw_rectangle_color(_z.x, _z.y, _z.x + _z.w, _z.y + _z.h, _c, _c, _c, _c, true);
+        if (global.debug) {
+            for (var i = 0, n = array_length(zones); i < n; i++) {
+                var _z = zones[i];
+                var _c = (hoveredZone == _z.name ? #00FF00 : #0000FF)
+                draw_rectangle_color(_z.x, _z.y, _z.x + _z.w, _z.y + _z.h, _c, _c, _c, _c, true);
+            }
+            draw_circle_color(xPos, yPos, 2, c_red, c_red, false);
+            draw_text(xPos + 100, yPos, hoveredZone)
         }
-        draw_circle_color(xPos, yPos, 2, c_red, c_red, false);
-        draw_text(xPos + 100, yPos, hoveredZone)
     }
     
     static Select = function(mng) {
-        show_debug_message($"{instanceof(self)} '{name}' - Select()")
         // Custom
         for (var i = 0, n = array_length(onSelectCb); i < n; i++) {
             var _e = onSelectCb[i];
             _e.callback(mng); // TODO pass this or data?
+        }
+        
+        // Debug
+        if (global.debug) {
+            show_debug_message($"{instanceof(self)} '{name}' - Select()")
         }
     }
     

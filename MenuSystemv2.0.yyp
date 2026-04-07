@@ -197,6 +197,7 @@
     {"id":{"name":"__InputVibrateClassPulse","path":"scripts/__InputVibrateClassPulse/__InputVibrateClassPulse.yy",},},
     {"id":{"name":"__InputVibrateConfig","path":"scripts/__InputVibrateConfig/__InputVibrateConfig.yy",},},
     {"id":{"name":"__InputVibrateSystem","path":"scripts/__InputVibrateSystem/__InputVibrateSystem.yy",},},
+    {"id":{"name":"__MenuCache","path":"scripts/__MenuCache/__MenuCache.yy",},},
     {"id":{"name":"__scribble_class_element","path":"scripts/__scribble_class_element/__scribble_class_element.yy",},},
     {"id":{"name":"__scribble_class_event","path":"scripts/__scribble_class_event/__scribble_class_event.yy",},},
     {"id":{"name":"__scribble_class_font","path":"scripts/__scribble_class_font/__scribble_class_font.yy",},},
