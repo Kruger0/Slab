@@ -29,6 +29,15 @@ function MenuPage(name, nodes, config = {}) constructor{
         return nodes[cursor];
     }
     
+    static CursorFindFirst = function() {
+        var _count = array_length(nodes);
+        var _guard = 0;
+        while (!nodes[cursor].interactive && _guard < _count) {
+            cursor++;
+            _guard++;
+        }
+    }
+    
     // Methods
     Update = config[$ "Update"] ?? function(useMouse){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
@@ -98,6 +107,7 @@ function MenuPage(name, nodes, config = {}) constructor{
     // Pushing this page on the stack
     OnEnter = config[$ "OnEnter"] ?? function(){
         static callback = function(node, i){node.OnEnter()};
+        CursorFindFirst();
         array_foreach(nodes, callback);
     };
     
@@ -111,6 +121,7 @@ function MenuPage(name, nodes, config = {}) constructor{
     // Coming back from another page
     OnReveal = config[$ "OnReveal"] ?? function() {
         static callback = function(node, i){node.OnReveal()};
+        CursorFindFirst();
         array_foreach(nodes, callback);
     }
     

@@ -7,9 +7,9 @@ function MenuManager(config = {}) constructor{
     y           = 0;
     w           = 0;
     h           = 0;
-    mx          = 0; 
+    mx          = 0;
     my          = 0;
-    useMouse    = 0; // 
+    useMouse    = false;
     
     // Statics
     static Update = function(x, y, w, h, mx, my) {
@@ -24,90 +24,74 @@ function MenuManager(config = {}) constructor{
         #endregion
         
         #region Fetch Inputs
-        var _xDelta         = InputOpposingPressed(INPUT_VERB.LEFT, INPUT_VERB.RIGHT);
-        var _yDelta         = InputOpposingPressed(INPUT_VERB.UP, INPUT_VERB.DOWN);
-        var _inputSelect    = InputPressed(INPUT_VERB.ACCEPT);
+        var _xDelta         = useMouse ? 0 : InputOpposingPressed(INPUT_VERB.LEFT, INPUT_VERB.RIGHT);
+        var _yDelta         = useMouse ? 0 : InputOpposingPressed(INPUT_VERB.UP, INPUT_VERB.DOWN);
+        var _inputSelect    = useMouse ? 0 : InputPressed(INPUT_VERB.ACCEPT);
         var _inputBack      = InputPressed(INPUT_VERB.CANCEL);
         var _mousePress     = InputMousePressed(mb_left);
         #endregion
         
-        #region Mouse Focus
-        
-        
         var _page  = PageGetActive();
         if (is_undefined(_page)) return;
         var _count = array_length(_page.nodes);
-        var _mouseFocusIdx = -1;
+        var _mouseFocus = -1;
         
         var _useMouse = useMouse;
         if (InputMouseMoved()) useMouse = true;
         if (InputCheckMany(-1, -1)) useMouse = false;
+        
         if (useMouse && !_useMouse) {
-            show_debug_message("mouse moved");
-            for (var i = 0; i < _count; i++) {
-                var _node = _page.nodes[i];
-                _node.SetFocused(false)
-            }
+            for (var i = 0; i < _count; i++) _page.nodes[i].SetFocused(false);
         }
         
+        // Hover & Cursor
         if (useMouse) {
             for (var i = 0; i < _count; i++) {
                 var _node = _page.nodes[i];
-                
-                with (_node) {
-                    if (ContainsPoint(mx-x, my-y)) {
-                        if (!mouseIn && !mouseOver) {
-                            mouseIn = true;
-                            mouseOut = false;
-                            OnMouseEnter();
-                        }
-                        mouseOver = true;
-                        _mouseFocusIdx = i;
-                        break;
-                    } else {
-                        if (!mouseOut && mouseOver) {
-                            mouseOut = true;
-                            mouseIn = false;
-                            OnMouseLeave();
-                        }
-                        mouseOver = false;
-                    }
+                var _isOver = _node.ContainsPoint(mx - x, my - y);
+                if (_isOver && !_node.interactive) {
+                    _node.mouseOver = false;
+                    continue;
                 }
+                if (_isOver && !_node.mouseOver) _node.OnMouseEnter();
+                if (!_isOver && _node.mouseOver) _node.OnMouseLeave();
+                _node.mouseOver = _isOver;
+                if (_isOver) _mouseFocus = i;
             }
-            if (_mouseFocusIdx != -1) {
-                _page.cursor = _mouseFocusIdx;
-            }
+            if (_mouseFocus != -1) _page.cursor = _mouseFocus;
         } else {
             if (_yDelta != 0) {
-                var _next = _page.cursor + _yDelta;
-                if (_page.cycle) {
-                    _page.cursor = ((_next % _count) + _count) % _count;
-                } else {
-                    _page.cursor = clamp(_next, 0, _count - 1);
-                }
+                var _next = _page.cursor;
+                var _guard = 0;
+                do {
+                    _next += _yDelta;
+                    if (_page.cycle) {
+                        _next = ((_next % _count) + _count) % _count;
+                    } else {
+                        _next = clamp(_next, 0, _count - 1);
+                    }
+                    _guard++;
+                } until (_page.nodes[_next].interactive || _guard >= _count);
+                _page.cursor = _next;
             }
         }
-        #endregion
         
         _page.Update(useMouse);
         var _node = _page.NodeGetActive();
         
-        #region Mouse Zone
-        if (useMouse) {
-            if (_mouseFocusIdx != -1) {
-                _node.UpdateHoveredZone(mx-x, my-y);
+        // Select & Zones
+        if (_node.interactive) {
+            if (useMouse) {
+                if (_mouseFocus != -1) {
+                    _node.UpdateHoveredZone(mx - x, my - y);
+                    if (_mousePress) _node.Select(self);
+                }
             } else {
-                _node.hoveredZone = "";
+                if (_inputSelect) _node.Select(self);
             }
         }
-        #endregion
         
-        #region Selection
-        if (_inputSelect || (_mousePress && _mouseFocusIdx != -1)) {
-            _node.Select(self);
-        }
-        #endregion
-        
+        // Back
         if (_inputBack) PagePop();
     }
     
@@ -150,11 +134,14 @@ function MenuManager(config = {}) constructor{
 
 global.menuTest = new MenuManager();
 global.menuTest.PageAdd(new MenuPage("menu_main", [
+    new MenuNodeLabel("SUPER FUN MENU"),
     new MenuNodeButton("ui_playGame"),
     new MenuNodeButton("ui_continue"),
+    new MenuNodeLabel("SUPER FUN MENU"),
     new MenuNodeButton("ui_options", function(mng){mng.PagePush("menu_options")}),
     new MenuNodeButton("ui_credits"),
     new MenuNodeButton("ui_exit", function(){game_end()}),
+    new MenuNodeLabel("SUPER FUN MENU"),
 ]))
 global.menuTest.PageAdd(new MenuPage("menu_options", [
     new MenuNodeSelector("ui_language"),
@@ -177,5 +164,3 @@ global.menuTest.PageAdd(new MenuPage("menu_video", [
 ]))
 
 global.menuTest.PagePush("menu_main");
-
-

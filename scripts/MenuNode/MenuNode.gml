@@ -39,7 +39,12 @@ function MenuNode(name, config = {}) constructor{
     self.name   = name;
     
     // Public
-    colors      = config[$ "colors"] ?? {base: #FFFFFF, focused: #FFFF00, confirm : #FF0000, disabled : #606060};
+    colors      = config[$ "colors"] ?? {
+        base        : #FFFFFF,
+        focused     : #FFFF00,
+        confirm     : #FF0000,
+        disabled    : #606060
+    };
     enabled     = config[$ "enabled"] ?? true;
     hAlign      = config[$ "hAlign"] ?? fa_center;
     vAlign      = config[$ "vAlign"] ?? fa_middle;
@@ -66,9 +71,8 @@ function MenuNode(name, config = {}) constructor{
     zones       = [];
     hoveredZone = "";
     
-    mouseIn     = false;
-    mouseOver   = false
-    mouseOut    = false;
+    mouseOver   = false;
+    interactive = true;
     
     // Statics
     static OnUpdate = function(callback, data = undefined) {
@@ -104,11 +108,6 @@ function MenuNode(name, config = {}) constructor{
     static Render = function(ctx) {
         UpdateLayout(ctx);
         
-        // Selector
-        if (isFocused) {
-            //draw_rectangle(ctx.x, ctx.y, ctx.x + ctx.w * ctx.scale, ctx.y + ctx.h * ctx.scale, true);
-        }
-        
         // Custom
         for (var i = 0, n = array_length(onRenderCb); i < n; i++) {
             var _entry = onRenderCb[i];
@@ -122,9 +121,11 @@ function MenuNode(name, config = {}) constructor{
             draw_rectangle_color(_z.x, _z.y, _z.x + _z.w, _z.y + _z.h, _c, _c, _c, _c, true);
         }
         draw_circle_color(xPos, yPos, 2, c_red, c_red, false);
+        draw_text(xPos + 100, yPos, hoveredZone)
     }
     
     static Select = function(mng) {
+        show_debug_message($"{instanceof(self)} '{name}' - Select()")
         // Custom
         for (var i = 0, n = array_length(onSelectCb); i < n; i++) {
             var _e = onSelectCb[i];
@@ -189,6 +190,15 @@ function MenuNode(name, config = {}) constructor{
         ySclAnim.Play(isFocused ? 1.2 : 1);
     }
     
+    static OnMouseEnter = function(){
+        SetFocused(true);
+    };
+    
+    static OnMouseLeave = function(){
+        hoveredZone = "";
+        SetFocused(false);
+    };
+    
     // Methods
     OnEnter = config[$ "OnEnter"] ?? function(){
         xSclAnim.Snap(1);
@@ -201,15 +211,6 @@ function MenuNode(name, config = {}) constructor{
         yOffAnim.Snap(0);
         xSclAnim.Snap(1);
         ySclAnim.Snap(1);
-    };
-    
-    OnMouseEnter = config[$ "OnMouseEnter"] ?? function(){
-        SetFocused(true);
-    };
-    
-    OnMouseLeave = config[$ "OnMouseLeave"] ?? function(){
-        hoveredZone = "";
-        SetFocused(false);
     };
     
     OnReveal = config[$ "OnReveal"] ?? function() {
@@ -234,6 +235,19 @@ function MenuNode(name, config = {}) constructor{
     };
 }
 
+function MenuNodeLabel(name, config = {}) : MenuNode(name, config) constructor {
+    interactive = false;
+    
+    OnRender(function() {
+        var _c = colors.disabled;
+        draw_set_halign(hAlign);
+        draw_set_valign(vAlign);
+        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
+        draw_set_halign(fa_left);
+        draw_set_valign(fa_top);
+    });
+}
+
 function MenuNodeButton(name, onSelect = function(){}, config = {}) : MenuNode(name, config) constructor {
     OnSelect(function() {
         xSclAnim.Snap(1);
@@ -250,6 +264,17 @@ function MenuNodeButton(name, onSelect = function(){}, config = {}) : MenuNode(n
         draw_set_halign(fa_left);
         draw_set_valign(fa_top);
     })
+}
+
+function MenuNodeConfirm(name, onSelect, config = {}) : MenuNodeButton(name, onSelect, config) constructor {
+    confirmPending  = false;
+    confirmTimer    = 0;
+    confirmTimeout  = config[$ "confirmTimeout"] ?? 3; // seconds, 0 = no timeout
+    
+    // Override OnSelect behavior
+    // First press: set pending, play color anim to red
+    // Second press (while pending): run onSelect
+    // If timeout > 0 and timer expires: reset pending
 }
 
 function MenuNodeToggle(name) : MenuNode(name) constructor {
