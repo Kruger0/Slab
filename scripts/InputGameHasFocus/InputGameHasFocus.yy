@@ -6,7 +6,7 @@
   "name":"InputGameHasFocus",
   "parent":{
     "name":"Miscellaneous",
-    "path":"folders/Input/Miscellaneous.yy",
+    "path":"folders/Dependencies/Input/Miscellaneous.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

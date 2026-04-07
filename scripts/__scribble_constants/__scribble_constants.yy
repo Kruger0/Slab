@@ -6,7 +6,7 @@
   "name":"__scribble_constants",
   "parent":{
     "name":"Scribble",
-    "path":"folders/Scribble.yy",
+    "path":"folders/Dependencies/Scribble.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

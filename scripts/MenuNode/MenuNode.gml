@@ -85,7 +85,7 @@ function MenuNode(name, config = {}) constructor{
     
     static Update = function(isFocused){
         // Input
-        SetFocused(isFocused);
+        if (!is_undefined(isFocused)) SetFocused(isFocused);
         
         // Animation
         var _dt = delta_time / 1000000;

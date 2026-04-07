@@ -30,10 +30,10 @@ function MenuPage(name, nodes, config = {}) constructor{
     }
     
     // Methods
-    Update = config[$ "Update"] ?? function(){
+    Update = config[$ "Update"] ?? function(useMouse){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
-            _node.Update(cursor == i);
+            _node.Update(useMouse ? undefined : (cursor == i));
         }
     };
    

@@ -6,7 +6,7 @@
   "name":"InputBufferPressed",
   "parent":{
     "name":"Advanced",
-    "path":"folders/Input/Checkers/Advanced.yy",
+    "path":"folders/Dependencies/Input/Checkers/Advanced.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

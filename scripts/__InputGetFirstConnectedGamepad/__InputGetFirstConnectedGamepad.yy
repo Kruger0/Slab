@@ -6,7 +6,7 @@
   "name":"__InputGetFirstConnectedGamepad",
   "parent":{
     "name":"(System)",
-    "path":"folders/Input/(System).yy",
+    "path":"folders/Dependencies/Input/(System).yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

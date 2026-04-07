@@ -6,7 +6,7 @@
   "name":"InputVibrateCurve",
   "parent":{
     "name":"Actions",
-    "path":"folders/Input Plug-Ins/Vibration/Actions.yy",
+    "path":"folders/Dependencies/Input Plug-Ins/Vibration/Actions.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

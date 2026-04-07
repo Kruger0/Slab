@@ -6,7 +6,7 @@
   "name":"InputPlayerUsingTouch",
   "parent":{
     "name":"Player",
-    "path":"folders/Input/Player.yy",
+    "path":"folders/Dependencies/Input/Player.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

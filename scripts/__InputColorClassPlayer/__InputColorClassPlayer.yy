@@ -6,7 +6,7 @@
   "name":"__InputColorClassPlayer",
   "parent":{
     "name":"(System)",
-    "path":"folders/Input Plug-Ins/Color/(System).yy",
+    "path":"folders/Dependencies/Input Plug-Ins/Color/(System).yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",
