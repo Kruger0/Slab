@@ -3,10 +3,25 @@ function MenuManager(config = {}) constructor{
     // Private
     stack   = [];
     pages   = {};
-    page    = -1;
+    x       = 0; 
+    y       = 0;
+    w       = 0;
+    h       = 0;
+    mx      = 0; 
+    my      = 0;
+    useKeys = true; // 
     
     // Statics
-    static Update = function() {
+    static Update = function(x, y, w, h, mx, my) {
+        
+        #region Update menu context area
+        self.x  = x;
+        self.y  = y;
+        self.w  = w;
+        self.h  = h;
+        self.mx = mx;
+        self.my = my;
+        #endregion
         
         #region Fetch Inputs
         var _inputUp        = keyboard_check_pressed(vk_up);
@@ -14,42 +29,90 @@ function MenuManager(config = {}) constructor{
         var _inputLeft      = keyboard_check_pressed(vk_left);
         var _inputRight     = keyboard_check_pressed(vk_right);
         var _inputSelect    = keyboard_check_pressed(vk_enter);
-        var _inputBack      = keyboard_check_pressed(vk_escape)
+        var _inputBack      = keyboard_check_pressed(vk_escape);
+        var _inputClicked   = mouse_check_button_pressed(mb_left);
+
         #endregion
         
-        // Page Update
-        var _page   = PageGetActive();
-        var _delta  = _inputDown - _inputUp;
-        with (_page) {
-            var _next = cursor + _delta;
-            var _count = array_length(_page.nodes);
-            if (cycle) {
-                cursor = ((_next % _count) + _count) % _count;
-            } else {
-                cursor = clamp(_next, 0, _count - 1);
-            }
-            Update();
-        }
+        #region Mouse Focus
+        var _page  = PageGetActive();
+        if (is_undefined(_page)) return;
+        var _count = array_length(_page.nodes);
+        var _delta = _inputDown - _inputUp;
         
-        // Node Update
-        var _node = _page.NodeGetCurrent();
-        if (_inputSelect) {
+        var _mouseFocusIdx = -1
+        
+        for (var i = 0; i < _count; i++) {
+            var _node = _page.nodes[i];
+            with (_node) {
+                if (ContainsPoint(mx-x, my-y)) {
+                    if (!mouseIn && !mouseOver) {
+                        mouseIn = true;
+                        mouseOut = false;
+                        show_debug_message($"{name} - MOUSE IN");
+                        OnMouseEnter();
+                    }
+                    mouseOver = true;
+                    _mouseFocusIdx = i;
+                    break;
+                } else {
+                    if (!mouseOut && mouseOver) {
+                        mouseOut = true;
+                        mouseIn = false;
+                        show_debug_message($"{name} - MOUSE OUT");
+                        OnMouseLeave();
+                    }
+                    mouseOver = false;
+                }
+            }
+        }
+        if (_mouseFocusIdx != -1) {
+            _page.cursor = _mouseFocusIdx;
+        }
+        #endregion
+        
+        #region Key Focus
+        if (_delta != 0) {
+            var _next = _page.cursor + _delta;
+            if (_page.cycle) {
+                _page.cursor = ((_next % _count) + _count) % _count;
+            } else {
+                _page.cursor = clamp(_next, 0, _count - 1);
+            }
+        }
+        #endregion
+        
+        _page.Update();
+        
+        #region Mouse Zone
+        var _node = _page.NodeGetActive();
+        if (_mouseFocusIdx != -1) {
+            _node.UpdateHoveredZone(mx-x, my-y);
+        } else {
+            _node.hoveredZone = "";
+        }
+        #endregion
+        
+        #region Selection
+        if (_inputSelect || (_inputClicked && _mouseFocusIdx != -1)) {
             _node.Select(self);
         }
+        #endregion
         
-        // Global Back
-        if (_inputBack) {
-            PagePop();
-        }
+        if (_inputBack) PagePop();
     }
     
-    static Render = function(w, h) {
-        var _ctx = {
-            x:0, y:0, 
-            w, h
-        }
+    static Render = function() {
+        var _ctx = {x, y, w, h};
         var _page = PageGetActive();
+        if (is_undefined(_page)) return;
         _page.Render(_ctx);
+        draw_circle_color(mx, my, 2, c_lime, c_lime, false);
+    }
+    
+    static PageGetActive = function() {
+        var _page = array_last(stack);
+        return pages[$ _page];
     }
     
     static PageAdd = function(page) {
@@ -73,12 +136,6 @@ function MenuManager(config = {}) constructor{
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
         _pageNext.OnReveal();
-    }
-    
-    static PageGetActive = function() {
-        var _page = array_last(stack);
-        if (is_undefined(_page)) return;
-        return pages[$ _page];
     }
 }
 
@@ -111,23 +168,5 @@ global.menuTest.PageAdd(new MenuPage("menu_video", [
 ]))
 
 global.menuTest.PagePush("menu_main");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

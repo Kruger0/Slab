@@ -9,10 +9,14 @@ function MenuPage(name, nodes, config = {}) constructor{
     yPad    = config[$ "yPad"] ?? 32;
     xMarg   = config[$ "xMarg"] ?? 32;
     yMarg   = config[$ "yMarg"] ?? 32;
-    spacing = config[$ "spacing"] ?? 0;
+    xFactor = config[$ "xFactor"] ?? 0;
+    yFactor = config[$ "yFactor"] ?? 0;
+    spacing = config[$ "spacing"] ?? 8;
     hAlign  = config[$ "hAlign"] ?? fa_center;
     vAlign  = config[$ "vAlign"] ?? fa_middle;
     cycle   = config[$ "cycle"] ?? true;
+    hFill   = config[$ "hFill"] ?? true;
+    vFill   = config[$ "vFill"] ?? true;
     enabled = config[$ "enabled"] ?? true;
     font    = config[$ "font"] ?? fnt_test;
     scale   = config[$ "scale"] ?? 1;
@@ -21,7 +25,7 @@ function MenuPage(name, nodes, config = {}) constructor{
     cursor  = 0;
     
     // Statics
-    static NodeGetCurrent = function() {
+    static NodeGetActive = function() {
         return nodes[cursor];
     }
     
@@ -50,23 +54,26 @@ function MenuPage(name, nodes, config = {}) constructor{
         var _totalH     = 0;
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
-            _nodeMaxW = max(_nodeMaxW, _node.GetWidth() * scale);
-            _nodeMaxH = max(_nodeMaxH, _node.GetHeight() * scale);
-            _totalH  += _node.GetHeight() * scale + spacing * scale;
+            _nodeMaxW = max(_nodeMaxW, _node.GetWidth());
+            _nodeMaxH = max(_nodeMaxH, _node.GetHeight());
+            _totalH  += _node.GetHeight() + spacing;
         }
         _totalH = max(0, _totalH - spacing);
+        
+        var _scaledMaxW = _nodeMaxW * scale;
+        var _scaledTotalH = _totalH * scale;
         
         // Node alignment
         var _nodeX, _nodeY;
         switch (hAlign) {
             case fa_left:   _nodeX = _pageCtx.x; break;
-            case fa_center: _nodeX = _pageCtx.x + (_pageCtx.w - _nodeMaxW) / 2; break;
-            case fa_right:  _nodeX = _pageCtx.x + (_pageCtx.w - _nodeMaxW); break;
+            case fa_center: _nodeX = _pageCtx.x + (_pageCtx.w - _scaledMaxW) / 2; break;
+            case fa_right:  _nodeX = _pageCtx.x + (_pageCtx.w - _scaledMaxW); break;
         }
         switch (vAlign) {
             case fa_top:    _nodeY = _pageCtx.y; break;
-            case fa_middle: _nodeY = _pageCtx.y + (_pageCtx.h - _totalH) / 2; break;
-            case fa_bottom: _nodeY = _pageCtx.y + (_pageCtx.h - _totalH); break;
+            case fa_middle: _nodeY = _pageCtx.y + (_pageCtx.h - _scaledTotalH) / 2; break;
+            case fa_bottom: _nodeY = _pageCtx.y + (_pageCtx.h - _scaledTotalH); break;
         }
         
         // Node drawing
@@ -78,7 +85,7 @@ function MenuPage(name, nodes, config = {}) constructor{
             // Node canvas
             var _nodeCtx = {
                 x: _nodeX, y: _nodeY,
-                w: _nodeMaxW, h: _nodeH * scale,
+                w: _nodeMaxW, h: _nodeH,
                 scale,
             }
             

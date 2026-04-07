@@ -53,13 +53,22 @@ function MenuNode(name, config = {}) constructor{
     yPos        = 0;
     xScl        = 1;
     yScl        = 1;
+    
     xOffAnim    = new AnimTrack(ac_test, "xOff", 0.5);
     yOffAnim    = new AnimTrack(ac_test, "yOff", 0.5);
     xSclAnim    = new AnimTrack(ac_test, "xScl", 0.5);
     ySclAnim    = new AnimTrack(ac_test, "yScl", 0.5);
+    
     onUpdateCb  = [];
     onRenderCb  = [];
     onSelectCb  = [];
+    
+    zones       = [];
+    hoveredZone = "";
+    
+    mouseIn     = false;
+    mouseOver   = false
+    mouseOut    = false;
     
     // Statics
     static OnUpdate = function(callback, data = undefined) {
@@ -93,25 +102,12 @@ function MenuNode(name, config = {}) constructor{
     }
     
     static Render = function(ctx) {
+        UpdateLayout(ctx);
+        
         // Selector
         if (isFocused) {
-            draw_rectangle(ctx.x, ctx.y, ctx.x+ctx.w, ctx.y+ctx.h, true);
+            //draw_rectangle(ctx.x, ctx.y, ctx.x + ctx.w * ctx.scale, ctx.y + ctx.h * ctx.scale, true);
         }
-        
-        // Style
-        switch (hAlign) {
-            case fa_left:   xPos = ctx.x + xOffAnim.GetValue() * ctx.scale; break;
-            case fa_center: xPos = ctx.x + xOffAnim.GetValue() + (ctx.w / 2) * ctx.scale; break;
-            case fa_right:  xPos = ctx.x + xOffAnim.GetValue() + ctx.w * ctx.scale; break;
-        }
-        switch (vAlign) {
-            case fa_top:    yPos = ctx.y + yOffAnim.GetValue() * ctx.scale; break;
-            case fa_middle: yPos = ctx.y + yOffAnim.GetValue() + (ctx.h / 2)* ctx.scale; break;
-            case fa_bottom: yPos = ctx.y + yOffAnim.GetValue() + ctx.h * ctx.scale; break;
-        }
-        xScl    = xSclAnim.GetValue() * ctx.scale;
-        yScl    = ySclAnim.GetValue() * ctx.scale;
-        color   = isFocused ? colors.focused : colors.base;
         
         // Custom
         for (var i = 0, n = array_length(onRenderCb); i < n; i++) {
@@ -120,19 +116,71 @@ function MenuNode(name, config = {}) constructor{
         }
         
         // Debug
+        for (var i = 0, n = array_length(zones); i < n; i++) {
+            var _z = zones[i];
+            var _c = (hoveredZone == _z.name ? #00FF00 : #0000FF)
+            draw_rectangle_color(_z.x, _z.y, _z.x + _z.w, _z.y + _z.h, _c, _c, _c, _c, true);
+        }
         draw_circle_color(xPos, yPos, 2, c_red, c_red, false);
     }
     
     static Select = function(mng) {
         // Custom
         for (var i = 0, n = array_length(onSelectCb); i < n; i++) {
-            var _entry = onSelectCb[i];
-            _entry.callback(mng); // TODO pass this or data?
+            var _e = onSelectCb[i];
+            _e.callback(mng); // TODO pass this or data?
         }
     }
     
-    // Methods
-    SetFocused = function(isFocused) {
+    static UpdateLayout = function(ctx) {
+        switch (hAlign) {
+            case fa_left:   xPos = ctx.x; break;
+            case fa_center: xPos = ctx.x + (ctx.w / 2) * ctx.scale; break;
+            case fa_right:  xPos = ctx.x + ctx.w * ctx.scale; break;
+        }
+        switch (vAlign) {
+            case fa_top:    yPos = ctx.y; break;
+            case fa_middle: yPos = ctx.y + (ctx.h / 2) * ctx.scale; break;
+            case fa_bottom: yPos = ctx.y + ctx.h * ctx.scale; break;
+        }
+        xPos += xOffAnim.GetValue();
+        yPos += yOffAnim.GetValue();
+        xScl  = xSclAnim.GetValue() * ctx.scale;
+        yScl  = ySclAnim.GetValue() * ctx.scale;
+        color = isFocused ? colors.focused : colors.base;
+        
+        // Base zone — subclasses will override or extend this
+        zones = [{
+            name: "body",
+            x: ctx.x,
+            y: ctx.y,
+            w: ctx.w * ctx.scale,
+            h: ctx.h * ctx.scale,
+        }];
+    }
+    
+    static ContainsPoint = function(px, py) {
+        for (var i = 0, n = array_length(zones); i < n; i++) {
+            var _z = zones[i];
+            if (point_in_rectangle(px, py, _z.x, _z.y, _z.x + _z.w, _z.y + _z.h)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    static UpdateHoveredZone = function(px, py) {
+        hoveredZone = "";
+        for (var i = 0, n = array_length(zones); i < n; i++) {
+            var _z = zones[i];
+            if (point_in_rectangle(px, py, _z.x, _z.y, _z.x + _z.w, _z.y + _z.h)) {
+                hoveredZone = _z.name;
+                return;
+            }
+        }
+    }
+    
+    static SetFocused = function(isFocused) {
         if (self.isFocused == isFocused) exit;
         self.isFocused = isFocused;
         xOffAnim.Play(isFocused ? 0 : 0);
@@ -141,6 +189,7 @@ function MenuNode(name, config = {}) constructor{
         ySclAnim.Play(isFocused ? 1.2 : 1);
     }
     
+    // Methods
     OnEnter = config[$ "OnEnter"] ?? function(){
         xSclAnim.Snap(1);
         ySclAnim.Snap(1);
@@ -152,6 +201,15 @@ function MenuNode(name, config = {}) constructor{
         yOffAnim.Snap(0);
         xSclAnim.Snap(1);
         ySclAnim.Snap(1);
+    };
+    
+    OnMouseEnter = config[$ "OnMouseEnter"] ?? function(){
+        SetFocused(true);
+    };
+    
+    OnMouseLeave = config[$ "OnMouseLeave"] ?? function(){
+        hoveredZone = "";
+        SetFocused(false);
     };
     
     OnReveal = config[$ "OnReveal"] ?? function() {
@@ -193,65 +251,6 @@ function MenuNodeButton(name, onSelect = function(){}, config = {}) : MenuNode(n
         draw_set_valign(fa_top);
     })
 }
-
-//function MenuNodeConfirmButton(name, onSelect, config = {}) : MenuNode(name, config) constructor {
-
-//    confirmText  = config[$ "confirmText"] ?? "> ARE YOU SURE? <";
-//    confirmColor = config[$ "confirmColor"] ?? c_red;
-    
-//    // Internal State
-//    isConfirming = false;
-    
-//    // Bind the actual final action
-//    Action = !is_undefined(onSelect) ? method(self, onSelect) : function(){};
-    
-//    // 1. The Logic Override
-//    OnSelect = function(mng) {
-//        if (!isConfirming) {
-//            // First press: Enter confirm mode
-//            isConfirming = true;
-//            xScl.Play(1.3); // Optional: Give it a visual "pop" to warn the user
-//        } else {
-//            // Second press: Execute and reset
-//            Action(mng);
-//            isConfirming = false;
-//        }
-//    };
-    
-//    // 2. The Safety Net Override
-//    var _baseUpdate = Update; // Store the parent's Update function
-//    Update = function(_isFocused) {
-//        // If the user gets scared and moves the cursor away, CANCEL the confirmation
-//        if (self.isFocused && !_isFocused && isConfirming) {
-//            isConfirming = false;
-//        }
-        
-//        // Run the parent's normal update logic (animations, etc.)
-//        _baseUpdate(_isFocused); 
-//    };
-    
-//    // 3. The Visuals Override
-//    var _baseRender = Render; // Store the parent's Render function
-//    Render = function(_ctx) {
-//        // Temporarily hijack the name and color
-//        var _originalName = name;
-//        var _originalColor = colors.focused;
-        
-//        if (isConfirming) {
-//            name = confirmText;
-//            colors.focused = confirmColor;
-//        }
-        
-//        // Let the parent do the heavy lifting of drawing everything
-//        _baseRender(_ctx); 
-        
-//        // Restore the original values so we don't permanently alter the node
-//        if (isConfirming) {
-//            name = _originalName;
-//            colors.focused = _originalColor;
-//        }
-//    };
-//}
 
 function MenuNodeToggle(name) : MenuNode(name) constructor {
     OnRender(function() {
