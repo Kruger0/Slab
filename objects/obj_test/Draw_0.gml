@@ -1,2 +1,2 @@
 
-global.menuTest.Render();
+mainMenu.Render();

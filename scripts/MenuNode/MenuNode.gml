@@ -45,24 +45,26 @@ function MenuNode(name, config = {}) constructor{
         confirm     : #FF0000,
         disabled    : #606060
     };
+    alpha       = config[$ "alpha"] ?? 1;
     enabled     = config[$ "enabled"] ?? true;
     hAlign      = config[$ "hAlign"] ?? fa_center;
     vAlign      = config[$ "vAlign"] ?? fa_middle;
+    animSpeed   = config[$ "animSpeed"] ?? 0.5;
     
     // Private
     isFocused   = false;
     color       = colors.base;
-    alpha       = 1;
     angle       = 0;
     xPos        = 0;
     yPos        = 0;
     xScl        = 1;
     yScl        = 1;
     
-    xOffAnim    = new AnimTrack(ac_test, "xOff", 0.5);
-    yOffAnim    = new AnimTrack(ac_test, "yOff", 0.5);
-    xSclAnim    = new AnimTrack(ac_test, "xScl", 0.5);
-    ySclAnim    = new AnimTrack(ac_test, "yScl", 0.5);
+    xOffAnim    = new AnimTrack(ac_test, "xOff", animSpeed);
+    yOffAnim    = new AnimTrack(ac_test, "yOff", animSpeed);
+    xSclAnim    = new AnimTrack(ac_test, "xScl", animSpeed);
+    ySclAnim    = new AnimTrack(ac_test, "yScl", animSpeed);
+    angleAnim   = new AnimTrack(ac_test, "angle", animSpeed);
     
     onUpdateCb  = [];
     onRenderCb  = [];
@@ -78,11 +80,9 @@ function MenuNode(name, config = {}) constructor{
     static OnUpdate = function(callback, data = undefined) {
         array_push(onUpdateCb, {callback, data});
     }
-    
     static OnRender = function(callback, data = undefined) {
         array_push(onRenderCb, {callback, data});
     }
-    
     static OnSelect = function(callback, data = undefined) {
         array_push(onSelectCb, {callback, data});
     }
@@ -104,7 +104,6 @@ function MenuNode(name, config = {}) constructor{
             _entry.callback(_entry.data);
         }
     }
-    
     static Render = function(ctx) {
         UpdateLayout(ctx);
         
@@ -125,8 +124,13 @@ function MenuNode(name, config = {}) constructor{
             draw_text(xPos + 100, yPos, hoveredZone)
         }
     }
-    
     static Select = function(mng) {
+        // Animate
+        xSclAnim.Snap(1);
+        ySclAnim.Snap(1);
+        xSclAnim.Play(1.2);
+        ySclAnim.Play(1.2);
+        
         // Custom
         for (var i = 0, n = array_length(onSelectCb); i < n; i++) {
             var _e = onSelectCb[i];
@@ -199,32 +203,28 @@ function MenuNode(name, config = {}) constructor{
     static OnMouseEnter = function(){
         SetFocused(true);
     };
-    
     static OnMouseLeave = function(){
         hoveredZone = "";
         SetFocused(false);
     };
     
     // Methods
-    OnEnter = config[$ "OnEnter"] ?? function(){
+    OnEnter     = config[$ "OnEnter"] ?? function(){
         xSclAnim.Snap(1);
         ySclAnim.Snap(1);
     };
-    
-    OnLeave = config[$ "OnLeave"] ?? function(){
+    OnLeave     = config[$ "OnLeave"] ?? function(){
         isFocused = false;
         xOffAnim.Snap(0);
         yOffAnim.Snap(0);
         xSclAnim.Snap(1);
         ySclAnim.Snap(1);
     };
-    
-    OnReveal = config[$ "OnReveal"] ?? function() {
+    OnReveal    = config[$ "OnReveal"] ?? function() {
         xSclAnim.Snap(1);
         ySclAnim.Snap(1);
     }
-    
-    OnSuspend = config[$ "OnSuspend"] ?? function() {
+    OnSuspend   = config[$ "OnSuspend"] ?? function() {
         isFocused = false;
         xOffAnim.Snap(0);
         yOffAnim.Snap(0);
@@ -232,11 +232,10 @@ function MenuNode(name, config = {}) constructor{
         ySclAnim.Snap(1);
     }
     
-    GetWidth = config[$ "GetWidth"] ?? function() {
+    GetWidth    = config[$ "GetWidth"] ?? function() {
         return string_width(name);
     }
-    
-    GetHeight = config[$ "GetHeight"] ?? function(){
+    GetHeight   = config[$ "GetHeight"] ?? function(){
         return string_height(name);
     };
 }
@@ -254,13 +253,29 @@ function MenuNodeLabel(name, config = {}) : MenuNode(name, config) constructor {
     });
 }
 
+function MenuNodeSeparator(config = {}) : MenuNode("", config) constructor {
+    interactive = false;
+    
+    drawLine    = config[$ "drawLine"] ?? true;
+    height      = config[$ "height"] ?? 4;
+    width       = config[$ "width"] ?? 1;
+    
+    GetHeight   = function(){return height};
+    GetWidth    = function(){return 0};
+    
+    OnRender(function() {
+        if (!drawLine) exit;
+        var _y = yPos;
+        var _c = colors.base;
+        var _z = zones[0];
+        draw_set_alpha(alpha);
+        draw_rectangle_colour(_z.x, _y - height/2, _z.x + _z.w, _y + height/2, _c, _c, _c, _c, false);
+        draw_set_alpha(1);
+    });
+}
+
 function MenuNodeButton(name, onSelect = function(){}, config = {}) : MenuNode(name, config) constructor {
-    OnSelect(function() {
-        xSclAnim.Snap(1);
-        ySclAnim.Snap(1);
-        xSclAnim.Play(1.2);
-        ySclAnim.Play(1.2);
-    })
+    
     OnSelect(onSelect);
     
     OnRender(function() {

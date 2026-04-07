@@ -39,14 +39,13 @@ function MenuPage(name, nodes, config = {}) constructor{
     }
     
     // Methods
-    Update = config[$ "Update"] ?? function(useMouse){
+    Update      = config[$ "Update"] ?? function(useMouse){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
             _node.Update(useMouse ? undefined : (cursor == i));
         }
     };
-   
-    Render = config[$ "Render"] ?? function(ctx){
+    Render      = config[$ "Render"] ?? function(ctx){
         
         // Page canvas
         var _pageCtx = {
@@ -104,29 +103,22 @@ function MenuPage(name, nodes, config = {}) constructor{
         draw_set_font(-1);
     };
     
-    // Pushing this page on the stack
-    OnEnter = config[$ "OnEnter"] ?? function(){
+    OnEnter     = config[$ "OnEnter"] ?? function(){ // Pushing this page on the stack
         static callback = function(node, i){node.OnEnter()};
         CursorFindFirst();
         array_foreach(nodes, callback);
     };
-    
-    // Poping this page from the stack
-    OnLeave = config[$ "OnLeave"] ?? function(){
+    OnLeave     = config[$ "OnLeave"] ?? function(){ // Poping this page from the stack
         cursor = 0;
         static callback = function(node, i){node.OnLeave()};
         array_foreach(nodes, callback);
     };
-    
-    // Coming back from another page
-    OnReveal = config[$ "OnReveal"] ?? function() {
+    OnReveal    = config[$ "OnReveal"] ?? function() { // Coming back from another page
         static callback = function(node, i){node.OnReveal()};
         CursorFindFirst();
         array_foreach(nodes, callback);
     }
-    
-    // Pushing another page into the stack
-    OnSuspend = config[$ "OnSuspend"] ?? function() {
+    OnSuspend   = config[$ "OnSuspend"] ?? function() {// Pushing another page into the stack
         static callback = function(node, i){node.OnSuspend()};
         array_foreach(nodes, callback);
     }

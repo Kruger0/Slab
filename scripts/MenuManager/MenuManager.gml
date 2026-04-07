@@ -94,7 +94,6 @@ function MenuManager(config = {}) constructor{
         // Back
         if (_inputBack) PagePop();
     }
-    
     static Render = function() {
         var _ctx = {x, y, w, h};
         var _page = PageGetActive();
@@ -109,11 +108,9 @@ function MenuManager(config = {}) constructor{
         var _page = array_last(stack);
         return pages[$ _page];
     }
-    
     static PageAdd = function(page) {
         pages[$ page.name] = page;
     }
-    
     static PagePush = function(page) {
         var _pageCurr = PageGetActive();
         if !(is_undefined(_pageCurr)) _pageCurr.OnSuspend();
@@ -121,7 +118,6 @@ function MenuManager(config = {}) constructor{
         var _pageNext = PageGetActive();
         if !(is_undefined(_pageNext)) _pageNext.OnEnter();
     }
-    
     static PagePop = function() {
         if (array_length(stack) <= 1) return;
         var _pageCurr = PageGetActive();
@@ -134,36 +130,3 @@ function MenuManager(config = {}) constructor{
     }
 }
 
-global.menuTest = new MenuManager();
-global.menuTest.PageAdd(new MenuPage("menu_main", [
-    new MenuNodeLabel("SUPER FUN MENU SYSTEM"),
-    new MenuNodeButton("ui_playGame"),
-    new MenuNodeButton("ui_continue"),
-    new MenuNodeButton("ui_options", function(mng){mng.PagePush("menu_options")}),
-    new MenuNodeButton("ui_credits"),
-    new MenuNodeButton("ui_exit", function(){game_end()}),
-]))
-global.menuTest.PageAdd(new MenuPage("menu_options", [
-    new MenuNodeLabel("OPTIONS"),
-    new MenuNodeSelector("ui_language"),
-    new MenuNodeButton("ui_audio", function(mng){mng.PagePush("menu_audio")}),
-    new MenuNodeButton("ui_video", function(mng){mng.PagePush("menu_video")}),
-    new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
-]))
-global.menuTest.PageAdd(new MenuPage("menu_audio", [
-    new MenuNodeLabel("AUDIO"),
-    new MenuNodeSlider("ui_volume_master"),
-    new MenuNodeSlider("ui_volume_music"),
-    new MenuNodeSlider("ui_volume_sfx"),
-    new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
-]))
-global.menuTest.PageAdd(new MenuPage("menu_video", [
-    new MenuNodeLabel("VIDEO"),
-    new MenuNodeToggle("ui_fullscreen"),
-    new MenuNodeSelector("ui_resolution"),
-    new MenuNodeToggle("ui_bloom"),
-    new MenuNodeToggle("ui_vsync"),
-    new MenuNodeButton("ui_back", function(mng){mng.PagePop()}),
-]))
-
-global.menuTest.PagePush("menu_main");

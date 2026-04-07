@@ -2,22 +2,26 @@
   "$GMAnimCurve":"",
   "%Name":"ac_test",
   "channels":[
-    {"$GMAnimCurveChannel":"","%Name":"xOff","colour":4290799884,"name":"xOff","points":[
+    {"$GMAnimCurveChannel":"","%Name":"xOff","colour":4278190335,"name":"xOff","points":[
         {"th0":-0.25,"th1":0.24595869,"tv0":0.0,"tv1":1.551306,"x":0.0,"y":0.0,},
         {"th0":-0.1607408,"th1":0.25,"tv0":0.0,"tv1":0.0,"x":1.0,"y":1.0001762,},
-      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":true,},
-    {"$GMAnimCurveChannel":"","%Name":"yOff","colour":4290799884,"name":"yOff","points":[
-        {"th0":-0.25,"th1":0.24595869,"tv0":0.0,"tv1":1.5558157,"x":0.0,"y":-0.0029074887,},
+      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":false,},
+    {"$GMAnimCurveChannel":"","%Name":"yOff","colour":4278255360,"name":"yOff","points":[
+        {"th0":-0.25,"th1":0.24595869,"tv0":0.0,"tv1":1.5558157,"x":0.0,"y":0.0,},
         {"th0":-0.1607408,"th1":0.25,"tv0":0.0,"tv1":0.0,"x":1.0,"y":1.0001762,},
-      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":true,},
-    {"$GMAnimCurveChannel":"","%Name":"xScl","colour":4290799884,"name":"xScl","points":[
-        {"th0":-0.25,"th1":0.24595869,"tv0":0.0,"tv1":1.5558157,"x":0.0,"y":-0.0029074887,},
+      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":false,},
+    {"$GMAnimCurveChannel":"","%Name":"xScl","colour":4278255615,"name":"xScl","points":[
+        {"th0":-0.25,"th1":0.24595869,"tv0":0.0,"tv1":1.5558157,"x":0.0,"y":0.0,},
         {"th0":-0.1607408,"th1":0.25,"tv0":0.0,"tv1":0.0,"x":1.0,"y":1.0001762,},
-      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":true,},
-    {"$GMAnimCurveChannel":"","%Name":"yScl","colour":4290799884,"name":"yScl","points":[
-        {"th0":-0.25,"th1":0.24595869,"tv0":0.0,"tv1":1.5558157,"x":0.0,"y":-0.0029074887,},
+      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":false,},
+    {"$GMAnimCurveChannel":"","%Name":"yScl","colour":4294901760,"name":"yScl","points":[
+        {"th0":-0.25,"th1":0.24595869,"tv0":0.0,"tv1":1.5558157,"x":0.0,"y":0.0,},
         {"th0":-0.1607408,"th1":0.25,"tv0":0.0,"tv1":0.0,"x":1.0,"y":1.0001762,},
-      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":true,},
+      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":false,},
+    {"$GMAnimCurveChannel":"","%Name":"angle","colour":4294902015,"name":"angle","points":[
+        {"th0":-0.25,"th1":0.0,"tv0":0.0,"tv1":0.0,"x":0.0,"y":0.0,},
+        {"th0":-0.10678697,"th1":0.25,"tv0":0.0,"tv1":0.0,"x":1.0,"y":0.0,},
+      ],"resourceType":"GMAnimCurveChannel","resourceVersion":"2.0","visible":false,},
   ],
   "function":2,
   "name":"ac_test",
