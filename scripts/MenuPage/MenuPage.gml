@@ -38,6 +38,17 @@ function MenuPage(name, nodes, config = {}) constructor{
         }
     }
     
+    static OnEnter = function(){
+        static callback = function(node, i){node.OnEnter()};
+        CursorFindFirst();
+        array_foreach(nodes, callback);
+    };
+    static OnLeave = function(resetCursor){
+        if (resetCursor) cursor = 0;
+        static callback = function(node, i){node.OnLeave()};
+        array_foreach(nodes, callback);
+    };
+    
     // Methods
     Update      = config[$ "Update"] ?? function(useMouse){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
@@ -103,24 +114,4 @@ function MenuPage(name, nodes, config = {}) constructor{
         }
         draw_set_font(-1);
     };
-    
-    OnEnter     = config[$ "OnEnter"] ?? function(){ // Pushing this page on the stack
-        static callback = function(node, i){node.OnEnter()};
-        CursorFindFirst();
-        array_foreach(nodes, callback);
-    };
-    OnLeave     = config[$ "OnLeave"] ?? function(){ // Poping this page from the stack
-        cursor = 0;
-        static callback = function(node, i){node.OnLeave()};
-        array_foreach(nodes, callback);
-    };
-    OnReveal    = config[$ "OnReveal"] ?? function() { // Coming back from another page
-        static callback = function(node, i){node.OnReveal()};
-        CursorFindFirst();
-        array_foreach(nodes, callback);
-    }
-    OnSuspend   = config[$ "OnSuspend"] ?? function() {// Pushing another page into the stack
-        static callback = function(node, i){node.OnSuspend()};
-        array_foreach(nodes, callback);
-    }
 }

@@ -50,12 +50,11 @@ function MenuManager(config = {}) constructor{
                 var _node = _page.nodes[i];
                 var _isOver = _node.ContainsPoint(mx - x, my - y);
                 if (_isOver && !_node.interactive) {
-                    _node.mouseOver = false;
+                    _node.isFocused = false;
                     continue;
                 }
-                if (_isOver && !_node.mouseOver) _node.OnMouseEnter();
-                if (!_isOver && _node.mouseOver) _node.OnMouseLeave();
-                _node.mouseOver = _isOver;
+                if (_isOver && !_node.isFocused) _node.SetFocused(true);
+                if (!_isOver && _node.isFocused) _node.SetFocused(false);
                 if (_isOver) _mouseFocus = i;
             }
             if (_mouseFocus != -1) _page.cursor = _mouseFocus;
@@ -114,7 +113,7 @@ function MenuManager(config = {}) constructor{
     }
     static PagePush = function(page) {
         var _pageCurr = PageGetActive();
-        if !(is_undefined(_pageCurr)) _pageCurr.OnSuspend();
+        if !(is_undefined(_pageCurr)) _pageCurr.OnLeave(false);
         array_push(stack, page);
         var _pageNext = PageGetActive();
         if !(is_undefined(_pageNext)) _pageNext.OnEnter();
@@ -123,10 +122,10 @@ function MenuManager(config = {}) constructor{
         if (array_length(stack) <= 1) return;
         var _pageCurr = PageGetActive();
         if (is_undefined(_pageCurr)) return;
-        _pageCurr.OnLeave();
+        _pageCurr.OnLeave(true);
         array_pop(stack);
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
-        _pageNext.OnReveal();
+        _pageNext.OnEnter();
     }
 }

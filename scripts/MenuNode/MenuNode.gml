@@ -138,7 +138,7 @@ function MenuNode(name, config = {}) constructor{
         
         // Debug
         if (global.debug) {
-            show_debug_message($"{instanceof(self)} '{name}' - Select()")
+            show_debug_message($"{instanceof(self)} '{name}' - Select()");
         }
     }
     
@@ -189,21 +189,26 @@ function MenuNode(name, config = {}) constructor{
         }
     }
     
-    static SetFocused = function(isFocused) {
-        if (self.isFocused == isFocused) exit;
-        self.isFocused = isFocused;
-        xOffAnim.Play(isFocused ? 0 : 0);
-        yOffAnim.Play(isFocused ? 0 : 0);
-        xSclAnim.Play(isFocused ? 1.2 : 1);
-        ySclAnim.Play(isFocused ? 1.2 : 1);
+    static SetFocused = function(focused) {
+        if (self.isFocused == focused) exit;
+        self.isFocused = focused;
+        if (!focused) hoveredZone = "";
+        if (focused) OnFocusIn();
+        else OnFocusOut();
     }
     
-    static OnMouseEnter = function(){
-        SetFocused(true);
+    OnFocusIn = function(){
+        xOffAnim.Play(0);
+        yOffAnim.Play(0);
+        xSclAnim.Play(1.2);
+        ySclAnim.Play(1.2);
     };
-    static OnMouseLeave = function(){
-        hoveredZone = "";
-        SetFocused(false);
+    OnFocusOut = function(){
+        xOffAnim.Play(0);
+        yOffAnim.Play(0);
+        xSclAnim.Play(1);
+        ySclAnim.Play(1);
+        pending = false;
     };
     
     // Methods
@@ -214,25 +219,8 @@ function MenuNode(name, config = {}) constructor{
         ySclAnim.Play(1);
     };
     OnLeave     = config[$ "OnLeave"] ?? function(){
-        isFocused = false;
-        xOffAnim.Snap(0);
-        yOffAnim.Snap(0);
-        xSclAnim.Snap(0.5);
-        ySclAnim.Snap(0.5);
+        
     };
-    OnReveal    = config[$ "OnReveal"] ?? function() {
-        xSclAnim.Snap(0.5);
-        ySclAnim.Snap(0.5);
-        xSclAnim.Play(1);
-        ySclAnim.Play(1);
-    }
-    OnSuspend   = config[$ "OnSuspend"] ?? function() {
-        isFocused = false;
-        xOffAnim.Snap(0);
-        yOffAnim.Snap(0);
-        xSclAnim.Snap(0.5);
-        ySclAnim.Snap(0.5);
-    }
     
     GetWidth    = config[$ "GetWidth"] ?? function() {
         return string_width(name);
@@ -294,13 +282,13 @@ function MenuNodeConfirm(name, onSelect, config = {}) : MenuNode(name, config) c
     pending = false;
     msg     = config[$ "msg"] ?? name + "?";
     
-    OnConfirm = onSelect;
+    OnConfirm = method(self, onSelect);
+    
     OnSelect(function() {
         if (pending) {
-            OnConfirm()
+            OnConfirm();
         } else {
             pending = true;
-            colors.focused = colors.pending;
         }
     });
     
