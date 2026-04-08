@@ -14,7 +14,7 @@ mainMenu.PageAdd(new MenuPage("menu_main", [
 mainMenu.PageAdd(new MenuPage("menu_options", [
     new MenuNodeLabel("OPTIONS"),
     new MenuNodeSeparator(),
-    new MenuNodeSelector("Language"),
+    new MenuNodeSelector("Language", [["English", "en_US"],["Português", "pt_BR"]], function(option){show_debug_message($"Language set to {option[0]}")}),
     new MenuNodeButton("Audio", function(){PagePush("menu_audio")}),
     new MenuNodeButton("Video", function(){PagePush("menu_video")}),
     new MenuNodeButton("Back", function(){PagePop()}),
@@ -31,7 +31,7 @@ mainMenu.PageAdd(new MenuPage("menu_video", [
     new MenuNodeLabel("VIDEO"),
     new MenuNodeSeparator(),
     new MenuNodeToggle("Fullscreen"),
-    new MenuNodeSelector("Resolution"),
+    new MenuNodeSelector("Resolution", [["640x360", 0],["1280x720", 1],["1920x1080", 2]], function(option){show_debug_message($"Resolution set to {option[0]}")}),
     new MenuNodeToggle("Bloom"),
     new MenuNodeToggle("VSync"),
     new MenuNodeButton("Back", function(){PagePop()}),

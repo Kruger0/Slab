@@ -10,5 +10,3 @@ switch (mainMenu.MouseGetState()) {
     case MENU_MOUSE.HOVER:      _cr = cr_handpoint; break;
 }
 window_set_cursor(_cr);
-
-show_debug_message(mainMenu.MouseGetState())

@@ -1,10 +1,9 @@
 
 function MenuPage(name, nodes, config = {}) constructor{
-    // Passed
     self.name   = name;
     self.nodes  = nodes;
     
-    // Public
+    #region Public
     xPad    = config[$ "xPad"] ?? 32;
     yPad    = config[$ "yPad"] ?? 32;
     xMarg   = config[$ "xMarg"] ?? 32;
@@ -20,11 +19,13 @@ function MenuPage(name, nodes, config = {}) constructor{
     enabled = config[$ "enabled"] ?? true;
     font    = config[$ "font"] ?? fnt_test;
     scale   = config[$ "scale"] ?? 1;
+    #endregion
     
-    // Private
+    #region Private
     cursor  = 0;
+    #endregion
     
-    // Statics
+    // Methods
     static NodeGetActive = function() {
         return nodes[cursor];
     }
@@ -54,14 +55,13 @@ function MenuPage(name, nodes, config = {}) constructor{
         }
     };
     
-    // Methods
-    Update  = config[$ "Update"] ?? function(useMouse){
+    static Update = function(useMouse){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
             _node.Update(useMouse ? undefined : (cursor == i));
         }
     };
-    Render  = config[$ "Render"] ?? function(ctx){
+    static Render = function(ctx){
         
         // Page canvas
         var _pageCtx = {

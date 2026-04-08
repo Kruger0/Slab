@@ -1,6 +1,6 @@
 
 function MenuManager(config = {}) constructor{
-    // Private
+    #region Private
     stack       = [];
     pages       = {};
     x           = 0; 
@@ -11,8 +11,9 @@ function MenuManager(config = {}) constructor{
     my          = 0;
     useMouse    = false;
     mouseFocus  = -1;
+    #endregion
     
-    // Statics
+    // Methods
     static Update = function(x, y, w, h, mx, my) {
         
         #region Update menu context area
@@ -83,11 +84,15 @@ function MenuManager(config = {}) constructor{
         if (_node.interactive) {
             if (useMouse) {
                 if (mouseFocus != -1) {
-                    _node.UpdateHoveredZone(mx-x, my-y);
                     if (_mousePress) _node.Select();
                 }
             } else {
-                if (_inputSelect) _node.Select();
+                // TODO yDelta actions will requires node focus locking in the future
+                if (_inputSelect || _xDelta != 0 || _yDelta != 0) {
+                    if (!_node.InputHandle(_inputSelect, _xDelta, _yDelta)) {
+                        // Same line nodes logic goes here
+                    }
+                }
             }
         }
         
@@ -137,8 +142,7 @@ function MenuManager(config = {}) constructor{
     }
 }
 
-enum MENU_MOUSE {
-    INACTIVE,
-    IDLE,
-    HOVER
-}
+var _panel = layer_get_flexpanel_node("layerMain")
+var _data = flexpanel_node_get_struct(_panel)
+_data = json_stringify(_data, true)
+show_debug_message(_data)
