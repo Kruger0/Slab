@@ -13,3 +13,5 @@ var _cr = cr_arrow
 //    case MENU_MOUSE.HOVER:      _cr = cr_handpoint; break;
 //}
 window_set_cursor(_cr);
+
+if (keyboard_check_pressed(vk_f5)) room_restart()

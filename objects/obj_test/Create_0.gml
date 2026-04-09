@@ -127,21 +127,24 @@ function FlexDrawQuad(data) {
         var _c  = _node.c;
         
         if (point_in_rectangle(mouse_x, mouse_y, _node.x, _node.y, _node.x + _node.w, _node.y + _node.h)) {
-            if (_node.z > _z) {
-                _z = _node.z;
+            //if (_node.z > _z) {
+                //_z = _node.z;
                 _n = i;
-            }
+            //}
         }
         
-        if (_node.id != "") {
-            var _r = 12;
-            draw_roundrect_color_ext(_x1, _y1, _x2, _y2, _r, _r, _c, _c, false);
-        }
+        //if (_node.id != "") {
+        var _r = 12;
+        draw_roundrect_color_ext(_x1, _y1, _x2, _y2, _r, _r, _c, _c, false);
+        //}
         
         if (global.debug) {
             draw_set_halign(fa_center);
             draw_set_valign(fa_middle);
-            draw_text(_x1 + _node.w/2, _y1 + _node.h/2, _node.id);
+            
+            var _text = _node.id == ""? _node.par : _node.id;
+            draw_text(_x1 + _node.w/2, _y1 + _node.h/2, _text);
+            
             draw_set_halign(fa_left);
             draw_set_valign(fa_top);
             
@@ -156,21 +159,21 @@ function FlexDrawQuad(data) {
 }
 
 ZoneGetActive = function() {
-        var _mx = mng.mx - mng.x;
-        var _my = mng.my - mng.y;
-        var _active = "";
-        var _layer  = -1;
-        for (var i = 0, n = array_length(zones); i < n; i++) {
-            var _z = zones[i];
-            if (point_in_rectangle(_mx, _my, _z.x, _z.y, _z.x + _z.w, _z.y + _z.h)) {
-                if (_z.layer > _layer) {
-                    _layer = _z.layer;
-                    _active = _z.name;
-                }
+    var _mx = mng.mx - mng.x;
+    var _my = mng.my - mng.y;
+    var _active = "";
+    var _layer  = -1;
+    for (var i = 0, n = array_length(zones); i < n; i++) {
+        var _z = zones[i];
+        if (point_in_rectangle(_mx, _my, _z.x, _z.y, _z.x + _z.w, _z.y + _z.h)) {
+            if (_z.layer > _layer) {
+                _layer = _z.layer;
+                _active = _z.name;
             }
         }
-        return _active;
     }
+    return _active;
+}
 
 
 
