@@ -59,7 +59,7 @@ function FlexGetNodes(root, data = [], ref = "") {
     var _par    = "";
     
     switch (_type) {
-        // Main Nodes
+        // Basic Nodes
         case "TEXT": {
             
         } break;
@@ -69,6 +69,10 @@ function FlexGetNodes(root, data = [], ref = "") {
         case "BUTTON": {
             
         } break;
+        case "SPRITE": {
+            
+        } break;
+        // Complex nodes
         case "SELECT": {
             ref = _id;
         } break;
