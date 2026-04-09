@@ -550,6 +550,7 @@
     {"id":{"name":"spr_button_hover","path":"sprites/spr_button_hover/spr_button_hover.yy",},},
     {"id":{"name":"spr_button_press","path":"sprites/spr_button_press/spr_button_press.yy",},},
     {"id":{"name":"spr_flex_area","path":"sprites/spr_flex_area/spr_flex_area.yy",},},
+    {"id":{"name":"spr_flexnode","path":"sprites/spr_flexnode/spr_flexnode.yy",},},
   ],
   "resourceType":"GMProject",
   "resourceVersion":"2.0",

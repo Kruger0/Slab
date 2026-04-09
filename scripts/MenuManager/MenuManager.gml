@@ -142,7 +142,3 @@ function MenuManager(config = {}) constructor{
     }
 }
 
-var _panel = layer_get_flexpanel_node("layerMain")
-var _data = flexpanel_node_get_struct(_panel)
-_data = json_stringify(_data, true)
-show_debug_message(_data)
