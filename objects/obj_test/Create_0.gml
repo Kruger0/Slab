@@ -7,17 +7,17 @@ mainMenu = new MenuManager();
 mainMenu.PageAdd(new MenuPage("test_menu", "layerBase", [
     new MenuNodeText("testText", "Main Menu"),
     new MenuNodeSeparator("testSep"),
-    new MenuNodeButton("testButton0", function(){show_debug_message("test")}),
-    new MenuNodeSelector("test_selector1", []),
-    new MenuNodeSlider("testSlider0"),
-    new MenuNodeSlider("testSlider1"),
-    new MenuNodeSlider("testSlider2"),
-    new MenuNodeButton("testButton1", function(){show_debug_message("test1")}),
-    new MenuNodeButton("testButton2", function(){show_debug_message("test2")}),
-    new MenuNodeCheckbox("testCheckbox0"),
-    new MenuNodeCheckbox("testCheckbox1"),
-    new MenuNodeCheckbox("testCheckbox2"),
-    new MenuNodeConfirm("testConfirm0", function(){game_end()}),
+    new MenuNodeButton("testButton0", "Test", function(){show_debug_message("test")}),
+    new MenuNodeSelector("test_selector1", "Language", []),
+    new MenuNodeSlider("testSlider0", "Volume"),
+    new MenuNodeSlider("testSlider1", "Volume"),
+    new MenuNodeSlider("testSlider2", "Volume"),
+    new MenuNodeButton("testButton1", "Button", function(){show_debug_message("test1")}),
+    new MenuNodeButton("testButton2", "Button",  function(){show_debug_message("test2")}),
+    new MenuNodeCheckbox("testCheckbox0", "Check"),
+    new MenuNodeCheckbox("testCheckbox1", "Check"),
+    new MenuNodeCheckbox("testCheckbox2", "Check"),
+    new MenuNodeConfirm("testConfirm0", "Confirm", function(){game_end()}),
 ]))
 
 mainMenu.PagePush("test_menu");
@@ -25,14 +25,6 @@ mainMenu.PagePush("test_menu");
 #endregion
 
 var _panel = layer_get_flexpanel_node("layerBase");
-//var _p = flexpanel_node_layout_get_position(_panel, true);
-
-//var _c = flexpanel_node_get_child(_panel, 0)
-//var _b = flexpanel_node_get_child(_c, 3)
-//flexpanel_node_style_set_display(_b, flexpanel_display.none)
-
-//flexpanel_calculate_layout(_panel, _p.width, _p.height, _p.direction);
-
 
 function FlexGetNodes(root, data = [], ref = "") {
     

@@ -1,6 +1,7 @@
 
 
-function MenuNode(name, config = {}) constructor{
+function MenuNode(id, name, config = {}) constructor{
+    self.id     = id;
     self.name   = name;
     
     #region Public
@@ -41,6 +42,7 @@ function MenuNode(name, config = {}) constructor{
     
     flexNode    = undefined;
     zones       = [];
+    flexZones   = [];
     #endregion
     
     // Methods
@@ -244,7 +246,7 @@ function MenuNode(name, config = {}) constructor{
 
 #region Visual Nodes --------------------------
 
-function MenuNodeText(name, value, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constructor {
     interactive = false;
     
     OnRender(function() {
@@ -257,7 +259,7 @@ function MenuNodeText(name, value, config = {}) : MenuNode(name, config) constru
     });
 }
 
-function MenuNodeSeparator(name, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeSeparator(id, name = id, config = {}) : MenuNode(id, name, config) constructor {
     interactive = false;
     
     drawLine    = config[$ "drawLine"] ?? true;
@@ -278,7 +280,7 @@ function MenuNodeSeparator(name, config = {}) : MenuNode(name, config) construct
     });
 }
 
-function MenuNodeSprite(name, sprite, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeSprite(id, name, sprite, config = {}) : MenuNode(id, name, config) constructor {
     
 }
 
@@ -286,7 +288,7 @@ function MenuNodeSprite(name, sprite, config = {}) : MenuNode(name, config) cons
 
 #region Functional Nodes --------------------------
 
-function MenuNodeButton(name, onSelect, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeButton(id, name, onSelect, config = {}) : MenuNode(id, name, config) constructor {
     
     if (is_callable(onSelect)) OnSelect(method(self, onSelect));
     
@@ -305,7 +307,7 @@ function MenuNodeButton(name, onSelect, config = {}) : MenuNode(name, config) co
     })
 }
 
-function MenuNodeConfirm(name, onSelect, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, config) constructor {
     pending = false;
     msg     = config[$ "msg"] ?? name + "?";
     
@@ -331,7 +333,7 @@ function MenuNodeConfirm(name, onSelect, config = {}) : MenuNode(name, config) c
     })
 }
 
-function MenuNodeSelector(name, options, onChange, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(id, name, config) constructor {
     self.options    = options;
     self.cursor     = 0;
     cycle           = config[$ "cycle"] ?? true;
@@ -384,11 +386,11 @@ function MenuNodeSelector(name, options, onChange, config = {}) : MenuNode(name,
 
 // WIP --------------------------
 
-function MenuNodeCheckbox(name, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeCheckbox(id, name, config = {}) : MenuNode(id, name, config) constructor {
     
 }
 
-function MenuNodeToggle(name, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeToggle(id, name, config = {}) : MenuNode(id, name, config) constructor {
     OnRender(function() {
         var _c = focused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
@@ -399,7 +401,7 @@ function MenuNodeToggle(name, config = {}) : MenuNode(name, config) constructor 
     })
 }
 
-function MenuNodeSlider(name, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeSlider(id, name, config = {}) : MenuNode(id, name, config) constructor {
     OnRender(function() {
         var _c = focused ? colors.focused : colors.base;
         draw_set_halign(hAlign);

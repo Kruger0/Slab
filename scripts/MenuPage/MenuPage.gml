@@ -29,73 +29,50 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     // Startup
     static __ = {};
     with (__) {
-        FlexNode = function(type, id, par, x, y, z, w, h) constructor {
+        FlexNode = function(type, id, x, y, z, w, h) constructor {
             self.type   = type;
             self.id     = id;
-            self.par    = par;
-            //self.x      = x;
-            //self.y      = y;
-            //self.z      = z;
-            //self.w      = w;
-            //self.h      = h;
+            self.x      = x;
+            self.y      = y;
+            self.z      = z;
+            self.w      = w;
+            self.h      = h;
         }
         
-        FlexParse = method(other, function(root, data = [], ref = "") {
+        FlexParse = method(other, function(root, data = []) {
             var _name   = string_split(flexpanel_node_get_name(root), "_");
             var _type   = _name[0];
             var _id     = (array_length(_name) > 1 ? string_join_ext("_", _name, 1) : ""); 
             var _z      = 0;
-            var _par    = "";
-            var _isNode = false;
-            
+            var _isNode = true;
+              
             switch (_type) {
-                // Basic Nodes
-                case "TEXT": {
-                    _isNode = true;
-                } break;
-                case "SEPARATOR": {
-                    _isNode = true;
-                } break;
-                case "BUTTON": {
-                    _isNode = true;
-                } break;
-                case "SPRITE": {
-                    _isNode = true;
-                } break;
-                // Complex Nodes
-                case "SELECTOR": {
-                    _isNode = true;
-                    ref     = _id;
-                } break;
-                case "SLIDER": {
-                    _isNode = true;
-                    ref     = _id;
-                } break;
+                // Body
+                case "TEXT": 
+                case "SEPARATOR": 
+                case "BUTTON": 
+                case "SPRITE":
+                case "SELECTOR": 
+                case "SLIDER":
                 case "CHECKBOX": {
-                    _isNode = true;
-                    ref     = _id;
+                    _type   = "BODY"
                 } break;
-                // Clickable Zones
+                // Zones
                 case "BAR":
                 case "BOX":
                 case "LEFT":
                 case "RIGHT": {
-                    _isNode = true;
                     _z      = 1;
-                    _par    = ref;
                 } break;
-                // Static Zones
-                case "LABEL":
-                case "VALUE": {
-                    _isNode = true;
-                    _par = ref;
-                } break;
+                default: {
+                    _isNode = false;
+                }
             }
             
             // Create a ref on the node
             for (var i = 0, n = array_length(nodes); i < n; i++) {
                 var _node = nodes[i];
-                if (_node.name == _id) {
+                if (_node.id == _id) {
                     var _flexDisp = flexpanel_node_style_get_display(root);
                     var _nodeDisp = (_node.visible ? flexpanel_display.flex : flexpanel_display.none);
                     if (_flexDisp != _nodeDisp) {
@@ -108,14 +85,14 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             // Push to node data
             if (_isNode) {
                 var _n = flexpanel_node_layout_get_position(root, false);
-                array_push(data, new __.FlexNode(_type, _id, _par, _n.left, _n.top, _z, _n.width, _n.height));
+                array_push(data, new __.FlexNode(_type, _id, _n.left, _n.top, _z, _n.width, _n.height));
             }
             
             // Continue
             var _childs = flexpanel_node_get_num_children(root);
             for (var i = 0; i < _childs; i++) {
                 var _child = flexpanel_node_get_child(root, i);
-                __.FlexParse(_child, data, ref);
+                __.FlexParse(_child, data);
             }
             return data;
         });
@@ -135,11 +112,21 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     for (var i = 0, n = array_length(nodes); i < n; i++) {
         var _node = nodes[i];
         var _flex = _node.flexNode;
-        // fetch positions & zones
-        var _data = __.FlexParse(_flex)
-        show_message(_data)
+        if (_flex == undefined) continue;
+        var _data = __.FlexParse(_flex);
+        
+        for (var j = 0; j < array_length(_data); j++) {
+            array_push(_node.flexZones, {
+                type    : _data[j].type,
+                x       : _data[j].x,
+                y       : _data[j].y,
+                z       : _data[j].z,
+                w       : _data[j].w,
+                h       : _data[j].h,
+            })
+        }
     }
-    
+    var _t = ""
     // Methods
     static NodeGetActive = function() {
         return nodes[cursor];
