@@ -17,10 +17,6 @@ function MenuManager(config = {}) constructor{
     static Update = function(mx, my) {
         
         #region Update menu context area
-        //self.x  = x;
-        //self.y  = y;
-        //self.w  = w;
-        //self.h  = h;
         self.mx = mx;
         self.my = my;
         #endregion
@@ -30,7 +26,10 @@ function MenuManager(config = {}) constructor{
         var _yDelta         = useMouse ? 0 : InputOpposingPressed(INPUT_VERB.UP, INPUT_VERB.DOWN);
         var _inputSelect    = useMouse ? 0 : InputPressed(INPUT_VERB.ACCEPT);
         var _inputBack      = InputPressed(INPUT_VERB.CANCEL);
-        var _mousePress     = InputMousePressed(mb_left);
+        
+        var _mousePressed   = InputMousePressed(mb_left);
+        var _mouseCheck     = InputMouseCheck(mb_left);
+        var _mouseRelease   = InputMouseReleased(mb_left);
         #endregion
         
         var _page  = PageGetActive();
@@ -84,7 +83,7 @@ function MenuManager(config = {}) constructor{
         if (_node.interactive) {
             if (useMouse) {
                 if (mouseFocus != -1) {
-                    if (_mousePress) _node.Select();
+                    if (_mousePressed) _node.Select();
                 }
             } else {
                 // TODO yDelta actions will requires node focus locking in the future

@@ -7,12 +7,12 @@ scribble_font_set_default("fnt_test")
 
 mainMenu = new MenuManager();
 mainMenu.PageAdd(new MenuPage("test_menu", "layerBase", [
-    new MenuNodeText("testText", "Main Menu"),
+    new MenuNodeText("testText", "Main Menu", {background : c_red}),
     new MenuNodeSeparator("testSep"),
     new MenuNodeButton("testButton0", "Test", function(){show_debug_message("test")}),
     new MenuNodeSelector("test_selector0", "Language", ["English", "Português", "Español", "Russian", "French"]),
     new MenuNodeSelector("test_selector1", "Fullscreen", ["On", "Off"]),
-    new MenuNodeSlider("testSlider0", "Volume"),
+    new MenuNodeSlider("testSlider0", "Volume", -1, -1, 0, 100, 1, function(v){return v}),
     new MenuNodeCheckbox("testCheckbox0", "Check"),
     new MenuNodeConfirm("testConfirm0", "Confirm", function(){game_end()}),
 ]))
