@@ -26,6 +26,117 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     cursor  = 0;
     #endregion
     
+    // Startup
+    static __ = {};
+    with (__) {
+        FlexNode = function(type, id, par, x, y, z, w, h) constructor {
+            self.type   = type;
+            self.id     = id;
+            self.par    = par;
+            //self.x      = x;
+            //self.y      = y;
+            //self.z      = z;
+            //self.w      = w;
+            //self.h      = h;
+        }
+        
+        FlexParse = method(other, function(root, data = [], ref = "") {
+            var _name   = string_split(flexpanel_node_get_name(root), "_");
+            var _type   = _name[0];
+            var _id     = (array_length(_name) > 1 ? string_join_ext("_", _name, 1) : ""); 
+            var _z      = 0;
+            var _par    = "";
+            var _isNode = false;
+            
+            switch (_type) {
+                // Basic Nodes
+                case "TEXT": {
+                    _isNode = true;
+                } break;
+                case "SEPARATOR": {
+                    _isNode = true;
+                } break;
+                case "BUTTON": {
+                    _isNode = true;
+                } break;
+                case "SPRITE": {
+                    _isNode = true;
+                } break;
+                // Complex Nodes
+                case "SELECTOR": {
+                    _isNode = true;
+                    ref     = _id;
+                } break;
+                case "SLIDER": {
+                    _isNode = true;
+                    ref     = _id;
+                } break;
+                case "CHECKBOX": {
+                    _isNode = true;
+                    ref     = _id;
+                } break;
+                // Clickable Zones
+                case "BAR":
+                case "BOX":
+                case "LEFT":
+                case "RIGHT": {
+                    _isNode = true;
+                    _z      = 1;
+                    _par    = ref;
+                } break;
+                // Static Zones
+                case "LABEL":
+                case "VALUE": {
+                    _isNode = true;
+                    _par = ref;
+                } break;
+            }
+            
+            // Create a ref on the node
+            for (var i = 0, n = array_length(nodes); i < n; i++) {
+                var _node = nodes[i];
+                if (_node.name == _id) {
+                    var _flexDisp = flexpanel_node_style_get_display(root);
+                    var _nodeDisp = (_node.visible ? flexpanel_display.flex : flexpanel_display.none);
+                    if (_flexDisp != _nodeDisp) {
+                        flexpanel_node_style_set_display(root, _nodeDisp);
+                    }
+                    _node.flexNode = root;
+                }
+            }
+            
+            // Push to node data
+            if (_isNode) {
+                var _n = flexpanel_node_layout_get_position(root, false);
+                array_push(data, new __.FlexNode(_type, _id, _par, _n.left, _n.top, _z, _n.width, _n.height));
+            }
+            
+            // Continue
+            var _childs = flexpanel_node_get_num_children(root);
+            for (var i = 0; i < _childs; i++) {
+                var _child = flexpanel_node_get_child(root, i);
+                __.FlexParse(_child, data, ref);
+            }
+            return data;
+        });
+        
+        FlexDrawDebug = method(other, function(layout) {
+            
+        });
+    }
+    
+    // Nodes
+    for (var i = 0, n = array_length(nodes); i < n; i++) {
+        var _node = nodes[i];
+    }
+    
+    // Layout
+    var _root = layer_get_flexpanel_node(layer);
+    var _layout = __.FlexParse(_root);
+    var _rootPos = flexpanel_node_layout_get_position(_root);
+    flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
+    _layout = __.FlexParse(_root);
+    
     // Methods
     static NodeGetActive = function() {
         return nodes[cursor];

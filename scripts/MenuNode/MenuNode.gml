@@ -18,8 +18,11 @@ function MenuNode(name, config = {}) constructor{
     #endregion
     
     #region Private
-    isFocused   = false;
-    interactive = true;
+    focused     = false;// If the node has focus (either by keyboard or mouse)
+    interactive = true; // If the node can have focus (either by keyboard or mouse)
+    enabled     = true; // If the node can run its callback when selected
+    visible     = true; // If the node is rendered and calculated on the layout spacing
+    
     angle       = 0;
     xPos        = 0;
     yPos        = 0;
@@ -36,6 +39,7 @@ function MenuNode(name, config = {}) constructor{
     onRenderCb  = [];
     onSelectCb  = [];
     
+    flexNode    = undefined;
     zones       = [];
     #endregion
     
@@ -57,9 +61,9 @@ function MenuNode(name, config = {}) constructor{
         array_push(onSelectCb, {callback, data});
     }
     
-    static Update = function(isFocused){
+    static Update = function(focused){
         // Input
-        if (!is_undefined(isFocused)) SetFocused(isFocused);
+        if (!is_undefined(focused)) SetFocused(focused);
         
         // Animation
         xOffAnim.Update();
@@ -180,8 +184,8 @@ function MenuNode(name, config = {}) constructor{
     }
     
     static SetFocused = function(focused) {
-        if (self.isFocused == focused) exit;
-        self.isFocused = focused;
+        if (self.focused == focused) exit;
+        self.focused = focused;
         if (focused) OnFocusIn();
         else OnFocusOut();
     }
@@ -283,7 +287,7 @@ function MenuNodeSprite(name, sprite, config = {}) : MenuNode(name, config) cons
 #region Functional Nodes --------------------------
 
 function MenuNodeButton(name, onSelect, config = {}) : MenuNode(name, config) constructor {
-    
+    visible = false
     if (is_callable(onSelect)) OnSelect(method(self, onSelect));
     
     OnSelect(function() {
@@ -292,7 +296,7 @@ function MenuNodeButton(name, onSelect, config = {}) : MenuNode(name, config) co
     })
     
     OnRender(function() {
-        var _c = isFocused ? colors.focused : colors.base;
+        var _c = focused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
         draw_set_valign(vAlign);
         draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
@@ -318,7 +322,7 @@ function MenuNodeConfirm(name, onSelect, config = {}) : MenuNode(name, config) c
     });
     
     OnRender(function() {
-        var _c = isFocused ? (pending ? colors.pending : colors.focused) : colors.base;
+        var _c = focused ? (pending ? colors.pending : colors.focused) : colors.base;
         draw_set_halign(hAlign);
         draw_set_valign(vAlign);
         draw_text_transformed_color(xPos, yPos, pending ? msg : name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
@@ -367,7 +371,7 @@ function MenuNodeSelector(name, options, onChange, config = {}) : MenuNode(name,
     });
     
     OnRender(function() {
-        var _c = isFocused ? colors.focused : colors.base;
+        var _c = focused ? colors.focused : colors.base;
         draw_set_halign(fa_left);
         draw_set_valign(vAlign);
         draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
@@ -386,7 +390,7 @@ function MenuNodeCheckbox(name, config = {}) : MenuNode(name, config) constructo
 
 function MenuNodeToggle(name, config = {}) : MenuNode(name, config) constructor {
     OnRender(function() {
-        var _c = isFocused ? colors.focused : colors.base;
+        var _c = focused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
         draw_set_valign(vAlign);
         draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
@@ -397,7 +401,7 @@ function MenuNodeToggle(name, config = {}) : MenuNode(name, config) constructor 
 
 function MenuNodeSlider(name, config = {}) : MenuNode(name, config) constructor {
     OnRender(function() {
-        var _c = isFocused ? colors.focused : colors.base;
+        var _c = focused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
         draw_set_valign(vAlign);
         draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);

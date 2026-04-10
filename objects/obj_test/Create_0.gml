@@ -4,7 +4,7 @@ global.debug = false;
 #region MenuSystem Creation
 
 mainMenu = new MenuManager();
-mainMenu.PageAdd(new MenuPage("layerBase", [
+mainMenu.PageAdd(new MenuPage("test_menu", "layerBase", [
     new MenuNodeText("testText", "Main Menu"),
     new MenuNodeSeparator("testSep"),
     new MenuNodeButton("testButton0", function(){show_debug_message("test")}),
@@ -20,14 +20,22 @@ mainMenu.PageAdd(new MenuPage("layerBase", [
     new MenuNodeConfirm("testConfirm0", function(){game_end()}),
 ]))
 
-mainMenu.PagePush("layerBase");
+mainMenu.PagePush("test_menu");
 
 #endregion
 
-var _panel = layer_get_flexpanel_node("layerBase")
+var _panel = layer_get_flexpanel_node("layerBase");
+//var _p = flexpanel_node_layout_get_position(_panel, true);
+
+//var _c = flexpanel_node_get_child(_panel, 0)
+//var _b = flexpanel_node_get_child(_c, 3)
+//flexpanel_node_style_set_display(_b, flexpanel_display.none)
+
+//flexpanel_calculate_layout(_panel, _p.width, _p.height, _p.direction);
 
 
 function FlexGetNodes(root, data = [], ref = "") {
+    
     var _pos    = flexpanel_node_layout_get_position(root, false);
     var _name   = string_split(flexpanel_node_get_name(root), "_");
     var _type   = _name[0];

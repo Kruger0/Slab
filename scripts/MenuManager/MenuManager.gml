@@ -52,11 +52,11 @@ function MenuManager(config = {}) constructor{
                 var _node = _page.nodes[i];
                 var _isOver = _node.ContainsPoint(mx-x, my-y);
                 if (_isOver && !_node.interactive) {
-                    _node.isFocused = false;
+                    _node.focused = false;
                     continue;
                 }
-                if (_isOver && !_node.isFocused) _node.SetFocused(true);
-                if (!_isOver && _node.isFocused) _node.SetFocused(false);
+                if (_isOver && !_node.focused) _node.SetFocused(true);
+                if (!_isOver && _node.focused) _node.SetFocused(false);
                 if (_isOver) mouseFocus = i;
             }
             if (mouseFocus != -1) _page.cursor = mouseFocus;
