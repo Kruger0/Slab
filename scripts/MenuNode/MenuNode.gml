@@ -20,8 +20,10 @@ function MenuNode(id, name, config = {}) constructor{
     interactive = true;     // If the node can have focus (either by keyboard or mouse)
     enabled     = true;     // If the node can run its callback when selected
     visible     = true;     // If the node is rendered and calculated on the layout spacing
-    hAlign     = fa_left;  // Coordinate position relative to the node
-    vAlign     = fa_middle;
+    hAlign      = fa_left;  // Coordinate position relative to the node
+    vAlign      = fa_middle;
+    xAnchor     = 0;
+    yAnchor     = 0;
     
     angle       = 0;
     xPos        = 0;
@@ -65,29 +67,30 @@ function MenuNode(id, name, config = {}) constructor{
         // Input
         if (!is_undefined(focused)) SetFocused(focused);
         
-        var _body = flexZones[0];
-        switch (hAlign) {
-            case fa_left:   xPos = _body.x; break;
-            case fa_center: xPos = _body.x + (_body.w / 2); break;
-            case fa_right:  xPos = _body.x + _body.w; break;
-        }
-        
-        switch (vAlign) {
-            case fa_top:    yPos = _body.x; break;
-            case fa_middle: yPos = _body.x + (_body.w / 2); break;
-            case fa_bottom: yPos = _body.x + _body.w; break;
-        }
-        
         // Animation
         xOffAnim.Update();
         yOffAnim.Update();
         xSclAnim.Update();
         ySclAnim.Update();
+        angleAnim.Update();
+        xScl = xSclAnim.GetValue();
+        yScl = ySclAnim.GetValue();
         
-        xPos = xOffAnim.GetValue();
-        yPos = yOffAnim.GetValue();
-        xScl  = xSclAnim.GetValue();// * ctx.scale;
-        yScl  = ySclAnim.GetValue();// * ctx.scale;
+        // Aligmnet
+        var _body = ZoneGetBody();
+        var _xOff = xOffAnim.GetValue();
+        var _yOff = yOffAnim.GetValue();
+        
+        switch (hAlign) {
+            case fa_left:   xPos = _body.x; break;
+            case fa_center: xPos = _xOff + _body.x + (_body.w / 2); break;
+            case fa_right:  xPos = _xOff + _body.x + _body.w; break;
+        }
+        switch (vAlign) {
+            case fa_top:    yPos = _yOff + _body.y; break;
+            case fa_middle: yPos = _yOff + _body.y + (_body.h / 2); break;
+            case fa_bottom: yPos = _yOff + _body.y + _body.n; break;
+        }
         
         // Custom
         for (var i = 0, n = array_length(onUpdateCb); i < n; i++) {
@@ -105,21 +108,20 @@ function MenuNode(id, name, config = {}) constructor{
         
         // Debug
         if (global.debug) {
-            //var _activeZone = ZoneGetActive();
-            //draw_circle_color(xPos, yPos, 2, c_red, c_red, false);
-            //draw_text(xPos + 100, yPos, _activeZone);
-            
             for (var i = 0, n = array_length(flexZones); i < n; i++) {
                 var _zone = flexZones[i];
                 var _x = _zone.x;
                 var _y = _zone.y;
                 var _w = _zone.w;
                 var _h = _zone.h;
-                var _filter = gpu_get_tex_filter();
-                gpu_set_tex_filter(false);
-                draw_sprite_stretched_ext(spr_flex_area, 1, _x, _y, _w, _h, -1, 1.0);
-                gpu_set_tex_filter(_filter);
+                var _c1 = #FF0000;
+                var _c2 = #00FF00
+                draw_rectangle_colour(_x, _y, _x+_w, _y+_h, _c1, _c2, _c1, _c2, true);
             }
+            var _c1 = #000000;
+            var _c2 = #FFFFFF;
+            draw_circle_color(xPos, yPos, 6, _c1, _c2, false);
+            draw_circle_color(xPos, yPos, 6, _c1, _c1, true);
         }
     }
     static Select = function() {
@@ -168,6 +170,10 @@ function MenuNode(id, name, config = {}) constructor{
             }
         }
         return _active;
+    }
+    static ZoneGetBody = function() {
+        if (array_length(flexZones) == 0) return;
+        return flexZones[0];
     }
     
     static SetFocused = function(focused) {
@@ -223,41 +229,36 @@ function MenuNode(id, name, config = {}) constructor{
     static OnLeave     = config[$ "OnLeave"] ?? function(){
         
     };
-    
-    static GetWidth    = config[$ "GetWidth"] ?? function() {
-        return string_width(name);
-    }
-    static GetHeight   = config[$ "GetHeight"] ?? function(){
-        return string_height(name);
-    };
 }
 
 #region Visual Nodes --------------------------
 
 function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constructor {
     interactive = false;
+    
     background  = config[$ "background"];
+    
     OnRender(function() {
-        var _zone = flexZones[0];
-        var _x = xPos + _zone.x;
-        var _y = yPos + _zone.y;
-        var _w = _zone.w;
-        var _h = _zone.h;
+        var _body = ZoneGetBody();
+        var _x = _body.x;
+        var _y = _body.y;
+        var _w = _body.w;
+        var _h = _body.h;
         var _c = colors.disabled;
+        var _t = name;
         
         // Background
         if !(is_undefined(background)) {
             if (asset_get_type(background) == asset_sprite) {
-                draw_sprite_stretched_ext(background, 0, _x, _y, _zone.w, _zone.h, c_white, 1);
+                draw_sprite_stretched_ext(background, 0, _x, _y, _w, _h, c_white, 1);
             }
             if (is_real(background)) {
-                draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _zone.w, _zone.h, background, 1);
+                draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, background, 1);
             }
         }
         
         // Name
-        _y += _h/2
-        scribble(name, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+        scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(xPos, yPos);
     });
 }
 
@@ -268,15 +269,16 @@ function MenuNodeSeparator(id, name = id, config = {}) : MenuNode(id, name, conf
     height      = config[$ "height"] ?? 4;
     width       = config[$ "width"] ?? 1;
     
-    GetHeight   = function(){return height};
-    GetWidth    = function(){return 0};
-    
     OnRender(function() {
-        if (!drawLine) exit;
+        if (!drawLine) return;;
         var _c = colors.base;
-        var _zone = flexZones[0];
+        var _body = ZoneGetBody();
+        var _x = _body.x;
+        var _y = _body.y;
+        var _w = _body.w;
+        var _h = _body.h;
         draw_set_alpha(alpha);
-        draw_rectangle_colour(_zone.x, _zone.y - height/2, _zone.x + _zone.w, _zone.y + height/2, _c, _c, _c, _c, false);
+        draw_rectangle_colour(_x, _y, _x + _w, _y + _h, _c, _c, _c, _c, false);
         draw_set_alpha(1);
     });
 }
@@ -299,11 +301,17 @@ function MenuNodeButton(id, name, onSelect, config = {}) : MenuNode(id, name, co
     })
     
     OnRender(function() {
-        var _zone = flexZones[0];
-        var _x = xPos + _zone.x;
-        var _y = yPos + _zone.y + _zone.h/2;
-        var _c = focused ? colors.focused : colors.base;
-        scribble(name, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+        var _body = ZoneGetBody();
+        var _x = _body.x;
+        var _y = _body.y;
+        var _w = _body.w;
+        var _h = _body.h;
+        var _t = name;
+        // Background
+        
+        // Name
+        var _c = (focused ? colors.focused : colors.base);
+        scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(xPos, yPos);
     });
 }
 
@@ -324,12 +332,18 @@ function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, c
     });
     
     OnRender(function() {
-        var _zone = flexZones[0];
-        var _x = xPos + _zone.x;
-        var _y = yPos + _zone.y + _zone.h/2;
+        var _body = ZoneGetBody();
+        var _x = _body.x;
+        var _y = _body.y;
+        var _w = _body.w;
+        var _h = _body.h;
         var _c = (focused ? (pending ? colors.pending : colors.focused) : colors.base);
         var _t = (pending ? msg : name);
-        scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+        
+        // Background
+        
+        // Name
+        scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(xPos, yPos);
     });
 }
 
@@ -375,30 +389,27 @@ function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(i
     OnRender(function() {
         for (var i = 0, n = array_length(flexZones); i < n; i++) {
             var _zone = flexZones[i];
-            var _x = xPos + _zone.x;
-            var _y = yPos + _zone.y + _zone.h/2;
-            var _c = focused ? colors.focused : colors.base;
-            var _t = "";
-            var _h = 1;
-            var _v = 1;
+            var _x = _zone.x;
+            var _y = _zone.y;
+            var _w = _zone.w;
+            var _h = _zone.h;
+            var _c = (focused ? colors.focused : colors.base);
+            var _t = name;
             switch (_zone.type) {
                 case "BODY": {
-                    _t = name;
-                    _h = justify;
-                    _v = 0;
-                    _y -= _zone.h/2;
+                    scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(xPos, yPos);
                 } break;
                 case "RIGHT": {
                     _t = ">";
-                    _x += _zone.w/2;
+                    scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2, _y+_h/2);
                 } break;
                 case "LEFT": {
                     _t = "<";
-                    _x += _zone.w/2;
+                    scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2, _y+_h/2);
                 } break;
                 case "VALUE": {
-                    _x += _zone.w/2;
-                    scribble(string(OptionGetActive()), id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+                    _t = string(OptionGetActive());
+                    scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2+xOffAnim.GetValue(), _y+_h/2);
                 } break;
             }
         }
@@ -429,22 +440,21 @@ function MenuNodeCheckbox(id, name, onChange, config = {}) : MenuNode(id, name, 
     OnRender(function() {
         for (var i = 0, n = array_length(flexZones); i < n; i++) {
             var _zone = flexZones[i];
-            var _x = xPos + _zone.x;
-            var _y = yPos + _zone.y + _zone.h/2;
-            var _c = focused ? colors.focused : colors.base;
-            var _t = "";
-            var _h = 1;
+            var _x = _zone.x;
+            var _y = _zone.y;
+            var _w = _zone.w;
+            var _h = _zone.h;
+            var _c = (focused ? colors.focused : colors.base);
+            var _t = name;
             switch (_zone.type) {
                 case "BODY": {
-                    _t = name;
-                    _h = justify;
+                    scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(xPos, yPos);
                 } break;
                 case "BOX": {
-                    _t = (value ? "[[  ]" : "[[X]");
-                    _x += _zone.w/2;
+                    _t = (value ? "[[   ]" : "[[X]");
+                    scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2, _y+_h/2);
                 } break
             }
-            scribble(_t, id).align(_h, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
         }
     });
 }
@@ -474,22 +484,21 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     OnRender(function() {
         for (var i = 0, n = array_length(flexZones); i < n; i++) {
             var _zone = flexZones[i];
-            var _x = xPos + _zone.x;
-            var _y = yPos + _zone.y + _zone.h/2;
+            var _x = _zone.x;
+            var _y = _zone.y;
             var _w = _zone.w;
             var _h = _zone.h;
-            var _c = focused ? colors.focused : colors.base;
+            var _c = (focused ? colors.focused : colors.base);
+            var _t = name;
             switch (_zone.type) {
                 case "BODY": {
-                    scribble(name, id).align(justify, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+                    scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(xPos, yPos);
                 } break;
                 case "VALUE": {
-                    _x += _zone.w/2;
-                    scribble(ValueFormat(value), id).align(justify, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+                    scribble(ValueFormat(value), id).align(2, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w, yPos);
                 } break
                 case "BAR": {
-                    _x += _zone.w/2;
-                    draw_rectangle(_x, _y, _x+_w, _y+_h, true)
+                    draw_rectangle(_x, _y, _x+_w, _y+_h, true);
                 } break
             }
         }

@@ -7,7 +7,7 @@ scribble_font_set_default("fnt_test")
 
 mainMenu = new MenuManager();
 mainMenu.PageAdd(new MenuPage("test_menu", "layerBase", [
-    new MenuNodeText("testText", "Main Menu", {background : c_red}),
+    new MenuNodeText("testText", "Main Menu", {background : c_dkgray}),
     new MenuNodeSeparator("testSep"),
     new MenuNodeButton("testButton0", "Test", function(){show_debug_message("test")}),
     new MenuNodeSelector("test_selector0", "Language", ["English", "Português", "Español", "Russian", "French"]),

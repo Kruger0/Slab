@@ -1,3 +1,4 @@
-function Script438(){
 
+function MenuStyle(id, config) constructor {
+    
 }

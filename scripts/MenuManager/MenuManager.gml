@@ -103,7 +103,9 @@ function MenuManager(config = {}) constructor{
         if (is_undefined(_page)) return;
         _page.Render();
         if (global.debug) {
-            draw_circle_color(mx, my, 2, c_lime, c_lime, false);
+            var _c = #FF00FF
+            draw_circle_color(mx, my, 2, _c, _c, false);
+            draw_circle_color(mx, my, 6, _c, _c, true);
         }
     }
     
