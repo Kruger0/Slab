@@ -48,16 +48,20 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
               
             switch (_type) {
                 // Body
-                case "TEXT": 
-                case "SEPARATOR": 
-                case "BUTTON": 
+                case "TEXT":
+                case "SEPARATOR":
+                case "BUTTON":
                 case "SPRITE":
-                case "SELECTOR": 
+                case "SELECTOR":
                 case "SLIDER":
+                case "CONFIRM":
                 case "CHECKBOX": {
                     _type   = "BODY"
                 } break;
                 // Zones
+                case "VALUE": {
+                    
+                } break;
                 case "BAR":
                 case "BOX":
                 case "LEFT":
@@ -96,10 +100,6 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             }
             return data;
         });
-        
-        FlexDrawDebug = method(other, function(layout) {
-            
-        });
     }
     
     // Layout
@@ -126,7 +126,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             })
         }
     }
-    var _t = ""
+    
     // Methods
     static NodeGetActive = function() {
         return nodes[cursor];
@@ -163,61 +163,11 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             _node.Update(useMouse ? undefined : (cursor == i));
         }
     };
-    static Render = function(ctx){
-        
-        // Page canvas
-        var _pageCtx = {
-           x:ctx.x + xPad, y:ctx.y + yPad,
-           w:ctx.w - xPad*2, h:ctx.h - yPad*2,
-        }
-        
-        // Node setup
-        draw_set_font(font);
-        
-        // Node measuring
-        var _nodeMaxW   = 0;
-        var _nodeMaxH   = 0;
-        var _totalH     = 0;
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _nodeMaxW = max(_nodeMaxW, _node.GetWidth());
-            _nodeMaxH = max(_nodeMaxH, _node.GetHeight());
-            _totalH  += _node.GetHeight() + spacing;
-        }
-        _totalH = max(0, _totalH - spacing);
-        
-        var _scaledMaxW = _nodeMaxW * scale;
-        var _scaledTotalH = _totalH * scale;
-        
-        // Node alignment
-        var _nodeX, _nodeY;
-        switch (hAlign) {
-            case fa_left:   _nodeX = _pageCtx.x; break;
-            case fa_center: _nodeX = _pageCtx.x + (_pageCtx.w - _scaledMaxW) / 2; break;
-            case fa_right:  _nodeX = _pageCtx.x + (_pageCtx.w - _scaledMaxW); break;
-        }
-        switch (vAlign) {
-            case fa_top:    _nodeY = _pageCtx.y; break;
-            case fa_middle: _nodeY = _pageCtx.y + (_pageCtx.h - _scaledTotalH) / 2; break;
-            case fa_bottom: _nodeY = _pageCtx.y + (_pageCtx.h - _scaledTotalH); break;
-        }
-        
-        // Node drawing
+    
+    static Render = function(){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node   = nodes[i];
-            var _nodeH  = _node.GetHeight();
-            var _nodeW  = _node.GetWidth();
-            
-            // Node canvas
-            var _nodeCtx = {
-                x: _nodeX, y: _nodeY,
-                w: _nodeMaxW, h: _nodeH,
-                scale,
-            }
-            
-            _node.Render(_nodeCtx);
-            _nodeY += (_nodeH + spacing) * scale;
+            _node.Render();
         }
-        draw_set_font(-1);
     };
 }

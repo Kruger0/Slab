@@ -2,11 +2,11 @@
 function AnimTrack(curve, channel, duration) constructor {
     self.channel    = animcurve_get_channel(curve, channel);
     self.duration   = duration;
-    posx            = 0;
-    playing         = false;
     currValue       = 0;
     targetValue     = 0;
     startValue      = 0;
+    posx            = 0;
+    playing         = false;
     
     static Play = function(to) {
         if (targetValue == to && playing) exit;

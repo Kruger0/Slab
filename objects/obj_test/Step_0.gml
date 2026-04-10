@@ -4,7 +4,7 @@ if (keyboard_check_pressed(vk_f9)) {
     show_debug_overlay(global.debug);
 }
 
-//mainMenu.Update(0, 0, room_width, room_height, mouse_x, mouse_y);
+mainMenu.Update(mouse_x, mouse_y);
 
 var _cr = cr_arrow
 //switch (mainMenu.MouseGetState()) {

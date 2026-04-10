@@ -12,9 +12,6 @@ function MenuNode(id, name, config = {}) constructor{
         disabled    : #606060
     };
     alpha       = config[$ "alpha"] ?? 1;
-    enabled     = config[$ "enabled"] ?? true;
-    hAlign      = config[$ "hAlign"] ?? fa_center;
-    vAlign      = config[$ "vAlign"] ?? fa_middle;
     animSpeed   = config[$ "animSpeed"] ?? 0.5;
     #endregion
     
@@ -23,6 +20,7 @@ function MenuNode(id, name, config = {}) constructor{
     interactive = true; // If the node can have focus (either by keyboard or mouse)
     enabled     = true; // If the node can run its callback when selected
     visible     = true; // If the node is rendered and calculated on the layout spacing
+    justify     = 0;
     
     angle       = 0;
     xPos        = 0;
@@ -41,7 +39,6 @@ function MenuNode(id, name, config = {}) constructor{
     onSelectCb  = [];
     
     flexNode    = undefined;
-    zones       = [];
     flexZones   = [];
     #endregion
     
@@ -67,11 +64,22 @@ function MenuNode(id, name, config = {}) constructor{
         // Input
         if (!is_undefined(focused)) SetFocused(focused);
         
+        //switch (justify) {
+        //    case fa_left:   xPos = ctx.x; break;
+        //    case fa_center: xPos = ctx.x + (ctx.w / 2) * ctx.scale; break;
+        //    case fa_right:  xPos = ctx.x + ctx.w * ctx.scale; break;
+        //}
+        
         // Animation
         xOffAnim.Update();
         yOffAnim.Update();
         xSclAnim.Update();
         ySclAnim.Update();
+        
+        xPos = xOffAnim.GetValue();
+        yPos = yOffAnim.GetValue();
+        xScl  = xSclAnim.GetValue();// * ctx.scale;
+        yScl  = ySclAnim.GetValue();// * ctx.scale;
         
         // Custom
         for (var i = 0, n = array_length(onUpdateCb); i < n; i++) {
@@ -79,10 +87,9 @@ function MenuNode(id, name, config = {}) constructor{
             _entry.callback(_entry.data);
         }
     }
-    static Render = function(ctx) {
-        UpdateLayout(ctx);
-        
+    static Render = function() {
         // Custom
+        if (array_length(flexZones) < 1) return;
         for (var i = 0, n = array_length(onRenderCb); i < n; i++) {
             var _entry = onRenderCb[i];
             _entry.callback(_entry.data);
@@ -90,14 +97,21 @@ function MenuNode(id, name, config = {}) constructor{
         
         // Debug
         if (global.debug) {
-            var _activeZone = ZoneGetActive();
-            for (var i = 0, n = array_length(zones); i < n; i++) {
-                var _z = zones[i];
-                var _c = (_activeZone == _z.name ? #00FF00 : #0000FF)
-                draw_rectangle_color(_z.x, _z.y, _z.x + _z.w, _z.y + _z.h, _c, _c, _c, _c, true);
+            //var _activeZone = ZoneGetActive();
+            //draw_circle_color(xPos, yPos, 2, c_red, c_red, false);
+            //draw_text(xPos + 100, yPos, _activeZone);
+            
+            for (var i = 0, n = array_length(flexZones); i < n; i++) {
+                var _zone = flexZones[i];
+                var _x = _zone.x;
+                var _y = _zone.y;
+                var _w = _zone.w;
+                var _h = _zone.h;
+                var _filter = gpu_get_tex_filter();
+                gpu_set_tex_filter(false);
+                draw_sprite_stretched_ext(spr_flex_area, 1, _x, _y, _w, _h, -1, 1.0);
+                gpu_set_tex_filter(_filter);
             }
-            draw_circle_color(xPos, yPos, 2, c_red, c_red, false);
-            draw_text(xPos + 100, yPos, _activeZone);
         }
     }
     static Select = function() {
@@ -113,55 +127,14 @@ function MenuNode(id, name, config = {}) constructor{
         }
     }
     
-    static UpdateLayout = function(ctx) {
-        switch (hAlign) {
-            case fa_left:   xPos = ctx.x; break;
-            case fa_center: xPos = ctx.x + (ctx.w / 2) * ctx.scale; break;
-            case fa_right:  xPos = ctx.x + ctx.w * ctx.scale; break;
-        }
-        switch (vAlign) {
-            case fa_top:    yPos = ctx.y; break;
-            case fa_middle: yPos = ctx.y + (ctx.h / 2) * ctx.scale; break;
-            case fa_bottom: yPos = ctx.y + ctx.h * ctx.scale; break;
-        }
-        xPos += xOffAnim.GetValue();
-        yPos += yOffAnim.GetValue();
-        xScl  = xSclAnim.GetValue() * ctx.scale;
-        yScl  = ySclAnim.GetValue() * ctx.scale;
-        
-        // Base zone — subclasses will override or extend this
-        zones = [
-            {
-                name: "body",
-                layer : 0,
-                x: ctx.x,
-                y: ctx.y,
-                w: ctx.w * ctx.scale,
-                h: ctx.h * ctx.scale,
-            },
-            {
-                name: "arrowLeft",
-                layer : 1,
-                x: ctx.x,
-                y: ctx.y,
-                w: ctx.w*0.2 * ctx.scale,
-                h: ctx.h * ctx.scale,
-            },
-            {
-                name: "arrowRight",
-                layer : 1,
-                x: ctx.x + ctx.w*0.8,
-                y: ctx.y,
-                w: ctx.w*0.2 * ctx.scale,
-                h: ctx.h * ctx.scale,
-            },
-        ];
-    }
-    
     static ContainsPoint = function(px, py) {
-        for (var i = 0, n = array_length(zones); i < n; i++) {
-            var _z = zones[i];
-            if (point_in_rectangle(px, py, _z.x, _z.y, _z.x + _z.w, _z.y + _z.h)) {
+        for (var i = 0, n = array_length(flexZones); i < n; i++) {
+            var _zone = flexZones[i];
+            var _x1 = _zone.x;
+            var _y1 = _zone.y;
+            var _x2 = _x1+_zone.w;
+            var _y2 = _y1+_zone.h;
+            if (point_in_rectangle(px, py, _x1, _y1, _x2, _y2)) {
                 return true;
             }
         }
@@ -169,16 +142,20 @@ function MenuNode(id, name, config = {}) constructor{
     }
     
     static ZoneGetActive = function() {
-        var _mx = mng.mx - mng.x;
-        var _my = mng.my - mng.y;
+        var _px = mng.mx - mng.x;
+        var _py = mng.my - mng.y;
         var _active = "";
-        var _layer  = -1;
-        for (var i = 0, n = array_length(zones); i < n; i++) {
-            var _z = zones[i];
-            if (point_in_rectangle(_mx, _my, _z.x, _z.y, _z.x + _z.w, _z.y + _z.h)) {
-                if (_z.layer > _layer) {
-                    _layer = _z.layer;
-                    _active = _z.name;
+        var _z  = -1;
+        for (var i = 0, n = array_length(flexZones); i < n; i++) {
+            var _zone = flexZones[i];
+            var _x1 = _zone.x;
+            var _y1 = _zone.y;
+            var _x2 = _x1+_zone.w;
+            var _y2 = _y1+_zone.h;
+            if (point_in_rectangle(_px, _py, _x1, _y1, _x2, _y2)) {
+                if (_zone.z > _z) {
+                    _z = _zone.z;
+                    _active = _zone.type;
                 }
             }
         }
@@ -250,12 +227,11 @@ function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constr
     interactive = false;
     
     OnRender(function() {
+        var _zone = flexZones[0];
+        var _x = xPos + _zone.x;
+        var _y = yPos + _zone.y + _zone.h/2;
         var _c = colors.disabled;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
+        scribble(name, id).align(justify, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
     });
 }
 
@@ -271,11 +247,10 @@ function MenuNodeSeparator(id, name = id, config = {}) : MenuNode(id, name, conf
     
     OnRender(function() {
         if (!drawLine) exit;
-        var _y = yPos;
         var _c = colors.base;
-        var _z = zones[0];
+        var _zone = flexZones[0];
         draw_set_alpha(alpha);
-        draw_rectangle_colour(_z.x, _y - height/2, _z.x + _z.w, _y + height/2, _c, _c, _c, _c, false);
+        draw_rectangle_colour(_zone.x, _zone.y - height/2, _zone.x + _zone.w, _zone.y + height/2, _c, _c, _c, _c, false);
         draw_set_alpha(1);
     });
 }
@@ -298,13 +273,12 @@ function MenuNodeButton(id, name, onSelect, config = {}) : MenuNode(id, name, co
     })
     
     OnRender(function() {
+        var _zone = flexZones[0];
+        var _x = xPos + _zone.x;
+        var _y = yPos + _zone.y + _zone.h/2;
         var _c = focused ? colors.focused : colors.base;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
-    })
+        scribble(name, id).align(justify, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+    });
 }
 
 function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, config) constructor {
@@ -324,13 +298,13 @@ function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, c
     });
     
     OnRender(function() {
-        var _c = focused ? (pending ? colors.pending : colors.focused) : colors.base;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, pending ? msg : name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
-    })
+        var _zone = flexZones[0];
+        var _x = xPos + _zone.x;
+        var _y = yPos + _zone.y + _zone.h/2;
+        var _c = (focused ? (pending ? colors.pending : colors.focused) : colors.base);
+        var _t = (pending ? msg : name);
+        scribble(_t, id).align(justify, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+    });
 }
 
 function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(id, name, config) constructor {
@@ -352,7 +326,7 @@ function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(i
             cursor = max(0, cursor - 1);
         }
         if (is_callable(OnChange)) OnChange(OptionGetActive());
-        xOffAnim.Snap(-6).Play(0);
+        xOffAnim.Snap(-16).Play(0);
     }
     static ActionRight = function() {
         var _len = array_length(options);
@@ -362,53 +336,111 @@ function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(i
             cursor = min(_len - 1, cursor + 1);
         }
         if (is_callable(OnChange)) OnChange(OptionGetActive());
-        xOffAnim.Snap(6).Play(0);
+        xOffAnim.Snap(16).Play(0);
     }
     
     OnSelect(function(){
         switch (ZoneGetActive()) {
-            case "arrowLeft": ActionLeft();  break;
-            case "arrowRight": ActionRight(); break;
+            case "LEFT": ActionLeft();  break;
+            case "RIGHT": ActionRight(); break;
         }
     });
     
     OnRender(function() {
-        var _c = focused ? colors.focused : colors.base;
-        draw_set_halign(fa_left);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
-    })
+        for (var i = 0, n = array_length(flexZones); i < n; i++) {
+            var _zone = flexZones[i];
+            var _x = xPos + _zone.x
+            var _y = yPos + _zone.y + _zone.h/2;
+            var _c = focused ? colors.focused : colors.base;
+            var _t = "";
+            var _h = 1;
+            var _v = 1;
+            switch (_zone.type) {
+                case "BODY": {
+                    _t = name;
+                    _h = justify;
+                    _v = 0;
+                    _y -= _zone.h/2;
+                } break;
+                case "RIGHT": {
+                    _t = ">";
+                    _x += _zone.w/2;
+                } break;
+                case "LEFT": {
+                    _t = "<";
+                    _x += _zone.w/2;
+                } break;
+                case "VALUE": {
+                    _t = string(OptionGetActive());
+                    _x += _zone.w/2;
+                } break;
+            }
+            scribble(_t, id).align(_h, _v).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+        }
+    });
 }
 
 #endregion
 
-// WIP --------------------------
-
-function MenuNodeCheckbox(id, name, config = {}) : MenuNode(id, name, config) constructor {
+function MenuNodeCheckbox(id, name, onChange, config = {}) : MenuNode(id, name, config) constructor {
+    value   = 0;
     
-}
-
-function MenuNodeToggle(id, name, config = {}) : MenuNode(id, name, config) constructor {
-    OnRender(function() {
-        var _c = focused ? colors.focused : colors.base;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
+    OnChange = is_callable(onChange) ? method(self, onChange) : undefined;
+    
+    OnSelect(function() {
+        value ^= 1;
+        xSclAnim.Snap(1).Play(1.1);
+        ySclAnim.Snap(1).Play(1.1);
     })
+    
+    OnRender(function() {
+        for (var i = 0, n = array_length(flexZones); i < n; i++) {
+            var _zone = flexZones[i];
+            var _x = xPos + _zone.x;
+            var _y = yPos + _zone.y + _zone.h/2;
+            var _c = focused ? colors.focused : colors.base;
+            var _t = "";
+            var _h = 1;
+            switch (_zone.type) {
+                case "BODY": {
+                    _t = name;
+                    _h = justify;
+                } break;
+                case "BOX": {
+                    _t = (value ? "[[  ]" : "[[X]");
+                    _x += _zone.w/2;
+                } break
+            }
+            scribble(_t, id).align(_h, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+        }
+    });
 }
 
 function MenuNodeSlider(id, name, config = {}) : MenuNode(id, name, config) constructor {
     OnRender(function() {
-        var _c = focused ? colors.focused : colors.base;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
-    })
+        for (var i = 0, n = array_length(flexZones); i < n; i++) {
+            var _zone = flexZones[i];
+            var _x = xPos + _zone.x;
+            var _y = yPos + _zone.y + _zone.h/2;
+            var _c = focused ? colors.focused : colors.base;
+            var _t = "";
+            var _h = 1;
+            switch (_zone.type) {
+                case "BODY": {
+                    _t = name;
+                    _h = justify;
+                } break;
+                case "VALUE": {
+                    _t = "50%";
+                    _x += _zone.w/2;
+                } break
+                case "BAR": {
+                    _t = "-----|----";
+                    _x += _zone.w/2;
+                } break
+            }
+            scribble(_t, id).align(_h, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x, _y);
+        }
+    });
 }
 

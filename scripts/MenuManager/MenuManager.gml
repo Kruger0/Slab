@@ -14,13 +14,13 @@ function MenuManager(config = {}) constructor{
     #endregion
     
     // Methods
-    static Update = function(x, y, w, h, mx, my) {
+    static Update = function(mx, my) {
         
         #region Update menu context area
-        self.x  = x;
-        self.y  = y;
-        self.w  = w;
-        self.h  = h;
+        //self.x  = x;
+        //self.y  = y;
+        //self.w  = w;
+        //self.h  = h;
         self.mx = mx;
         self.my = my;
         #endregion
@@ -100,10 +100,9 @@ function MenuManager(config = {}) constructor{
         if (_inputBack) PagePop();
     }
     static Render = function() {
-        var _ctx = {x, y, w, h};
         var _page = PageGetActive();
         if (is_undefined(_page)) return;
-        _page.Render(_ctx);
+        _page.Render();
         if (global.debug) {
             draw_circle_color(mx, my, 2, c_lime, c_lime, false);
         }

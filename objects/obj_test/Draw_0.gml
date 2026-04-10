@@ -1,4 +1,4 @@
 
-//mainMenu.Render();
+mainMenu.Render();
 
 //FlexDrawQuad(nodeData);
