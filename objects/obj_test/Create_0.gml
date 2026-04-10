@@ -1,57 +1,58 @@
 
+global.options = {
+    audio : {
+        master  : 0.5,
+        music   : 0.5,
+        sfx     : 0.5,
+    },
+    video : {
+        display : 0,
+        resolution : 0,
+    }
+}
 global.debug = false;
-
-#region MenuSystem Creation
-
-scribble_font_set_default("fnt_test")
+scribble_font_set_default("fnt_test");
 
 mainMenu = new MenuManager();
-mainMenu.PageAdd(new MenuPage("test_menu", "layerBase", [
-    new MenuNodeText("testText", "Main Menu", {background : c_dkgray}),
-    new MenuNodeSeparator("testSep"),
-    new MenuNodeButton("testButton0", "Test", function(){show_debug_message("test")}),
-    new MenuNodeSelector("test_selector0", "Language", ["English", "Português", "Español", "Russian", "French"]),
-    new MenuNodeSelector("test_selector1", "Fullscreen", ["On", "Off"]),
-    new MenuNodeSlider("testSlider0", "Volume", -1, -1, 0, 100, 1, function(v){return v}),
-    new MenuNodeCheckbox("testCheckbox0", "Check"),
-    new MenuNodeConfirm("testConfirm0", "Confirm", function(){game_end()}),
+mainMenu.PageAdd(new MenuPage("main_menu", "layerMain", [
+    new MenuNodeText("main", "Main Menu", {background : c_dkgray}),
+    //new MenuNodeSeparator(),
+    new MenuNodeButton("start", "Start"),
+    new MenuNodeButton("continue", "Continue"),
+    new MenuNodeButton("options", "Options", function(){PagePush("menu_options")}),
+    new MenuNodeButton("credits", "Credits"),
+    new MenuNodeConfirm("exit", "Exit", function(){game_end()}),
+]))
+mainMenu.PageAdd(new MenuPage("menu_options", "layerOptions", [
+    new MenuNodeText("options", "Options"),
+    //new MenuNodeSeparator(),
+    new MenuNodeSelector("language", "Language", [["English", "en_US"],["Português", "pt_BR"]], function(v){show_debug_message($"Language set to {v[1]}")}),
+    new MenuNodeButton("audio", "Audio", function(){PagePush("menu_audio")}),
+    new MenuNodeButton("video", "Video", function(){PagePush("menu_video")}),
+    new MenuNodeButton("back", "Back", function(){PagePop()}),
+]))
+mainMenu.PageAdd(new MenuPage("menu_audio", "layerAudio", [
+    new MenuNodeText("audio", "Audio"),
+    //new MenuNodeSeparator(),
+    new MenuNodeSlider("master", "Master Volume", 
+        function(){return global.options.audio.master},
+        function(v){global.options.audio.master = v}, 0, 100, 1),
+    new MenuNodeSlider("music", "Music Volume", 
+        function(){return global.options.audio.master},
+        function(v){global.options.audio.master = v}, 0, 100, 1),
+    new MenuNodeSlider("sfx", "SFX Volume", 
+        function(){return global.options.audio.master},
+        function(v){global.options.audio.master = v}, 0, 100, 1),
+    new MenuNodeButton("back", "Back", function(){PagePop()}),
+]))
+mainMenu.PageAdd(new MenuPage("menu_video", "layerVideo", [
+    new MenuNodeText("video", "Video"),
+    //new MenuNodeSeparator(),
+    new MenuNodeSelector("display", "Display", [["Windowed", 0], ["Fullscreen", 1], ["Borderless", 2]], function(v){global.options.video.display = v[1]}),
+    new MenuNodeSelector("resolution", "Resolution", [["640x360", 0],["1280x720", 1],["1920x1080", 2]], function(v){global.options.video.resolution = v[1]}),
+    new MenuNodeCheckbox("bloom", "Bloom"),
+    new MenuNodeCheckbox("vsync", "VSync"),
+    new MenuNodeButton("back", "Back", function(){PagePop()}),
 ]))
 
-mainMenu.PagePush("test_menu");
-
-#endregion
-
-
-
-
-//mainMenu.PageAdd(new MenuPage("menu_options", [
-//    new MenuNodeText("OPTIONS"),
-//    new MenuNodeSeparator(""),
-//    new MenuNodeSelector("Language", [["English", "en_US"],["Português", "pt_BR"]], function(option){show_debug_message($"Language set to {option[0]}")}),
-//    new MenuNodeButton("Audio", function(){PagePush("menu_audio")}),
-//    new MenuNodeButton("Video", function(){PagePush("menu_video")}),
-//    new MenuNodeButton("Back", function(){PagePop()}),
-//]))
-//mainMenu.PageAdd(new MenuPage("menu_audio", [
-//    new MenuNodeText("AUDIO"),
-//    new MenuNodeSeparator(""),
-//    new MenuNodeSlider("Master Volume"),
-//    new MenuNodeSlider("Music Volume"),
-//    new MenuNodeSlider("SFX Volume"),
-//    new MenuNodeButton("Back", function(){PagePop()}),
-//]))
-//mainMenu.PageAdd(new MenuPage("menu_video", [
-//    new MenuNodeText("VIDEO"),
-//    new MenuNodeSeparator(""),
-//    new MenuNodeToggle("Fullscreen"),
-//    new MenuNodeSelector("Resolution", [["640x360", 0],["1280x720", 1],["1920x1080", 2]], function(option){show_debug_message($"Resolution set to {option[0]}")}),
-//    new MenuNodeToggle("Bloom"),
-//    new MenuNodeToggle("VSync"),
-//    new MenuNodeButton("Back", function(){PagePop()}),
-//]))
-
-//var _container = flexpanel_node_get_child(_panel, "container")
-//data = flexpanel_node_layout_get_position(_container)
-//var _data = flexpanel_node_get_struct(_panel)
-//_data = json_stringify(_data, true)
-//show_debug_message(_data)
+mainMenu.PagePush("main_menu");

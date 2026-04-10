@@ -27,7 +27,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     #endregion
     
     // Startup
-    static __ = {};
+    __ = {};
     with (__) {
         FlexNode = function(type, id, x, y, z, w, h) constructor {
             self.type   = type;
@@ -83,6 +83,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
                         flexpanel_node_style_set_display(root, _nodeDisp);
                     }
                     _node.flexNode = root;
+                    break;
                 }
             }
             
@@ -103,29 +104,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     }
     
     // Layout
-    var _root = layer_get_flexpanel_node(layer);
-    var _layout = __.FlexParse(_root);
-    var _rootPos = flexpanel_node_layout_get_position(_root);
-    flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
-    _layout = __.FlexParse(_root);
     
-    for (var i = 0, n = array_length(nodes); i < n; i++) {
-        var _node = nodes[i];
-        var _flex = _node.flexNode;
-        if (_flex == undefined) continue;
-        var _data = __.FlexParse(_flex);
-        
-        for (var j = 0; j < array_length(_data); j++) {
-            array_push(_node.flexZones, {
-                type    : _data[j].type,
-                x       : _data[j].x,
-                y       : _data[j].y,
-                z       : _data[j].z,
-                w       : _data[j].w,
-                h       : _data[j].h,
-            })
-        }
-    }
     
     // Methods
     static NodeGetActive = function() {
@@ -142,7 +121,33 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     }
     
     static OnEnter = function(){
+        
+        var _root = layer_get_flexpanel_node(layer);
+        var _layout = __.FlexParse(_root);
+        var _rootPos = flexpanel_node_layout_get_position(_root);
+        flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
+        _layout = __.FlexParse(_root);
+    
+        for (var i = 0, n = array_length(nodes); i < n; i++) {
+            var _node = nodes[i];
+            var _flex = _node.flexNode;
+            if (_flex == undefined) continue;
+            var _data = __.FlexParse(_flex);
+        
+            for (var j = 0; j < array_length(_data); j++) {
+                array_push(_node.flexZones, {
+                    type    : _data[j].type,
+                    x       : _data[j].x,
+                    y       : _data[j].y,
+                    z       : _data[j].z,
+                    w       : _data[j].w,
+                    h       : _data[j].h,
+                })
+            }
+        }
+        
         CursorFindFirst();
+        
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
             _node.OnEnter();

@@ -3,7 +3,6 @@
 function MenuNode(id, name, config = {}) constructor{
     self.id     = id;
     self.name   = name;
-    
     #region Public
     colors      = config[$ "colors"] ?? {
         base        : #FFFFFF,
@@ -16,6 +15,7 @@ function MenuNode(id, name, config = {}) constructor{
     #endregion
     
     #region Private
+    type        = "BLANK";
     focused     = false;    // If the node has focus (either by keyboard or mouse)
     interactive = true;     // If the node can have focus (either by keyboard or mouse)
     enabled     = true;     // If the node can run its callback when selected
@@ -234,6 +234,7 @@ function MenuNode(id, name, config = {}) constructor{
 #region Visual Nodes --------------------------
 
 function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constructor {
+    type        = "TEXT";
     interactive = false;
     
     background  = config[$ "background"];
@@ -262,7 +263,8 @@ function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constr
     });
 }
 
-function MenuNodeSeparator(id, name = id, config = {}) : MenuNode(id, name, config) constructor {
+function MenuNodeSeparator(id = "", name = id, config = {}) : MenuNode(id, name, config) constructor {
+    type        = "SEPARATOR";
     interactive = false;
     
     drawLine    = config[$ "drawLine"] ?? true;
@@ -284,7 +286,7 @@ function MenuNodeSeparator(id, name = id, config = {}) : MenuNode(id, name, conf
 }
 
 function MenuNodeSprite(id, name, sprite, config = {}) : MenuNode(id, name, config) constructor {
-    
+    type        = "SPRITE";
 }
 
 #endregion
@@ -292,6 +294,7 @@ function MenuNodeSprite(id, name, sprite, config = {}) : MenuNode(id, name, conf
 #region Functional Nodes --------------------------
 
 function MenuNodeButton(id, name, onSelect, config = {}) : MenuNode(id, name, config) constructor {
+    type = "BUTTON";
     
     if (is_callable(onSelect)) OnSelect(method(self, onSelect));
     
@@ -316,6 +319,7 @@ function MenuNodeButton(id, name, onSelect, config = {}) : MenuNode(id, name, co
 }
 
 function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, config) constructor {
+    type    = "CONFIRM";
     pending = false;
     msg     = config[$ "msg"] ?? name + "?";
     
@@ -348,6 +352,7 @@ function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, c
 }
 
 function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(id, name, config) constructor {
+    type            = "SELECTOR";
     self.options    = options;
     self.cursor     = 0;
     cycle           = config[$ "cycle"] ?? true;
@@ -408,7 +413,7 @@ function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(i
                     scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2, _y+_h/2);
                 } break;
                 case "VALUE": {
-                    _t = string(OptionGetActive());
+                    _t = string(OptionGetActive()[0]);
                     scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2+xOffAnim.GetValue(), _y+_h/2);
                 } break;
             }
@@ -419,6 +424,7 @@ function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(i
 #endregion
 
 function MenuNodeCheckbox(id, name, onChange, config = {}) : MenuNode(id, name, config) constructor {
+    type    = "CHECKBOX";
     value   = 0;
     
     OnChange = is_callable(onChange) ? method(self, onChange) : undefined;
@@ -459,14 +465,15 @@ function MenuNodeCheckbox(id, name, onChange, config = {}) : MenuNode(id, name, 
     });
 }
 
-/// @func MenuNodeSlider(id, name, get, set, min, max, step, format, [config])
+/// @func MenuNodeSlider(id, name, get, set, min, max, step, [format], [config])
 function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueStep, valueFormat, config = {}) : MenuNode(id, name, config) constructor {
+    type        = "SLIDER";
     value       = 0;
     dragging    = false;
     
     ValueGet    = method(self, valueGet);
     ValueSet    = method(self, valueSet);
-    ValueFormat = method(self, valueFormat);
+    ValueFormat = method(self, valueFormat ?? function(v){return string(v)});
     
     self.valueMin   = valueMin;
     self.valueMax   = valueMax;
