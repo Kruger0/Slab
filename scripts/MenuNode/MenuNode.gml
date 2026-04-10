@@ -287,7 +287,7 @@ function MenuNodeSprite(name, sprite, config = {}) : MenuNode(name, config) cons
 #region Functional Nodes --------------------------
 
 function MenuNodeButton(name, onSelect, config = {}) : MenuNode(name, config) constructor {
-    visible = false
+    
     if (is_callable(onSelect)) OnSelect(method(self, onSelect));
     
     OnSelect(function() {

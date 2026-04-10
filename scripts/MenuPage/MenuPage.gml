@@ -125,17 +125,20 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         });
     }
     
-    // Nodes
-    for (var i = 0, n = array_length(nodes); i < n; i++) {
-        var _node = nodes[i];
-    }
-    
     // Layout
     var _root = layer_get_flexpanel_node(layer);
     var _layout = __.FlexParse(_root);
     var _rootPos = flexpanel_node_layout_get_position(_root);
     flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
     _layout = __.FlexParse(_root);
+    
+    for (var i = 0, n = array_length(nodes); i < n; i++) {
+        var _node = nodes[i];
+        var _flex = _node.flexNode;
+        // fetch positions & zones
+        var _data = __.FlexParse(_flex)
+        show_message(_data)
+    }
     
     // Methods
     static NodeGetActive = function() {
