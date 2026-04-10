@@ -46,8 +46,8 @@
   },
   "origin":0,
   "parent":{
-    "name":"MenuSystemv2.0",
-    "path":"MenuSystemv2.0.yyp",
+    "name":"GM-MenuSystem",
+    "path":"GM-MenuSystem.yyp",
   },
   "preMultiplyAlpha":false,
   "resourceType":"GMSprite",
