@@ -240,7 +240,7 @@ function MenuNode(name, config = {}) constructor{
 
 #region Visual Nodes --------------------------
 
-function MenuNodeLabel(name, config = {}) : MenuNode(name, config) constructor {
+function MenuNodeText(name, value, config = {}) : MenuNode(name, config) constructor {
     interactive = false;
     
     OnRender(function() {
@@ -253,7 +253,7 @@ function MenuNodeLabel(name, config = {}) : MenuNode(name, config) constructor {
     });
 }
 
-function MenuNodeSeparator(config = {}) : MenuNode("separator", config) constructor {
+function MenuNodeSeparator(name, config = {}) : MenuNode(name, config) constructor {
     interactive = false;
     
     drawLine    = config[$ "drawLine"] ?? true;
@@ -274,7 +274,7 @@ function MenuNodeSeparator(config = {}) : MenuNode("separator", config) construc
     });
 }
 
-function MenuNodeSameLine(config = {}) : MenuNode("sameLine", config) constructor {
+function MenuNodeSprite(name, sprite, config = {}) : MenuNode(name, config) constructor {
     
 }
 
@@ -380,7 +380,11 @@ function MenuNodeSelector(name, options, onChange, config = {}) : MenuNode(name,
 
 // WIP --------------------------
 
-function MenuNodeToggle(name) : MenuNode(name) constructor {
+function MenuNodeCheckbox(name, config = {}) : MenuNode(name, config) constructor {
+    
+}
+
+function MenuNodeToggle(name, config = {}) : MenuNode(name, config) constructor {
     OnRender(function() {
         var _c = isFocused ? colors.focused : colors.base;
         draw_set_halign(hAlign);
@@ -391,7 +395,7 @@ function MenuNodeToggle(name) : MenuNode(name) constructor {
     })
 }
 
-function MenuNodeSlider(name) : MenuNode(name) constructor {
+function MenuNodeSlider(name, config = {}) : MenuNode(name, config) constructor {
     OnRender(function() {
         var _c = isFocused ? colors.focused : colors.base;
         draw_set_halign(hAlign);

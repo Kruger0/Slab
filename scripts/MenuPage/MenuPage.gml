@@ -1,6 +1,7 @@
 
-function MenuPage(name, nodes, config = {}) constructor{
+function MenuPage(name, layer, nodes, config = {}) constructor{
     self.name   = name;
+    self.layer  = layer;
     self.nodes  = nodes;
     
     #region Public

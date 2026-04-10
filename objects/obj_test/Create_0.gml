@@ -4,51 +4,28 @@ global.debug = false;
 #region MenuSystem Creation
 
 mainMenu = new MenuManager();
-mainMenu.PageAdd(new MenuPage("menu_main", [
-    new MenuNodeLabel("MAIN MENU PAGE"),
-    new MenuNodeSeparator(),
-    new MenuNodeButton("Start", function(){show_debug_message("STARTING GAME")}),
-    new MenuNodeButton("Continue"),
-    new MenuNodeButton("Options", function(){PagePush("menu_options")}),
-    new MenuNodeButton("Credits"),
-    new MenuNodeConfirm("Exit", function(){game_end()}),
-]))
-mainMenu.PageAdd(new MenuPage("menu_options", [
-    new MenuNodeLabel("OPTIONS"),
-    new MenuNodeSeparator(),
-    new MenuNodeSelector("Language", [["English", "en_US"],["Português", "pt_BR"]], function(option){show_debug_message($"Language set to {option[0]}")}),
-    new MenuNodeButton("Audio", function(){PagePush("menu_audio")}),
-    new MenuNodeButton("Video", function(){PagePush("menu_video")}),
-    new MenuNodeButton("Back", function(){PagePop()}),
-]))
-mainMenu.PageAdd(new MenuPage("menu_audio", [
-    new MenuNodeLabel("AUDIO"),
-    new MenuNodeSeparator(),
-    new MenuNodeSlider("Master Volume"),
-    new MenuNodeSlider("Music Volume"),
-    new MenuNodeSlider("SFX Volume"),
-    new MenuNodeButton("Back", function(){PagePop()}),
-]))
-mainMenu.PageAdd(new MenuPage("menu_video", [
-    new MenuNodeLabel("VIDEO"),
-    new MenuNodeSeparator(),
-    new MenuNodeToggle("Fullscreen"),
-    new MenuNodeSelector("Resolution", [["640x360", 0],["1280x720", 1],["1920x1080", 2]], function(option){show_debug_message($"Resolution set to {option[0]}")}),
-    new MenuNodeToggle("Bloom"),
-    new MenuNodeToggle("VSync"),
-    new MenuNodeButton("Back", function(){PagePop()}),
+mainMenu.PageAdd(new MenuPage("layerBase", [
+    new MenuNodeText("testText", "Main Menu"),
+    new MenuNodeSeparator("testSep"),
+    new MenuNodeButton("testButton0", function(){show_debug_message("test")}),
+    new MenuNodeSelector("test_selector1", []),
+    new MenuNodeSlider("testSlider0"),
+    new MenuNodeSlider("testSlider1"),
+    new MenuNodeSlider("testSlider2"),
+    new MenuNodeButton("testButton1", function(){show_debug_message("test1")}),
+    new MenuNodeButton("testButton2", function(){show_debug_message("test2")}),
+    new MenuNodeCheckbox("testCheckbox0"),
+    new MenuNodeCheckbox("testCheckbox1"),
+    new MenuNodeCheckbox("testCheckbox2"),
+    new MenuNodeConfirm("testConfirm0", function(){game_end()}),
 ]))
 
-mainMenu.PagePush("menu_main");
+mainMenu.PagePush("layerBase");
 
 #endregion
 
 var _panel = layer_get_flexpanel_node("layerBase")
-//var _container = flexpanel_node_get_child(_panel, "container")
-//data = flexpanel_node_layout_get_position(_container)
-//var _data = flexpanel_node_get_struct(_panel)
-//_data = json_stringify(_data, true)
-//show_debug_message(_data)
+
 
 function FlexGetNodes(root, data = [], ref = "") {
     var _pos    = flexpanel_node_layout_get_position(root, false);
@@ -72,7 +49,7 @@ function FlexGetNodes(root, data = [], ref = "") {
         case "SPRITE": {
             
         } break;
-        // Complex nodes
+        // Complex Nodes
         case "SELECT": {
             ref = _id;
         } break;
@@ -82,7 +59,7 @@ function FlexGetNodes(root, data = [], ref = "") {
         case "CHECKBOX": {
             ref = _id;
         } break;
-        // Subnodes
+        // Clickable Zones
         case "BAR":
         case "BOX":
         case "LEFT":
@@ -90,6 +67,7 @@ function FlexGetNodes(root, data = [], ref = "") {
             _z = 1;
             _par = ref;
         } break;
+        // Internal Zones
         case "LABEL":
         case "VALUE": {
             _par = ref;
@@ -105,7 +83,7 @@ function FlexGetNodes(root, data = [], ref = "") {
         y   : _pos.top,
         w   : _pos.width, 
         h   : _pos.height,
-        c   : random(#FFFFFF),//make_colour_hsv(random(255), 255, 128),
+        c   : random(#FFFFFF),// Debugging
     });
     
     var _childs = flexpanel_node_get_num_children(root);
@@ -182,5 +160,34 @@ ZoneGetActive = function() {
 
 
 
+//mainMenu.PageAdd(new MenuPage("menu_options", [
+//    new MenuNodeText("OPTIONS"),
+//    new MenuNodeSeparator(""),
+//    new MenuNodeSelector("Language", [["English", "en_US"],["Português", "pt_BR"]], function(option){show_debug_message($"Language set to {option[0]}")}),
+//    new MenuNodeButton("Audio", function(){PagePush("menu_audio")}),
+//    new MenuNodeButton("Video", function(){PagePush("menu_video")}),
+//    new MenuNodeButton("Back", function(){PagePop()}),
+//]))
+//mainMenu.PageAdd(new MenuPage("menu_audio", [
+//    new MenuNodeText("AUDIO"),
+//    new MenuNodeSeparator(""),
+//    new MenuNodeSlider("Master Volume"),
+//    new MenuNodeSlider("Music Volume"),
+//    new MenuNodeSlider("SFX Volume"),
+//    new MenuNodeButton("Back", function(){PagePop()}),
+//]))
+//mainMenu.PageAdd(new MenuPage("menu_video", [
+//    new MenuNodeText("VIDEO"),
+//    new MenuNodeSeparator(""),
+//    new MenuNodeToggle("Fullscreen"),
+//    new MenuNodeSelector("Resolution", [["640x360", 0],["1280x720", 1],["1920x1080", 2]], function(option){show_debug_message($"Resolution set to {option[0]}")}),
+//    new MenuNodeToggle("Bloom"),
+//    new MenuNodeToggle("VSync"),
+//    new MenuNodeButton("Back", function(){PagePop()}),
+//]))
 
-
+//var _container = flexpanel_node_get_child(_panel, "container")
+//data = flexpanel_node_layout_get_position(_container)
+//var _data = flexpanel_node_get_struct(_panel)
+//_data = json_stringify(_data, true)
+//show_debug_message(_data)
