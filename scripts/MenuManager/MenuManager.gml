@@ -12,10 +12,12 @@ function MenuManager(config = {}) constructor{
         mouseActive     = false;
         mouseFocus      = undefined;
         
-        static __InputMethod = function() {
+        static __InputMethodActions = function() {
             return {
-                xDelta              : InputOpposingPressed(INPUT_VERB.LEFT, INPUT_VERB.RIGHT),
-                yDelta              : InputOpposingPressed(INPUT_VERB.UP, INPUT_VERB.DOWN),
+                leftPressed         : InputPressed(INPUT_VERB.LEFT),
+                rightPressed        : InputPressed(INPUT_VERB.RIGHT),
+                upPressed           : InputPressed(INPUT_VERB.UP),
+                downPressed         : InputPressed(INPUT_VERB.DOWN),
                                     
                 selectPressed       : InputPressed(INPUT_VERB.ACCEPT),
                 selectCheck         : InputCheck(INPUT_VERB.ACCEPT),
@@ -24,14 +26,25 @@ function MenuManager(config = {}) constructor{
                 backPressed         : InputPressed(INPUT_VERB.CANCEL),
                 backCheck           : InputCheck(INPUT_VERB.CANCEL),
                 backReleased        : InputReleased(INPUT_VERB.CANCEL),
+            }
+        }
+        static __InputMethodMouse = function() {
+            return {
+                leftPressed     : InputMousePressed(mb_left),
+                leftCheck       : InputMouseCheck(mb_left),
+                leftReleased    : InputMouseReleased(mb_left),
+                                
+                rightPressed    : InputMousePressed(mb_right),
+                rightCheck      : InputMouseCheck(mb_right),
+                rightReleased   : InputMouseReleased(mb_right),
                 
-                mouseRightPressed   : InputMousePressed(mb_left),
-                mouseRightCheck     : InputMouseCheck(mb_left),
-                mouseRightReleased  : InputMouseReleased(mb_left),
-                
-                mouseLeftPressed    : InputMousePressed(mb_left),
-                mouseLeftCheck      : InputMouseCheck(mb_left),
-                mouseLeftReleased   : InputMouseReleased(mb_left),
+                //scrollDelta     : InputMouseCheck()
+            }
+        }
+        static __InputClear = function(input) {
+            var _keys = struct_get_names(input);
+            for (var i = 0; i < array_length(_keys); i++) {
+                input[$ _keys[i]] = 0;
             }
         }
     }
@@ -44,13 +57,13 @@ function MenuManager(config = {}) constructor{
         var _page = PageGetActive();
         if (is_undefined(_page)) return;
         
-        var _input = __InputMethod();
+        var _inputActions   = __InputMethodActions();
+        var _inputMouse     = __InputMethodMouse();
+        
         if (__.mouseActive) {
-            _input.selectPressed = 0;
-            _input.xDelta = 0;
-            _input.yDelta = 0;
+            __InputClear(_inputActions);
         } else {
-            _input.mouseLeftPressed = 0;
+            __InputClear(_inputMouse);
         }
         
         // Input State
@@ -83,11 +96,12 @@ function MenuManager(config = {}) constructor{
             }
             _page.__CursorSet(__.mouseFocus);
         } else {
-            if (_input.yDelta != 0) {
+            var _yDelta = (_inputActions.downPressed - _inputActions.upPressed);
+            if (_yDelta != 0) {
                 var _next = _page.__CursorGet();
                 var _guard = 0;
                 do {
-                    _next += _input.yDelta;
+                    _next += _yDelta;
                     if (_page.cycle) {
                         _next = ((_next % _count) + _count) % _count;
                     } else {
@@ -106,16 +120,16 @@ function MenuManager(config = {}) constructor{
         if (_node.interactive) {
             if (__.mouseActive) {
                 if (!is_undefined(__.mouseFocus)) {
-                    _node.InputHandle(_input);
+                    _node.MouseHandler(_inputMouse);
                 }
             } else {
-                _node.InputHandle(_input);
+                _node.ActionHandler(_inputActions);
                 // TODO node locking for handling in node navigation using xDelta & yDelta
             }
         }
         
         // Back
-        if (_input.backPressed) PagePop();
+        if (_inputActions.backPressed) PagePop();
         
         // Cleanup
         delete _input;
@@ -144,21 +158,21 @@ function MenuManager(config = {}) constructor{
     }
     static PagePush = function(page) {
         var _pageCurr = PageGetActive();
-        if !(is_undefined(_pageCurr)) _pageCurr.OnLeave(false);
+        if !(is_undefined(_pageCurr)) _pageCurr.Leave(false);
         array_push(__.stack, page);
         var _pageNext = PageGetActive();
-        if !(is_undefined(_pageNext)) _pageNext.OnEnter();
+        if !(is_undefined(_pageNext)) _pageNext.Enter();
         return self;
     }
     static PagePop = function() {
         if (array_length(__.stack) <= 1) return;
         var _pageCurr = PageGetActive();
         if (is_undefined(_pageCurr)) return;
-        _pageCurr.OnLeave(true);
+        _pageCurr.Leave(true);
         array_pop(__.stack);
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
-        _pageNext.OnEnter();
+        _pageNext.Enter();
         return self;
     }
     

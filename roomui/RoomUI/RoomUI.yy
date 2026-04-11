@@ -35,7 +35,7 @@
     {"$GMRUILayer":"v1","%Name":"layerMain","alignItems":2,"children":[
         {"$GMRFlexPanel":"","%Name":"Container","alignItems":2,"children":[
             {"$GMRFlexPanel":"","%Name":"TEXT_main","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":32.0,},"justifyContent":1,"name":"TEXT_main","nodeColour":4283363110,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
-            {"$GMRFlexPanel":"","%Name":"SEPARATOR","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
+            {"$GMRFlexPanel":"","%Name":"SEPARATOR_sep","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR_sep","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
             {"$GMRFlexPanel":"","%Name":"BUTTON_start","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":32.0,},"justifyContent":1,"name":"BUTTON_start","nodeColour":4294095688,"paddingBottom":{"unit":1,"value":8.0,},"paddingLeft":{"unit":1,"value":8.0,},"paddingRight":{"unit":1,"value":8.0,},"paddingTop":{"unit":1,"value":8.0,},"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
             {"$GMRFlexPanel":"","%Name":"BUTTON_continue","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":32.0,},"justifyContent":1,"name":"BUTTON_continue","nodeColour":4294095688,"paddingBottom":{"unit":1,"value":8.0,},"paddingLeft":{"unit":1,"value":8.0,},"paddingRight":{"unit":1,"value":8.0,},"paddingTop":{"unit":1,"value":8.0,},"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
             {"$GMRFlexPanel":"","%Name":"BUTTON_options","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":32.0,},"justifyContent":1,"name":"BUTTON_options","nodeColour":4294095688,"paddingBottom":{"unit":1,"value":8.0,},"paddingLeft":{"unit":1,"value":8.0,},"paddingRight":{"unit":1,"value":8.0,},"paddingTop":{"unit":1,"value":8.0,},"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
@@ -46,7 +46,7 @@
     {"$GMRUILayer":"v1","%Name":"layerOptions","alignItems":2,"children":[
         {"$GMRFlexPanel":"","%Name":"Container","alignItems":2,"children":[
             {"$GMRFlexPanel":"","%Name":"TEXT_options","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":32.0,},"justifyContent":1,"name":"TEXT_options","nodeColour":4283363110,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
-            {"$GMRFlexPanel":"","%Name":"SEPARATOR","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
+            {"$GMRFlexPanel":"","%Name":"SEPARATOR_sep","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR_sep","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
             {"$GMRFlexPanel":"","%Name":"SELECTOR_language","alignItems":2,"children":[
                 {"$GMRFlexPanel":"","%Name":"Content","alignItems":2,"children":[
                     {"$GMRFlexPanel":"","%Name":"LEFT","alignItems":2,"children":[
@@ -66,7 +66,7 @@
     {"$GMRUILayer":"v1","%Name":"layerAudio","alignItems":2,"children":[
         {"$GMRFlexPanel":"","%Name":"Container","alignItems":2,"children":[
             {"$GMRFlexPanel":"","%Name":"TEXT_audio","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":32.0,},"justifyContent":1,"name":"TEXT_audio","nodeColour":4283363110,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
-            {"$GMRFlexPanel":"","%Name":"SEPARATOR","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
+            {"$GMRFlexPanel":"","%Name":"SEPARATOR_sep","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR_sep","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
             {"$GMRFlexPanel":"","%Name":"SLIDER_master","alignItems":3,"children":[
                 {"$GMRFlexPanel":"","%Name":"Content","alignItems":2,"children":[
                     {"$GMRFlexPanel":"","%Name":"BAR","alignItems":2,"children":[],"flexDirection":0,"flexGrow":1.0,"height":{"unit":2,"value":80.0,},"justifyContent":1,"name":"BAR","nodeColour":4288475720,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":3,"value":60.0,},},
@@ -91,7 +91,7 @@
     {"$GMRUILayer":"v1","%Name":"layerVideo","alignItems":2,"children":[
         {"$GMRFlexPanel":"","%Name":"Container","alignItems":2,"children":[
             {"$GMRFlexPanel":"","%Name":"TEXT_video","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":32.0,},"justifyContent":1,"name":"TEXT_video","nodeColour":4283363110,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
-            {"$GMRFlexPanel":"","%Name":"SEPARATOR","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
+            {"$GMRFlexPanel":"","%Name":"SEPARATOR_sep","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR_sep","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
             {"$GMRFlexPanel":"","%Name":"SELECTOR_display","alignItems":2,"children":[
                 {"$GMRFlexPanel":"","%Name":"Content","alignItems":2,"children":[
                     {"$GMRFlexPanel":"","%Name":"LEFT","alignItems":2,"children":[

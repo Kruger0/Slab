@@ -12,8 +12,13 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     // Private
     __ = {};
     with (__) {
-        cursor  = 0;
-        ready   = false;
+        self.name   = name;
+        self.layer  = layer;
+        cursor      = 0; // DEPRECATED
+        ready       = false;
+        nodeArray   = nodes;
+        nodeCount   = array_length(nodes);
+        nodeActive  = 0;
         
         static __CursorSet = function(value) {
             if (is_undefined(value)) return;
@@ -33,6 +38,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             self.z      = z;
             self.w      = w;
             self.h      = h;
+            self.active = false;
         };
         static __FlexParse = function(root, data = []) {
             var _name   = string_split(flexpanel_node_get_name(root), "_");
@@ -96,7 +102,28 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             }
             return data;
         };
+        
+        static __PageInit = function() {
+            var _root = layer_get_flexpanel_node(layer);
+            var _layout = __FlexParse(_root);
+            var _rootPos = flexpanel_node_layout_get_position(_root);
+            flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
+            _layout = __FlexParse(_root);
+            
+            for (var i = 0, n = array_length(nodes); i < n; i++) {
+                var _node = nodes[i];
+                var _flex = _node.flexNode;
+                if (_flex == undefined) continue;
+                var _data = __FlexParse(_flex);
+            
+                for (var j = 0; j < array_length(_data); j++) {
+                    array_push(_node.flexZones, _data[j]);
+                }
+            }
+        }
     }
+    
+    __PageInit();
     
     // Methods
     static NodeGetActive = function() {
@@ -112,61 +139,42 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         }
     }
     
-    static OnEnter = function(){
-        
-        var _root = layer_get_flexpanel_node(layer);
-        var _layout = __FlexParse(_root);
-        var _rootPos = flexpanel_node_layout_get_position(_root);
-        flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
-        _layout = __FlexParse(_root);
-    
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            var _flex = _node.flexNode;
-            if (_flex == undefined) continue;
-            var _data = __FlexParse(_flex);
-            
-            for (var j = 0; j < array_length(_data); j++) {
-                array_push(_node.flexZones, {
-                    type    : _data[j].type,
-                    x       : _data[j].x,
-                    y       : _data[j].y,
-                    z       : _data[j].z,
-                    w       : _data[j].w,
-                    h       : _data[j].h,
-                })
-            }
+    static NodeFindFirst = function() {
+        var _guard = 0;
+        while (!__.nodeArray[__.nodeActive].interactive && _guard < __.nodeCount) {
+            __.nodeActive++;
+            _guard++;
         }
-        
-        CursorFindFirst();
-        
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _node.OnEnter();
-            _node.mng = mng;
-        }
-    };
-    static OnLeave = function(resetCursor){
-        if (resetCursor) __.cursor = 0;
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _node.OnLeave();
-        }
-    };
+    }
     
     static Update = function(mouseActive){
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
+        for (var i = 0; i < __.nodeCount; i++) {
+            var _node = __.nodeArray[i];
             _node.Update(mouseActive ? undefined : (__.cursor == i));
         }
         __.ready = true;
     };
     static Render = function(){
         if (!__.ready) return;
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
+        for (var i = 0; i < __.nodeCount; i++) {
             var _node   = nodes[i];
             _node.Render();
         }
         __.ready = false;
     };
+    static Enter = function() {
+        CursorFindFirst();
+        for (var i = 0; i < __.nodeCount; i++) {
+            var _node = __.nodeArray[i];
+            _node.mng = mng;
+            _node.Enter();
+        }
+    }
+    static Leave = function(resetNode) {
+        if (resetNode) __.nodeActive = 0;
+        for (var i = 0; i < __.nodeCount; i++) {
+            var _node = __.nodeArray[i];
+            _node.Leave();
+        }
+    }
 }

@@ -26,14 +26,22 @@ function MenuNode(id, name, config = {}) constructor{
         vAlign      = fa_middle;
         xAnchor     = 0;
         yAnchor     = 0;
-    
+        
         angle       = 0;
         xPos        = 0;
         yPos        = 0;
         xScl        = 1;
         yScl        = 1;
+        
+        zoneArray   = [];
+        zoneIndex   = undefined;
+        zoneActive  = "";
+        zoneNode    = undefined;
+        zoneCount   = 0//array_length(flexZones);
+        
+        onEnterCb   = [];
+        onLeaveCb   = [];
     }
-    type        = "BLANK";
     focused     = false;    // If the node has focus (either by keyboard or mouse)
     interactive = true;     // If the node can have focus (either by keyboard or mouse)
     enabled     = true;     // If the node can run its callback when selected
@@ -59,6 +67,7 @@ function MenuNode(id, name, config = {}) constructor{
     onRenderCb  = [];
     onSelectCb  = [];
     
+    // DEPRECATED
     flexNode    = undefined;
     flexZones   = [];
     #endregion
@@ -79,6 +88,12 @@ function MenuNode(id, name, config = {}) constructor{
     }
     static OnSelect = function(callback, data = undefined) {
         array_push(onSelectCb, {callback, data});
+    }
+    static OnEnter = function(callback, data = undefined) {
+        array_push(__.onEnterCb, {callback, data});
+    }
+    static OnLeave = function(callback, data = undefined) {
+        array_push(__.onLeaveCb, {callback, data});
     }
     
     static Update = function(focused){
@@ -108,6 +123,29 @@ function MenuNode(id, name, config = {}) constructor{
             case fa_top:    yPos = _yOff + _body.y; break;
             case fa_middle: yPos = _yOff + _body.y + (_body.h / 2); break;
             case fa_bottom: yPos = _yOff + _body.y + _body.n; break;
+        }
+        
+        // Active Zone
+        __.zoneActive = "";
+        var _zoneActive = undefined;
+        var _zCurr = -1;
+        for (var i = 0, n = array_length(flexZones); i < n; i++) {
+            var _zoneCurr = flexZones[i];
+            _zoneCurr.active = false;
+            var _x1 = _zoneCurr.x;
+            var _y1 = _zoneCurr.y;
+            var _x2 = _x1+_zoneCurr.w;
+            var _y2 = _y1+_zoneCurr.h;
+            if (point_in_rectangle(mng.__.mx, mng.__.my, _x1, _y1, _x2, _y2)) {
+                if (_zoneCurr.z > _zCurr) {
+                    _zCurr = _zoneCurr.z;
+                    _zoneActive = _zoneCurr;
+                }
+            }
+        }
+        if (!is_undefined(_zoneActive)) {
+            _zoneActive.active = true;
+            __.zoneActive = _zoneActive.type;
         }
         
         // Custom
@@ -140,6 +178,10 @@ function MenuNode(id, name, config = {}) constructor{
             var _c2 = #FFFFFF;
             draw_circle_color(xPos, yPos, 6, _c1, _c2, false);
             draw_circle_color(xPos, yPos, 6, _c1, _c1, true);
+            
+            //for (var i = 0; i < array_length(flexZones); i++) {
+            //    draw_text(xPos, yPos+i*16, flexZones[i])
+            //}
         }
     }
     static Select = function() {
@@ -152,6 +194,30 @@ function MenuNode(id, name, config = {}) constructor{
         // Debug
         if (global.debug) {
             show_debug_message($"{instanceof(self)} '{name}' - Select()");
+        }
+    }
+    static Enter = function() {
+        xSclAnim.Snap(0.8).Play(1);
+        ySclAnim.Snap(0.8).Play(1);
+        
+        // Custom
+        for (var i = 0, n = array_length(__.onEnterCb); i < n; i++) {
+            var _entry = __.onEnterCb[i];
+            _entry.callback(_entry.data);
+        }
+    }
+    static Leave = function() {
+        xOffAnim.Snap(0);
+        yOffAnim.Snap(0);
+        xSclAnim.Snap(1);
+        ySclAnim.Snap(1);
+        
+        focused = false;
+        
+        // Custom
+        for (var i = 0, n = array_length(__.onLeaveCb); i < n; i++) {
+            var _entry = __.onLeaveCb[i];
+            _entry.callback(_entry.data);
         }
     }
     
@@ -169,26 +235,6 @@ function MenuNode(id, name, config = {}) constructor{
         return false;
     }
     
-    static ZoneGetActive = function() {
-        var _px = mng.__.mx;
-        var _py = mng.__.my;
-        var _active = "";
-        var _z  = -1;
-        for (var i = 0, n = array_length(flexZones); i < n; i++) {
-            var _zone = flexZones[i];
-            var _x1 = _zone.x;
-            var _y1 = _zone.y;
-            var _x2 = _x1+_zone.w;
-            var _y2 = _y1+_zone.h;
-            if (point_in_rectangle(_px, _py, _x1, _y1, _x2, _y2)) {
-                if (_zone.z > _z) {
-                    _z = _zone.z;
-                    _active = _zone.type;
-                }
-            }
-        }
-        return _active;
-    }
     static ZoneGetBody = function() {
         if (array_length(flexZones) == 0) return;
         return flexZones[0]; // TODO pass custom node width
@@ -231,25 +277,17 @@ function MenuNode(id, name, config = {}) constructor{
         Select();
     }
     
-    static InputHandle = function(input) {
-        if (input.xDelta < 0) ActionLeft();
-        if (input.xDelta > 0) ActionRight();
-        if (input.yDelta < 0) ActionUp();
-        if (input.yDelta > 0) ActionDown();
-        if (input.selectPressed || input.mouseLeftPressed) ActionSelect();
+    static ActionHandler = function(actions) {
+        if (actions.leftPressed) ActionLeft();
+        if (actions.rightPressed) ActionRight();
+        if (actions.upPressed) ActionUp();
+        if (actions.downPressed) ActionDown();
+        if (actions.selectPressed) ActionSelect();
     }
     
-    static OnEnter     = config[$ "OnEnter"] ?? function(){
-        xSclAnim.Snap(0.8).Play(1);
-        ySclAnim.Snap(0.8).Play(1);
-    };
-    static OnLeave     = config[$ "OnLeave"] ?? function(){
-        focused = false;
-        xOffAnim.Snap(0);
-        yOffAnim.Snap(0);
-        xSclAnim.Snap(1);
-        ySclAnim.Snap(1);
-    };
+    static MouseHandler = function(mouse) {
+        if (mouse.leftPressed) Select();
+    }
 }
 
 function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constructor {
@@ -282,7 +320,7 @@ function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constr
     });
 }
 
-function MenuNodeSeparator(id = "", name = id, config = {}) : MenuNode(id, name, config) constructor {
+function MenuNodeSeparator(id, name = id, config = {}) : MenuNode(id, name, config) constructor {
     type        = "SEPARATOR";
     interactive = false;
     
@@ -366,42 +404,74 @@ function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, c
     });
 }
 
-function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(id, name, config) constructor {
-    type            = "SELECTOR";
-    self.options    = options;
-    self.cursor     = 0;
-    cycle           = config[$ "cycle"] ?? true;
+function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : MenuNode(id, name, config) constructor {
+    __.type         = "SELECTOR";
+    __.name         = name;
+    __.optionArray  = options;
+    __.optionIndex  = 0;
+    __.optionCount  = array_length(options);
+    __.optionCycle  = config[$ "cycle"] ?? true;
     
-    OnChange = is_callable(onChange) ? method(self, onChange) : undefined;
+    static ValueGet = method(self, valueGet);
+    static ValueSet = method(self, valueSet);
+    
+    // Find cursor value
+    var _value = ValueGet();
+    for (var i = 0; i < __.optionCount; i++) {
+        if (options[i][1] == _value) {
+            __.optionIndex = i;
+            break;
+        }
+    }
+    if (__.optionIndex == undefined) {
+        show_debug_message($"MenuNodeSelector: value '{_value}' not found in options. Defaulting to 0");
+        __.optionIndex = 0;
+    }
     
     static OptionGetActive = function() {
-        return options[cursor];
+        return __.optionArray[__.optionIndex];
+    }
+    static OptionCycleLeft = function() {
+        with (__) {
+            if (optionCycle) {
+                optionIndex = ((optionIndex - 1) % optionCount + optionCount) % optionCount;
+            } else {
+                if (optionIndex == 0) return false;
+                optionIndex = max(0, optionIndex - 1);
+            }
+        }
+        return true;
+    }
+    static OptionCycleRight = function() {
+        with (__) {
+            if (optionCycle) {
+                optionIndex = (optionIndex + 1) % optionCount;
+            } else {
+                if (optionIndex == optionCount-1) return false;
+                optionIndex = min(optionCount - 1, optionIndex + 1);
+            }
+        }
+        return true;
     }
     
     static ActionLeft = function() {
-        var _len = array_length(options);
-        if (cycle) {
-            cursor = ((cursor - 1) % _len + _len) % _len;
-        } else {
-            cursor = max(0, cursor - 1);
+        if (OptionCycleLeft()) {
+            ValueSet(OptionGetActive());
+            xOffAnim.Snap(-10).Play(0);
         }
-        if (is_callable(OnChange)) OnChange(OptionGetActive());
-        xOffAnim.Snap(-16).Play(0);
     }
     static ActionRight = function() {
-        var _len = array_length(options);
-        if (cycle) {
-            cursor = (cursor + 1) % _len;
-        } else {
-            cursor = min(_len - 1, cursor + 1);
+        if (OptionCycleRight()) {
+            ValueSet(OptionGetActive());
+            xOffAnim.Snap(10).Play(0);
         }
-        if (is_callable(OnChange)) OnChange(OptionGetActive());
-        xOffAnim.Snap(16).Play(0);
     }
     
+    OnEnter(ValueGet);
+    
     OnSelect(function(){
-        switch (ZoneGetActive()) {
-            case "LEFT": ActionLeft();  break;
+        switch (__.zoneActive) {
+            case "LEFT": ActionLeft(); break;
             case "RIGHT": ActionRight(); break;
         }
     });
@@ -420,10 +490,14 @@ function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(i
                     scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(xPos, yPos);
                 } break;
                 case "RIGHT": {
+                    if (!__.optionCycle && __.optionIndex == __.optionCount-1) break;
                     _t = ">";
+                    _c = _zone.active ? colors.focused : colors.base;
                     scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2, _y+_h/2);
                 } break;
                 case "LEFT": {
+                    if (!__.optionCycle && __.optionIndex == 0) break;
+                    _c = _zone.active ? colors.focused : colors.base;
                     _t = "<";
                     scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2, _y+_h/2);
                 } break;
@@ -436,20 +510,23 @@ function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(i
     });
 }
 
-function MenuNodeCheckbox(id, name, onChange, config = {}) : MenuNode(id, name, config) constructor {
+function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(id, name, config) constructor {
     type    = "CHECKBOX";
     value   = 0;
     
+    ValueGet = method(self, valueGet);
+    ValueSet = method(self, valueSet);
     OnChange = is_callable(onChange) ? method(self, onChange) : undefined;
     
     static ActionSelect = function() {
         value ^= 1;
+        OnChange(value);
         xSclAnim.Snap(1).Play(1.1);
         ySclAnim.Snap(1).Play(1.1);
     }
     
     OnSelect(function() {
-        switch (ZoneGetActive()) {
+        switch (__.zoneActive) {
             case "BOX": {
                 ActionSelect();
             } break;
@@ -492,9 +569,8 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     self.valueMax   = valueMax;
     self.valueStep  = valueStep
     
-    
     OnSelect(function() {
-        switch (ZoneGetActive()) {
+        switch (__.zoneActive) {
             case "BAR": {
                 // starts dragging untill mouse button is released
             } break;

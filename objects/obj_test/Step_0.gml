@@ -14,3 +14,5 @@ switch (mainMenu.MouseGetState()) {
 window_set_cursor(_cr);
 
 if (keyboard_check_pressed(vk_f5)) room_restart()
+
+keyboard_set_numlock(!keyboard_get_numlock())
