@@ -83,7 +83,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
                     if (_flexDisp != _nodeDisp) {
                         flexpanel_node_style_set_display(root, _nodeDisp);
                     }
-                    _node.flexNode = root;
+                    _node.zoneNode = root;
                     break;
                 }
             }
@@ -112,13 +112,19 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             
             for (var i = 0, n = array_length(nodes); i < n; i++) {
                 var _node = nodes[i];
-                var _flex = _node.flexNode;
+                var _flex = _node.zoneNode;
                 if (_flex == undefined) continue;
                 var _data = __FlexParse(_flex);
-            
-                for (var j = 0; j < array_length(_data); j++) {
-                    array_push(_node.flexZones, _data[j]);
+                with (_node.__) {
+                    zoneArray = _data;
+                    zoneCount = array_length(_data);
                 }
+                //with (_node.__) {
+                //    zoneCount = array_length(zoneArray);
+                //    for (var j = 0; j < array_length(_data); j++) {
+                //        array_push(_node.__.zoneArray, _data[j]);
+                //    }
+                //}
             }
         }
     }

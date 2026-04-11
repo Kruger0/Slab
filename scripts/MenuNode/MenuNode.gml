@@ -37,7 +37,7 @@ function MenuNode(id, name, config = {}) constructor{
         zoneIndex   = undefined;
         zoneActive  = "";
         zoneNode    = undefined;
-        zoneCount   = 0//array_length(flexZones);
+        zoneCount   = 0;
         
         onEnterCb   = [];
         onLeaveCb   = [];
@@ -67,9 +67,6 @@ function MenuNode(id, name, config = {}) constructor{
     onRenderCb  = [];
     onSelectCb  = [];
     
-    // DEPRECATED
-    flexNode    = undefined;
-    flexZones   = [];
     #endregion
     
     // Methods
@@ -129,8 +126,8 @@ function MenuNode(id, name, config = {}) constructor{
         __.zoneActive = "";
         var _zoneActive = undefined;
         var _zCurr = -1;
-        for (var i = 0, n = array_length(flexZones); i < n; i++) {
-            var _zoneCurr = flexZones[i];
+        for (var i = 0, n = array_length(__.zoneArray); i < n; i++) {
+            var _zoneCurr = __.zoneArray[i];
             _zoneCurr.active = false;
             var _x1 = _zoneCurr.x;
             var _y1 = _zoneCurr.y;
@@ -156,7 +153,7 @@ function MenuNode(id, name, config = {}) constructor{
     }
     static Render = function() {
         // Custom
-        if (array_length(flexZones) < 1) return;
+        if (array_length(__.zoneArray) < 1) return;
         for (var i = 0, n = array_length(onRenderCb); i < n; i++) {
             var _entry = onRenderCb[i];
             _entry.callback(_entry.data);
@@ -164,8 +161,8 @@ function MenuNode(id, name, config = {}) constructor{
         
         // Debug
         if (global.debug) {
-            for (var i = 0, n = array_length(flexZones); i < n; i++) {
-                var _zone = flexZones[i];
+            for (var i = 0, n = array_length(__.zoneArray); i < n; i++) {
+                var _zone = __.zoneArray[i];
                 var _x = _zone.x;
                 var _y = _zone.y;
                 var _w = _zone.w;
@@ -222,8 +219,8 @@ function MenuNode(id, name, config = {}) constructor{
     }
     
     static ContainsPoint = function(px, py) {
-        for (var i = 0, n = array_length(flexZones); i < n; i++) {
-            var _zone = flexZones[i];
+        for (var i = 0, n = array_length(__.zoneArray); i < n; i++) {
+            var _zone = __.zoneArray[i];
             var _x1 = _zone.x;
             var _y1 = _zone.y;
             var _x2 = _x1+_zone.w;
@@ -236,8 +233,8 @@ function MenuNode(id, name, config = {}) constructor{
     }
     
     static ZoneGetBody = function() {
-        if (array_length(flexZones) == 0) return;
-        return flexZones[0]; // TODO pass custom node width
+        if (array_length(__.zoneArray) == 0) return;
+        return __.zoneArray[0]; // TODO pass custom node width
     }
     
     static SetFocused = function(focused) {
@@ -481,8 +478,8 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
     });
     
     OnRender(function() {
-        for (var i = 0, n = array_length(flexZones); i < n; i++) {
-            var _zone = flexZones[i];
+        for (var i = 0, n = array_length(__.zoneArray); i < n; i++) {
+            var _zone = __.zoneArray[i];
             var _x = _zone.x;
             var _y = _zone.y;
             var _w = _zone.w;
@@ -549,8 +546,8 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
     })
     
     OnRender(function() {
-        for (var i = 0, n = array_length(flexZones); i < n; i++) {
-            var _zone = flexZones[i];
+        for (var i = 0, n = array_length(__.zoneArray); i < n; i++) {
+            var _zone = __.zoneArray[i];
             var _x = _zone.x;
             var _y = _zone.y;
             var _w = _zone.w;
@@ -593,8 +590,8 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     })
     
     OnRender(function() {
-        for (var i = 0, n = array_length(flexZones); i < n; i++) {
-            var _zone = flexZones[i];
+        for (var i = 0, n = array_length(__.zoneArray); i < n; i++) {
+            var _zone = __.zoneArray[i];
             var _x = _zone.x;
             var _y = _zone.y;
             var _w = _zone.w;
