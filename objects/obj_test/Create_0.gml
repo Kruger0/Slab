@@ -15,7 +15,8 @@ scribble_font_set_default("fnt_test");
 
 mainMenu = new MenuManager();
 mainMenu.PageAdd(new MenuPage("main_menu", "layerMain", [
-    new MenuNodeText("main", "Main Menu", {background : c_dkgray}),
+    new MenuNodeText("main", "Main Menu", {background : c_ltgray}),
+    new MenuNodeSeparator(),
     new MenuNodeButton("start", "Start"),
     new MenuNodeButton("continue", "Continue"),
     new MenuNodeButton("options", "Options", function(){PagePush("menu_options")}),
@@ -23,14 +24,14 @@ mainMenu.PageAdd(new MenuPage("main_menu", "layerMain", [
     new MenuNodeConfirm("exit", "Exit", function(){game_end()}),
 ]))
 mainMenu.PageAdd(new MenuPage("menu_options", "layerOptions", [
-    new MenuNodeText("options", "Options", {background : c_dkgray}),
+    new MenuNodeText("options", "Options", {background : c_ltgray}),
     new MenuNodeSelector("language", "Language", [["English", "en_US"],["Português", "pt_BR"]], function(v){show_debug_message($"Language set to {v[1]}")}),
     new MenuNodeButton("audio", "Audio", function(){PagePush("menu_audio")}),
     new MenuNodeButton("video", "Video", function(){PagePush("menu_video")}),
     new MenuNodeButton("back", "Back", function(){PagePop()}),
 ]))
 mainMenu.PageAdd(new MenuPage("menu_audio", "layerAudio", [
-    new MenuNodeText("audio", "Audio",{background : c_dkgray}),
+    new MenuNodeText("audio", "Audio",{background : c_ltgray}),
     //new MenuNodeSeparator(),
     new MenuNodeSlider("master", "Master Volume", 
         function(){return global.options.audio.master},
@@ -44,7 +45,7 @@ mainMenu.PageAdd(new MenuPage("menu_audio", "layerAudio", [
     new MenuNodeButton("back", "Back", function(){PagePop()}),
 ]))
 mainMenu.PageAdd(new MenuPage("menu_video", "layerVideo", [
-    new MenuNodeText("video", "Video", {background : c_dkgray}),
+    new MenuNodeText("video", "Video", {background : c_ltgray}),
     new MenuNodeSelector("display", "Display", [["Windowed", 0], ["Fullscreen", 1], ["Borderless", 2]], function(v){global.options.video.display = v[1]}),
     new MenuNodeSelector("resolution", "Resolution", [["640x360", 0],["1280x720", 1],["1920x1080", 2]], function(v){global.options.video.resolution = v[1]}),
     new MenuNodeCheckbox("bloom", "Bloom"),

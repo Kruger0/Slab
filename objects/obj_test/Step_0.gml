@@ -4,7 +4,6 @@ if (keyboard_check_pressed(vk_f9)) {
     show_debug_overlay(global.debug);
 }
 
-mainMenu.Update(mouse_x, mouse_y);
 
 var _cr = cr_arrow
 switch (mainMenu.MouseGetState()) {

@@ -5,31 +5,17 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     self.nodes  = nodes;
     
     #region Public
-    xPad    = config[$ "xPad"] ?? 32;
-    yPad    = config[$ "yPad"] ?? 32;
-    xMarg   = config[$ "xMarg"] ?? 32;
-    yMarg   = config[$ "yMarg"] ?? 32;
-    xFactor = config[$ "xFactor"] ?? 0;
-    yFactor = config[$ "yFactor"] ?? 0;
-    spacing = config[$ "spacing"] ?? 8;
-    hAlign  = config[$ "hAlign"] ?? fa_center;
-    vAlign  = config[$ "vAlign"] ?? fa_middle;
     cycle   = config[$ "cycle"] ?? true;
-    hFill   = config[$ "hFill"] ?? true;
-    vFill   = config[$ "vFill"] ?? true;
     enabled = config[$ "enabled"] ?? true;
-    font    = config[$ "font"] ?? fnt_test;
-    scale   = config[$ "scale"] ?? 1;
     #endregion
     
-    #region Private
-    cursor  = 0;
-    #endregion
-    
-    // Startup
+    // Private
     __ = {};
     with (__) {
-        FlexNode = function(type, id, x, y, z, w, h) constructor {
+        cursor  = 0;
+        ready   = false;
+        
+        static __FlexNode = function(type, id, x, y, z, w, h) constructor {
             self.type   = type;
             self.id     = id;
             self.x      = x;
@@ -37,9 +23,9 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             self.z      = z;
             self.w      = w;
             self.h      = h;
-        }
+        };
         
-        FlexParse = method(other, function(root, data = []) {
+        static __FlexParse = function(root, data = []) {
             var _name   = string_split(flexpanel_node_get_name(root), "_");
             var _type   = _name[0];
             var _id     = (array_length(_name) > 1 ? string_join_ext("_", _name, 1) : ""); 
@@ -90,32 +76,29 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             // Push to node data
             if (_isNode) {
                 var _n = flexpanel_node_layout_get_position(root, false);
-                array_push(data, new __.FlexNode(_type, _id, _n.left, _n.top, _z, _n.width, _n.height));
+                array_push(data, new __FlexNode(_type, _id, _n.left, _n.top, _z, _n.width, _n.height));
             }
             
             // Continue
             var _childs = flexpanel_node_get_num_children(root);
             for (var i = 0; i < _childs; i++) {
                 var _child = flexpanel_node_get_child(root, i);
-                __.FlexParse(_child, data);
+                __FlexParse(_child, data);
             }
             return data;
-        });
+        };
     }
-    
-    // Layout
-    
     
     // Methods
     static NodeGetActive = function() {
-        return nodes[cursor];
+        return nodes[__.cursor];
     }
     
     static CursorFindFirst = function() {
         var _count = array_length(nodes);
         var _guard = 0;
-        while (!nodes[cursor].interactive && _guard < _count) {
-            cursor++;
+        while (!nodes[__.cursor].interactive && _guard < _count) {
+            __.cursor++;
             _guard++;
         }
     }
@@ -123,17 +106,17 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     static OnEnter = function(){
         
         var _root = layer_get_flexpanel_node(layer);
-        var _layout = __.FlexParse(_root);
+        var _layout = __FlexParse(_root);
         var _rootPos = flexpanel_node_layout_get_position(_root);
         flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
-        _layout = __.FlexParse(_root);
+        _layout = __FlexParse(_root);
     
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
             var _flex = _node.flexNode;
             if (_flex == undefined) continue;
-            var _data = __.FlexParse(_flex);
-        
+            var _data = __FlexParse(_flex);
+            
             for (var j = 0; j < array_length(_data); j++) {
                 array_push(_node.flexZones, {
                     type    : _data[j].type,
@@ -155,7 +138,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         }
     };
     static OnLeave = function(resetCursor){
-        if (resetCursor) cursor = 0;
+        if (resetCursor) __.cursor = 0;
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
             _node.OnLeave();
@@ -165,14 +148,16 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     static Update = function(useMouse){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
-            _node.Update(useMouse ? undefined : (cursor == i));
+            _node.Update(useMouse ? undefined : (__.cursor == i));
         }
+        __.ready = true;
     };
-    
     static Render = function(){
+        if (!__.ready) return;
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node   = nodes[i];
             _node.Render();
         }
+        __.ready = false;
     };
 }

@@ -1,12 +1,12 @@
 
-
 function MenuNode(id, name, config = {}) constructor{
     self.id     = id;
     self.name   = name;
+    
     #region Public
     colors      = config[$ "colors"] ?? {
-        base        : #FFFFFF,
-        focused     : #FFFF00,
+        base        : #808080,
+        focused     : #FFFFFF,
         pending     : #FF0000,
         disabled    : #606060
     };
@@ -15,6 +15,24 @@ function MenuNode(id, name, config = {}) constructor{
     #endregion
     
     #region Private
+    __ = {};
+    with (__) {
+        type        = "BLANK";
+        focused     = false;    // If the node has focus (either by keyboard or mouse)
+        interactive = true;     // If the node can have focus (either by keyboard or mouse)
+        enabled     = true;     // If the node can run its callback when selected
+        visible     = true;     // If the node is rendered and calculated on the layout spacing
+        hAlign      = fa_left;  // Coordinate position relative to the node
+        vAlign      = fa_middle;
+        xAnchor     = 0;
+        yAnchor     = 0;
+    
+        angle       = 0;
+        xPos        = 0;
+        yPos        = 0;
+        xScl        = 1;
+        yScl        = 1;
+    }
     type        = "BLANK";
     focused     = false;    // If the node has focus (either by keyboard or mouse)
     interactive = true;     // If the node can have focus (either by keyboard or mouse)
@@ -152,8 +170,8 @@ function MenuNode(id, name, config = {}) constructor{
     }
     
     static ZoneGetActive = function() {
-        var _px = mng.mx - mng.x;
-        var _py = mng.my - mng.y;
+        var _px = mng.__.mx;
+        var _py = mng.__.my;
         var _active = "";
         var _z  = -1;
         for (var i = 0, n = array_length(flexZones); i < n; i++) {
@@ -231,8 +249,6 @@ function MenuNode(id, name, config = {}) constructor{
     };
 }
 
-#region Visual Nodes --------------------------
-
 function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constructor {
     type        = "TEXT";
     interactive = false;
@@ -245,7 +261,7 @@ function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constr
         var _y = _body.y;
         var _w = _body.w;
         var _h = _body.h;
-        var _c = colors.disabled;
+        var _c = #202020;//colors.disabled;
         var _t = name;
         
         // Background
@@ -288,10 +304,6 @@ function MenuNodeSeparator(id = "", name = id, config = {}) : MenuNode(id, name,
 function MenuNodeSprite(id, name, sprite, config = {}) : MenuNode(id, name, config) constructor {
     type        = "SPRITE";
 }
-
-#endregion
-
-#region Functional Nodes --------------------------
 
 function MenuNodeButton(id, name, onSelect, config = {}) : MenuNode(id, name, config) constructor {
     type = "BUTTON";
@@ -509,25 +521,6 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
         }
     });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
