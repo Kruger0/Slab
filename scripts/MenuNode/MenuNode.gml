@@ -421,8 +421,6 @@ function MenuNodeSelector(id, name, options, onChange, config = {}) : MenuNode(i
     });
 }
 
-#endregion
-
 function MenuNodeCheckbox(id, name, onChange, config = {}) : MenuNode(id, name, config) constructor {
     type    = "CHECKBOX";
     value   = 0;
@@ -511,6 +509,8 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
         }
     });
 }
+
+
 
 
 

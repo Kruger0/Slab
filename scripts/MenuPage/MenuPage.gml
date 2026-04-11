@@ -56,7 +56,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
                 case "SLIDER":
                 case "CONFIRM":
                 case "CHECKBOX": {
-                    _type   = "BODY"
+                    _type = "BODY";
                 } break;
                 // Zones
                 case "VALUE": {
@@ -66,7 +66,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
                 case "BOX":
                 case "LEFT":
                 case "RIGHT": {
-                    _z      = 1;
+                    _z = 1;
                 } break;
                 default: {
                     _isNode = false;
