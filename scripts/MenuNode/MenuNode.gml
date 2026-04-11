@@ -372,20 +372,25 @@ function MenuNodeButton(id, name, onSelect, config = {}) : MenuNode(id, name, co
 }
 
 function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, config) constructor {
-    type    = "CONFIRM";
-    pending = false;
-    msg     = config[$ "msg"] ?? name + "?";
+    __.type = "SELECTOR";
+    __.name = name;
+    __.pending  = false;
+    __.message  = config[$ "message"] ?? name + "?";
     
-    OnConfirm = is_callable(onSelect) ? method(self, onSelect) : undefined;
+    OnConfirm = method(self, onSelect);
     
-    OnSelect(function() {
-        if (pending) {
-            if (is_callable(OnConfirm)) OnConfirm();
+    static ActionSelect = function() {
+        if (__.pending) {
+            OnConfirm();
         } else {
-            pending = true;
+            __.pending = true;
         }
         xSclAnim.Snap(1).Play(1.1);
         ySclAnim.Snap(1).Play(1.1);
+    }
+    
+    OnSelect(function() {
+        ActionSelect();
     });
     
     OnRender(function() {
@@ -394,8 +399,8 @@ function MenuNodeConfirm(id, name, onSelect, config = {}) : MenuNode(id, name, c
         var _y = _body.y;
         var _w = _body.w;
         var _h = _body.h;
-        var _c = (focused ? (pending ? colors.pending : colors.focused) : colors.base);
-        var _t = (pending ? msg : name);
+        var _c = (focused ? (__.pending ? colors.pending : colors.focused) : colors.base);
+        var _t = (__.pending ? __.message : __.name);
         
         // Background
         
@@ -408,26 +413,13 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
     __.type         = "SELECTOR";
     __.name         = name;
     __.optionArray  = options;
-    __.optionIndex  = 0;
+    __.optionIndex  = undefined;
     __.optionCount  = array_length(options);
     __.optionCycle  = config[$ "cycle"] ?? true;
     
-    static ValueGet = method(self, valueGet);
-    static ValueSet = method(self, valueSet);
-    
-    // Find cursor value
-    var _value = ValueGet();
-    for (var i = 0; i < __.optionCount; i++) {
-        if (options[i][1] == _value) {
-            __.optionIndex = i;
-            break;
-        }
-    }
-    if (__.optionIndex == undefined) {
-        show_debug_message($"MenuNodeSelector: value '{_value}' not found in options. Defaulting to 0");
-        __.optionIndex = 0;
-    }
-    
+    ValueGet = method(self, valueGet);
+    ValueSet = method(self, valueSet);
+
     static OptionGetActive = function() {
         return __.optionArray[__.optionIndex];
     }
@@ -467,7 +459,19 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
         }
     }
     
-    OnEnter(ValueGet);
+    OnEnter(function() {
+        var _value = ValueGet();
+        for (var i = 0; i < __.optionCount; i++) {
+            if (__.optionArray[i][1] == _value) {
+                __.optionIndex = i;
+                break;
+            }
+        }
+        if (__.optionIndex == undefined) {
+            show_debug_message($"MenuNodeSelector: value '{_value}' not found in options. Defaulting to 0");
+            __.optionIndex = 0;
+        }
+    });
     
     OnSelect(function(){
         switch (__.zoneActive) {
@@ -511,19 +515,30 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
 }
 
 function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(id, name, config) constructor {
-    type    = "CHECKBOX";
-    value   = 0;
+    __.type     = "CHECKBOX";
+    __.name     = name;
+    __.value    = undefined;
     
     ValueGet = method(self, valueGet);
     ValueSet = method(self, valueSet);
-    OnChange = is_callable(onChange) ? method(self, onChange) : undefined;
     
     static ActionSelect = function() {
-        value ^= 1;
-        OnChange(value);
+        __.value ^= 1;
+        ValueSet(__.value);
         xSclAnim.Snap(1).Play(1.1);
         ySclAnim.Snap(1).Play(1.1);
     }
+    
+    OnEnter(function() {
+        var _value = ValueGet();
+        if (is_real(_value) || is_bool(_value)) {
+            __.value = _value;
+        }
+        if (is_undefined(__.value)) {
+            show_debug_message($"MenuNodeCheckbox: bool '{_value}' could not be solved. Defaulting to false");
+            __.value = false;
+        }
+    });
     
     OnSelect(function() {
         switch (__.zoneActive) {
@@ -547,7 +562,7 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
                     scribble(_t, id).align(hAlign, vAlign).blend(_c, alpha).transform(xScl, yScl, angle).draw(xPos, yPos);
                 } break;
                 case "BOX": {
-                    _t = (value ? "[[   ]" : "[[X]");
+                    _t = (__.value ? "[[X]" : "[[   ]");
                     scribble(_t, id).align(1, 1).blend(_c, alpha).transform(xScl, yScl, angle).draw(_x+_w/2, _y+_h/2);
                 } break
             }

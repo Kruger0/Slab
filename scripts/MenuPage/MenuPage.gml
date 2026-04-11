@@ -172,6 +172,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     }
     static Leave = function(resetNode) {
         if (resetNode) __.nodeActive = 0;
+        if (resetNode) __.cursor = 0;
         for (var i = 0; i < __.nodeCount; i++) {
             var _node = __.nodeArray[i];
             _node.Leave();
