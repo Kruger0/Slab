@@ -191,7 +191,7 @@ function MenuNode(id, name, config = {}) constructor{
     }
     static ZoneGetBody = function() {
         if (array_length(flexZones) == 0) return;
-        return flexZones[0];
+        return flexZones[0]; // TODO pass custom node width
     }
     
     static SetFocused = function(focused) {
@@ -231,13 +231,12 @@ function MenuNode(id, name, config = {}) constructor{
         Select();
     }
     
-    static InputHandle = function(select, xDelta, yDelta) {
-        if (xDelta < 0) ActionLeft();
-        if (xDelta > 0) ActionRight();
-        if (yDelta < 0) ActionUp();
-        if (yDelta > 0) ActionDown();
-        if (select)     ActionSelect();
-        return true;
+    static InputHandle = function(input) {
+        if (input.xDelta < 0) ActionLeft();
+        if (input.xDelta > 0) ActionRight();
+        if (input.yDelta < 0) ActionUp();
+        if (input.yDelta > 0) ActionDown();
+        if (input.selectPressed || input.mouseLeftPressed) ActionSelect();
     }
     
     static OnEnter     = config[$ "OnEnter"] ?? function(){
@@ -245,7 +244,11 @@ function MenuNode(id, name, config = {}) constructor{
         ySclAnim.Snap(0.8).Play(1);
     };
     static OnLeave     = config[$ "OnLeave"] ?? function(){
-        
+        focused = false;
+        xOffAnim.Snap(0);
+        yOffAnim.Snap(0);
+        xSclAnim.Snap(1);
+        ySclAnim.Snap(1);
     };
 }
 

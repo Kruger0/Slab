@@ -15,6 +15,16 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         cursor  = 0;
         ready   = false;
         
+        static __CursorSet = function(value) {
+            if (is_undefined(value)) return;
+            if (value != clamp(value, 0, array_length(nodes)-1)) return;
+            __.cursor = value;
+            return self;
+        }
+        static __CursorGet = function() {
+            return __.cursor;
+        }
+        
         static __FlexNode = function(type, id, x, y, z, w, h) constructor {
             self.type   = type;
             self.id     = id;
@@ -24,7 +34,6 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             self.w      = w;
             self.h      = h;
         };
-        
         static __FlexParse = function(root, data = []) {
             var _name   = string_split(flexpanel_node_get_name(root), "_");
             var _type   = _name[0];
@@ -145,10 +154,10 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         }
     };
     
-    static Update = function(useMouse){
+    static Update = function(mouseActive){
         for (var i = 0, n = array_length(nodes); i < n; i++) {
             var _node = nodes[i];
-            _node.Update(useMouse ? undefined : (__.cursor == i));
+            _node.Update(mouseActive ? undefined : (__.cursor == i));
         }
         __.ready = true;
     };
