@@ -94,11 +94,11 @@ function MenuManager(config = {}) constructor{
                 if (!_isOver && _node.focused) _node.SetFocused(false);
                 if (_isOver) __.mouseFocus = i;
             }
-            _page.__CursorSet(__.mouseFocus);
+            _page.__NodeSet(__.mouseFocus);
         } else {
             var _yDelta = (_inputActions.downPressed - _inputActions.upPressed);
             if (_yDelta != 0) {
-                var _next = _page.__CursorGet();
+                var _next = _page.__NodeGet();
                 var _guard = 0;
                 do {
                     _next += _yDelta;
@@ -109,7 +109,7 @@ function MenuManager(config = {}) constructor{
                     }
                     _guard++;
                 } until (_page.nodes[_next].interactive || _guard >= _count);
-                _page.__CursorSet(_next);
+                _page.__NodeSet(_next);
             }
         }
         

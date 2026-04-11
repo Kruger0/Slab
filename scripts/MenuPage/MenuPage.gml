@@ -14,20 +14,19 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     with (__) {
         self.name   = name;
         self.layer  = layer;
-        cursor      = 0; // DEPRECATED
         ready       = false;
         nodeArray   = nodes;
         nodeCount   = array_length(nodes);
         nodeActive  = 0;
         
-        static __CursorSet = function(value) {
+        static __NodeSet = function(value) {
             if (is_undefined(value)) return;
-            if (value != clamp(value, 0, array_length(nodes)-1)) return;
-            __.cursor = value;
+            if (value != clamp(value, 0, __.nodeCount-1)) return;
+            __.nodeActive = value;
             return self;
         }
-        static __CursorGet = function() {
-            return __.cursor;
+        static __NodeGet = function() {
+            return __.nodeActive;
         }
         
         static __FlexNode = function(type, id, x, y, z, w, h) constructor {
@@ -75,15 +74,15 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             }
             
             // Create a ref on the node
-            for (var i = 0, n = array_length(nodes); i < n; i++) {
-                var _node = nodes[i];
+            for (var i = 0; i < __.nodeCount; i++) {
+                var _node = __.nodeArray[i];
                 if (_node.id == _id) {
                     var _flexDisp = flexpanel_node_style_get_display(root);
                     var _nodeDisp = (_node.visible ? flexpanel_display.flex : flexpanel_display.none);
                     if (_flexDisp != _nodeDisp) {
                         flexpanel_node_style_set_display(root, _nodeDisp);
                     }
-                    _node.zoneNode = root;
+                    _node.__.zoneNode = root;
                     break;
                 }
             }
@@ -110,21 +109,15 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
             _layout = __FlexParse(_root);
             
-            for (var i = 0, n = array_length(nodes); i < n; i++) {
-                var _node = nodes[i];
-                var _flex = _node.zoneNode;
+            for (var i = 0; i < __.nodeCount; i++) {
+                var _node = __.nodeArray[i];
+                var _flex = _node.__.zoneNode;
                 if (_flex == undefined) continue;
                 var _data = __FlexParse(_flex);
                 with (_node.__) {
                     zoneArray = _data;
                     zoneCount = array_length(_data);
                 }
-                //with (_node.__) {
-                //    zoneCount = array_length(zoneArray);
-                //    for (var j = 0; j < array_length(_data); j++) {
-                //        array_push(_node.__.zoneArray, _data[j]);
-                //    }
-                //}
             }
         }
     }
@@ -133,16 +126,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     
     // Methods
     static NodeGetActive = function() {
-        return nodes[__.cursor];
-    }
-    
-    static CursorFindFirst = function() {
-        var _count = array_length(nodes);
-        var _guard = 0;
-        while (!nodes[__.cursor].interactive && _guard < _count) {
-            __.cursor++;
-            _guard++;
-        }
+        return __.nodeArray[__.nodeActive];
     }
     
     static NodeFindFirst = function() {
@@ -156,7 +140,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     static Update = function(mouseActive){
         for (var i = 0; i < __.nodeCount; i++) {
             var _node = __.nodeArray[i];
-            _node.Update(mouseActive ? undefined : (__.cursor == i));
+            _node.Update(mouseActive ? undefined : (__.nodeActive == i));
         }
         __.ready = true;
     };
@@ -169,7 +153,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         __.ready = false;
     };
     static Enter = function() {
-        CursorFindFirst();
+        NodeFindFirst();
         for (var i = 0; i < __.nodeCount; i++) {
             var _node = __.nodeArray[i];
             _node.mng = mng;
@@ -178,7 +162,6 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     }
     static Leave = function(resetNode) {
         if (resetNode) __.nodeActive = 0;
-        if (resetNode) __.cursor = 0;
         for (var i = 0; i < __.nodeCount; i++) {
             var _node = __.nodeArray[i];
             _node.Leave();
