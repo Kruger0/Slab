@@ -147,7 +147,11 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             _node.__mng = __mng;
             _node.__style ??= __style;
             _node.Enter();
-            _node.Update(!resetNode);
+            if (resetNode) {
+                _node.Update(false);
+            } else {
+                _node.Update(__nodeActive == i);
+            }
         }
     }
     static Leave = function(resetNode) {
@@ -155,6 +159,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         for (var i = 0; i < __nodeCount; i++) {
             var _node = __nodeArray[i];
             _node.Leave();
+            //if (resetNode) _node.Update(false);
         }
     }
     #endregion

@@ -190,7 +190,7 @@ function MenuNode(id, name, config = {}) constructor{
         __xSclAnim.Snap(1);
         __ySclAnim.Snap(1);
         
-        _focused = false;
+        __focused = false;
         
         // Custom
         for (var i = 0, n = array_length(__onLeaveCb); i < n; i++) {
