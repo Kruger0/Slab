@@ -9,7 +9,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     __mng           = undefined;
     __nodeArray     = nodes;
     __nodeCount     = array_length(nodes);
-    __nodeActive    = 0; // TODO change to index?
+    __nodeActive    = 0;
     
     static __NodeSet = function(value) {
         if (is_undefined(value)) return;

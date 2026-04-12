@@ -25,9 +25,8 @@ function MenuNode(id, name, config = {}) constructor{
     __alpha         = 1;
     
     __zoneArray     = [];
-    __zoneActive    = ""; // zoneName ?
     __zoneCount     = 0;
-    __zoneIndex     = undefined;
+    __zoneActive    = "";
     __zoneNode      = undefined;
     
     __onUpdateCb    = [];
