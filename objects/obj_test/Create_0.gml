@@ -14,6 +14,7 @@ global.options = {
     language : "pt_BR",
 }
 global.debug = false;
+
 scribble_font_set_default("fnt_test");
 
 mainMenu = new MenuManager();
