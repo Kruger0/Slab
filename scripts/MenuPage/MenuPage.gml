@@ -1,8 +1,5 @@
 
 function MenuPage(name, layer, nodes, config = {}) constructor{
-    self.name   = name;
-    self.layer  = layer;
-    self.nodes  = nodes;
     
     // Public
     cycle   = config[$ "cycle"] ?? true;
@@ -15,7 +12,6 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         self.layer  = layer;
         style       = config[$ "style"];
         mng         = undefined;
-        ready       = false;
         initiated   = false;
         nodeArray   = nodes;
         nodeCount   = array_length(nodes);
@@ -105,7 +101,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         };
         
         static __PageInit = function() {
-            var _root = layer_get_flexpanel_node(layer);
+            var _root = layer_get_flexpanel_node(__.layer);
             var _layout = __FlexParse(_root);
             var _rootPos = flexpanel_node_layout_get_position(_root);
             flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
@@ -124,8 +120,6 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         }
     }
     
-    
-    
     // Methods
     static NodeGetActive = function() {
         return __.nodeArray[__.nodeActive];
@@ -143,17 +137,14 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             var _node = __.nodeArray[i];
             _node.Update(mouseActive ? undefined : (__.nodeActive == i));
         }
-        __.ready = true;
     };
     static Render = function(){
-        //if (!__.ready) return;
         for (var i = 0; i < __.nodeCount; i++) {
-            var _node   = nodes[i];
+            var _node = __.nodeArray[i];
             _node.Render();
         }
-        __.ready = false;
     };
-    static Enter = function() {
+    static Enter = function(resetNode) {
         if (!__.initiated) {__.initiated = true; __PageInit()};
         NodeFindFirst();
         __.style ??= __.mng.__.style;
@@ -162,6 +153,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             _node.__.mng = __.mng;
             _node.__.style = __.style;
             _node.Enter();
+            _node.Update(!resetNode);
         }
     }
     static Leave = function(resetNode) {

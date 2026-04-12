@@ -68,14 +68,14 @@ function MenuManager(config = {}) constructor{
         }
         
         // Input State
-        var _count = array_length(_page.nodes);
+        var _nodeCount = _page.__.nodeCount;
         if (__.mouseEnabled) {
             var _mouseActive = __.mouseActive;
             if (InputMouseCheck(mb_any)) __.mouseActive = true;
             if (InputMouseMoved()) __.mouseActive = true;
             if (InputCheckMany(-1, -1)) __.mouseActive = false;
             if (__.mouseActive && !_mouseActive) {
-                for (var i = 0; i < _count; i++) _page.nodes[i].SetFocused(false);
+                for (var i = 0; i < _nodeCount; i++) _page.__.nodeArray[i].SetFocused(false);
             }
         } else {
             mouseActive = false;
@@ -84,8 +84,8 @@ function MenuManager(config = {}) constructor{
         // Node Selection
         __.mouseFocus = undefined;
         if (__.mouseActive) {
-            for (var i = 0; i < _count; i++) {
-                var _node = _page.nodes[i];
+            for (var i = 0; i < _nodeCount; i++) {
+                var _node = _page.__.nodeArray[i];
                 var _isOver = _node.ContainsPoint(__.mx, __.my);
                 if (_isOver && !_node.interactive) {
                     _node.focused = false;
@@ -104,12 +104,12 @@ function MenuManager(config = {}) constructor{
                 do {
                     _next += _yDelta;
                     if (_page.cycle) {
-                        _next = ((_next % _count) + _count) % _count;
+                        _next = ((_next % _nodeCount) + _nodeCount) % _nodeCount;
                     } else {
-                        _next = clamp(_next, 0, _count - 1);
+                        _next = clamp(_next, 0, _nodeCount - 1);
                     }
                     _guard++;
-                } until (_page.nodes[_next].interactive || _guard >= _count);
+                } until (_page.__.nodeArray[_next].interactive || _guard >= _nodeCount);
                 _page.__NodeSet(_next);
             }
         }
@@ -153,8 +153,8 @@ function MenuManager(config = {}) constructor{
         return __.pages[$ _page];
     }
     static PageAdd = function(page) {
-        __.pages[$ page.name] = page;
-        __.pages[$ page.name].__.mng = self;
+        __.pages[$ page.__.name] = page;
+        __.pages[$ page.__.name].__.mng = self;
         return self;
     }
     static PagePush = function(page) {
@@ -163,8 +163,16 @@ function MenuManager(config = {}) constructor{
         array_push(__.stack, page);
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
-        _pageNext.Enter();
-        _pageNext.Update();
+        _pageNext.Enter(__.mouseActive);
+        //_pageNext.Update();
+        //if (__.mouseActive) {
+        //    with (_pageNext) {
+        //        for (var i = 0; i < __.nodeCount; i++) {
+        //            var _node = __.nodeArray[i];
+        //            _node.Update(false);
+        //        }
+        //    }
+        //}
         return self;
     }
     static PagePop = function() {
@@ -175,8 +183,16 @@ function MenuManager(config = {}) constructor{
         array_pop(__.stack);
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
-        _pageNext.Enter();
-        _pageNext.Update();
+        _pageNext.Enter(__.mouseActive);
+        //_pageNext.Update();
+        //if (__.mouseActive) {
+        //    with (_pageNext) {
+        //        for (var i = 0; i < __.nodeCount; i++) {
+        //            var _node = __.nodeArray[i];
+        //            _node.Update(false);
+        //        }
+        //    }
+        //}
         return self;
     }
     

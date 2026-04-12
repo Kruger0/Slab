@@ -259,7 +259,7 @@ function MenuNode(id, name, config = {}) constructor{
         yOffAnim.Play(0);
         xSclAnim.Play(1);
         ySclAnim.Play(1);
-        pending = false;
+        __.pending = false;
     };
     
     static ActionLeft = function() {
@@ -305,7 +305,7 @@ function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constr
         var _h = _body.h;
         var _c = #202020;//colors.disabled;
         var _t = name;
-        show_message(_y)
+        
         // Background
         if !(is_undefined(background)) {
             if (asset_get_type(background) == asset_sprite) {
