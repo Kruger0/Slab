@@ -239,21 +239,11 @@ function MenuNode(id, name, config = {}) constructor{
         __pending = false;
     };
     
-    static ActionLeft = function() {
-        
-    }
-    static ActionRight = function() {
-    
-    }
-    static ActionUp = function() {
-        
-    }
-    static ActionDown = function() {
-        
-    }
-    static ActionSelect = function() {
-        Select();
-    }
+    static ActionLeft = function() {};
+    static ActionRight = function() {};
+    static ActionUp = function() {};
+    static ActionDown = function() {};
+    static ActionSelect = function() {Select()};
     
     static HandleActions = function(actions) {
         if (actions.leftPressed) ActionLeft();
@@ -376,6 +366,7 @@ function MenuNodeConfirm(id, name, callback, config = {}) : MenuNode(id, name, c
         __ySclAnim.Snap(1).Play(1.2);
         if (__pending) {
             Callback();
+            __pending = false;
         } else {
             __pending = true;
         }
@@ -589,7 +580,7 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
 /// @func MenuNodeSlider(id, name, get, set, min, max, step, [format], [config])
 function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueStep, valueFormat = function(v){return string(v)}, config = {}) : MenuNode(id, name, config) constructor {
     __nodeType  = "SLIDER";
-    __value     = 60;
+    __value     = undefined;
     __valuePrev = 0;
     __valueMin  = valueMin;
     __valueMax  = valueMax;
@@ -599,6 +590,15 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     ValueGet    = method(self, valueGet);
     ValueSet    = method(self, valueSet);
     ValueFormat = method(self, valueFormat);
+    
+    static ActionLeft = function() {
+        __value -= __valueStep;
+        __value = clamp(__value, __valueMin, __valueMax);
+    }
+    static ActionRight = function() {
+        __value += __valueStep;
+        __value = clamp(__value, __valueMin, __valueMax);
+    }
     
     OnEnter(function() {
         var _value = ValueGet();
@@ -641,7 +641,8 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
                     _c = colors.base;
                     draw_rectangle_colour(_x, _y, _x+_w, _y+_h, _c, _c, _c, _c, false);
                     _c = colors.focused;
-                    draw_rectangle_colour(_x, _y, _x+_w*__value, _y+_h, _c, _c, _c, _c, false);
+                    var _n = (__value - __valueMin) / (__valueMax - __valueMin);
+                    draw_rectangle_colour(_x, _y, _x+_w*_n, _y+_h, _c, _c, _c, _c, false);
                 } break
             }
         }

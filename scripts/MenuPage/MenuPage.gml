@@ -159,7 +159,6 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         for (var i = 0; i < __nodeCount; i++) {
             var _node = __nodeArray[i];
             _node.Leave();
-            //if (resetNode) _node.Update(false);
         }
     }
     #endregion
