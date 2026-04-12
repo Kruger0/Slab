@@ -16,6 +16,8 @@ global.options = {
 global.debug = false;
 scribble_font_set_default("fnt_test");
 
+
+
 mainMenu = new MenuManager();
 mainMenu.PageAdd(new MenuPage("main_menu", "layerMain", [
     new MenuNodeText("main", "Main Menu", {background : c_ltgray}),

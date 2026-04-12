@@ -4,17 +4,19 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     self.layer  = layer;
     self.nodes  = nodes;
     
-    #region Public
+    // Public
     cycle   = config[$ "cycle"] ?? true;
     enabled = config[$ "enabled"] ?? true;
-    #endregion
     
     // Private
     __ = {};
     with (__) {
         self.name   = name;
         self.layer  = layer;
+        style       = config[$ "style"];
+        mng         = undefined;
         ready       = false;
+        initiated   = false;
         nodeArray   = nodes;
         nodeCount   = array_length(nodes);
         nodeActive  = 0;
@@ -122,13 +124,12 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         }
     }
     
-    __PageInit();
+    
     
     // Methods
     static NodeGetActive = function() {
         return __.nodeArray[__.nodeActive];
     }
-    
     static NodeFindFirst = function() {
         var _guard = 0;
         while (!__.nodeArray[__.nodeActive].interactive && _guard < __.nodeCount) {
@@ -145,7 +146,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         __.ready = true;
     };
     static Render = function(){
-        if (!__.ready) return;
+        //if (!__.ready) return;
         for (var i = 0; i < __.nodeCount; i++) {
             var _node   = nodes[i];
             _node.Render();
@@ -153,10 +154,13 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         __.ready = false;
     };
     static Enter = function() {
+        if (!__.initiated) {__.initiated = true; __PageInit()};
         NodeFindFirst();
+        __.style ??= __.mng.__.style;
         for (var i = 0; i < __.nodeCount; i++) {
             var _node = __.nodeArray[i];
-            _node.mng = mng;
+            _node.__.mng = __.mng;
+            _node.__.style = __.style;
             _node.Enter();
         }
     }

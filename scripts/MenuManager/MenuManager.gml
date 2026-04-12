@@ -11,6 +11,7 @@ function MenuManager(config = {}) constructor{
         mouseEnabled    = true;
         mouseActive     = false;
         mouseFocus      = undefined;
+        style           = config[$ "style"] ?? new MenuStyle("styleTest");
         
         static __InputMethodActions = function() {
             return {
@@ -153,7 +154,7 @@ function MenuManager(config = {}) constructor{
     }
     static PageAdd = function(page) {
         __.pages[$ page.name] = page;
-        __.pages[$ page.name].mng = self;
+        __.pages[$ page.name].__.mng = self;
         return self;
     }
     static PagePush = function(page) {
@@ -161,7 +162,9 @@ function MenuManager(config = {}) constructor{
         if !(is_undefined(_pageCurr)) _pageCurr.Leave(false);
         array_push(__.stack, page);
         var _pageNext = PageGetActive();
-        if !(is_undefined(_pageNext)) _pageNext.Enter();
+        if (is_undefined(_pageNext)) return;
+        _pageNext.Enter();
+        _pageNext.Update();
         return self;
     }
     static PagePop = function() {
@@ -173,6 +176,7 @@ function MenuManager(config = {}) constructor{
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
         _pageNext.Enter();
+        _pageNext.Update();
         return self;
     }
     
@@ -185,9 +189,5 @@ function MenuManager(config = {}) constructor{
         __.mouseEnabled = enabled;
         return self;
     }
-    
-    static InputSetMethod = function(func) {
-        __InputMethod = method(self, func);
-        return self;
-    }
 }
+

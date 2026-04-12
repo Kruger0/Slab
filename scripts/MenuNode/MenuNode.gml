@@ -27,6 +27,9 @@ function MenuNode(id, name, config = {}) constructor{
         xAnchor     = 0;
         yAnchor     = 0;
         
+        mng         = undefined;
+        style       = undefined;
+        
         angle       = 0;
         xPos        = 0;
         yPos        = 0;
@@ -71,10 +74,10 @@ function MenuNode(id, name, config = {}) constructor{
     
     // Methods
     static PagePush = function(page) {
-        mng.PagePush(page);
+        __.mng.PagePush(page);
     }
     static PagePop = function() {
-        mng.PagePop();
+        __.mng.PagePop();
     }
     
     static OnUpdate = function(callback, data = undefined) {
@@ -133,7 +136,7 @@ function MenuNode(id, name, config = {}) constructor{
             var _y1 = _zoneCurr.y;
             var _x2 = _x1+_zoneCurr.w;
             var _y2 = _y1+_zoneCurr.h;
-            if (point_in_rectangle(mng.__.mx, mng.__.my, _x1, _y1, _x2, _y2)) {
+            if (point_in_rectangle(__.mng.__.mx, __.mng.__.my, _x1, _y1, _x2, _y2)) {
                 if (_zoneCurr.z > _zCurr) {
                     _zCurr = _zoneCurr.z;
                     _zoneActive = _zoneCurr;
@@ -152,6 +155,7 @@ function MenuNode(id, name, config = {}) constructor{
         }
     }
     static Render = function() {
+        
         // Custom
         if (array_length(__.zoneArray) < 1) return;
         for (var i = 0, n = array_length(onRenderCb); i < n; i++) {
@@ -301,7 +305,7 @@ function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constr
         var _h = _body.h;
         var _c = #202020;//colors.disabled;
         var _t = name;
-        
+        show_message(_y)
         // Background
         if !(is_undefined(background)) {
             if (asset_get_type(background) == asset_sprite) {
