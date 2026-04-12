@@ -91,7 +91,7 @@ function MenuNode(id, name, config = {}) constructor{
         __yScl = __ySclAnim.GetValue();
         
         // Aligmnet
-        var _body = ZoneGetBody();
+        var _body = ZoneGetData("BODY");
         var _xOff = __xOffAnim.GetValue();
         var _yOff = __yOffAnim.GetValue();
         
@@ -213,9 +213,16 @@ function MenuNode(id, name, config = {}) constructor{
         return false;
     }
     
-    static ZoneGetBody = function() {
-        if (array_length(__zoneArray) == 0) return;
-        return __zoneArray[0]; // TODO pass custom node width
+    static ZoneGetData = function(type) {
+        var _data = undefined
+        for (var i = 0; i < __zoneCount; i++) {
+            var _zone = __zoneArray[i];
+            if (_zone.type == type) {
+                _data = _zone;
+                break;
+            }
+        }
+        return _data;
     }
     
     static SetFocused = function(focused) {
@@ -239,22 +246,8 @@ function MenuNode(id, name, config = {}) constructor{
         __pending = false;
     };
     
-    static ActionLeft = function() {};
-    static ActionRight = function() {};
-    static ActionUp = function() {};
-    static ActionDown = function() {};
-    static ActionSelect = function() {Select()};
-    
-    static HandleActions = function(actions) {
-        if (actions.leftPressed) ActionLeft();
-        if (actions.rightPressed) ActionRight();
-        if (actions.upPressed) ActionUp();
-        if (actions.downPressed) ActionDown();
-        if (actions.selectPressed) ActionSelect();
-    }
-    static HandleMouse = function(mouse) {
-        if (mouse.leftPressed) Select();
-    }
+    static HandleAction = function(action) {};
+    static HandleMouse = function(mouse) {};
 }
 
 function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constructor {
@@ -266,7 +259,7 @@ function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constr
     __bgSpriteBase  = config[$ "bgSpriteBase"];
     
     OnRender(function() {
-        var _body = ZoneGetBody();
+        var _body = ZoneGetData("BODY");
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -302,7 +295,7 @@ function MenuNodeSeparator(id, name = id, config = {}) : MenuNode(id, name, conf
     OnRender(function() {
         if (!__drawLine) return;;
         var _c = colors.base;
-        var _body = ZoneGetBody();
+        var _body = ZoneGetData("BODY");
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -324,18 +317,21 @@ function MenuNodeButton(id, name, callback, config = {}) : MenuNode(id, name, co
     
     Callback = method(self, callback ?? function(){});
     
-    static ActionSelect = function() {
+    static DoSelect = function() {
         __xSclAnim.Snap(1).Play(1.2);
         __ySclAnim.Snap(1).Play(1.2);
         Callback();
     }
     
-    OnSelect(function() {
-        ActionSelect();
-    })
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) DoSelect();
+    }
+    static HandleAction = function(action) {
+        if (action.selectPressed) DoSelect();
+    }
     
     OnRender(function() {
-        var _body = ZoneGetBody();
+        var _body = ZoneGetData("BODY");
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -361,7 +357,7 @@ function MenuNodeConfirm(id, name, callback, config = {}) : MenuNode(id, name, c
     
     Callback = method(self, callback ?? function(){});
     
-    static ActionSelect = function() {
+    static DoSelect = function() {
         __xSclAnim.Snap(1).Play(1.2);
         __ySclAnim.Snap(1).Play(1.2);
         if (__pending) {
@@ -372,12 +368,15 @@ function MenuNodeConfirm(id, name, callback, config = {}) : MenuNode(id, name, c
         }
     }
     
-    OnSelect(function() {
-        ActionSelect();
-    });
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) DoSelect();
+    }
+    static HandleAction = function(action) {
+        if (action.selectPressed) DoSelect();
+    }
     
     OnRender(function() {
-        var _body = ZoneGetBody();
+        var _body = ZoneGetData("BODY");
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -394,6 +393,9 @@ function MenuNodeConfirm(id, name, callback, config = {}) : MenuNode(id, name, c
             .transform(__xScl, __yScl, __angle)
             .draw(__xPos, __yPos);
     });
+    OnLeave(function() {
+        __pending = false;
+    })
 }
 
 function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : MenuNode(id, name, config) constructor {
@@ -429,16 +431,29 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
         return true;
     }
     
-    static ActionLeft = function() {
+    static DoLeft = function() {
         if (OptionCycleLeft()) {
             __xOffAnim.Snap(-10).Play(0);
             ValueSet(OptionGetActive());
         }
     }
-    static ActionRight = function() {
+    static DoRight = function() {
         if (OptionCycleRight()) {
             __xOffAnim.Snap(10).Play(0);
             ValueSet(OptionGetActive());
+        }
+    }
+    
+    static HandleAction = function(action) {
+        if (action.leftPressed) DoLeft();
+        if (action.rightPressed) DoRight();
+    }
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) {
+            switch (__zoneActive) {
+                case "LEFT": DoLeft(); break;
+                case "RIGHT": DoRight(); break;
+            }
         }
     }
     
@@ -455,14 +470,6 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
             __optionIndex = 0;
         }
     });
-    
-    OnSelect(function(){
-        switch (__zoneActive) {
-            case "LEFT": ActionLeft(); break;
-            case "RIGHT": ActionRight(); break;
-        }
-    });
-    
     OnRender(function() {
         for (var i = 0; i < __zoneCount; i++) {
             var _zone = __zoneArray[i];
@@ -521,11 +528,18 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
     ValueGet = method(self, valueGet);
     ValueSet = method(self, valueSet);
     
-    static ActionSelect = function() {
+    static DoSelect = function() {
         __xSclAnim.Snap(1).Play(1.2);
         __ySclAnim.Snap(1).Play(1.2);
         __value = !__value;
         ValueSet(__value);
+    }
+    
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) DoSelect();
+    }
+    static HandleAction = function(action) {
+        if (action.selectPressed) DoSelect();
     }
     
     OnEnter(function() {
@@ -538,7 +552,6 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
             __value = false;
         }
     });
-    
     OnSelect(function() {
         switch (__zoneActive) {
             case "BOX": {
@@ -546,7 +559,6 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
             } break;
         }
     })
-    
     OnRender(function() {
         for (var i = 0; i < __zoneCount; i++) {
             var _zone = __zoneArray[i];
@@ -577,11 +589,9 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
     });
 }
 
-/// @func MenuNodeSlider(id, name, get, set, min, max, step, [format], [config])
 function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueStep, valueFormat = function(v){return string(v)}, config = {}) : MenuNode(id, name, config) constructor {
     __nodeType  = "SLIDER";
     __value     = undefined;
-    __valuePrev = 0;
     __valueMin  = valueMin;
     __valueMax  = valueMax;
     __valueStep = valueStep
@@ -591,30 +601,47 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     ValueSet    = method(self, valueSet);
     ValueFormat = method(self, valueFormat);
     
-    static ActionLeft = function() {
+    static DoLeft = function() {
         __value -= __valueStep;
         __value = clamp(__value, __valueMin, __valueMax);
         ValueSet(__value);
     }
-    static ActionRight = function() {
+    static DoRight = function() {
         __value += __valueStep;
         __value = clamp(__value, __valueMin, __valueMax);
         ValueSet(__value);
+    }
+    
+    static HandleAction = function(action) {
+        if (action.leftPressed) DoLeft();
+        if (action.rightPressed) DoRight();
+    }
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed && __zoneActive == "BAR") {
+            __dragging = true;
+            __mng.NodeLock(self);
+        }
+        if (__dragging) {
+            var _bar = ZoneGetData("BAR");
+            var _delta = clamp((__mng.__mouseX - _bar.x) / _bar.w, 0, 1);
+            var _value = __valueMin + _delta * (__valueMax - __valueMin);
+            _value = round(_value / __valueStep) * __valueStep;
+            _value = clamp(_value, __valueMin, __valueMax);
+            if (_value != __value) {
+                __value = _value;
+                ValueSet(__value);
+            }
+            if (mouse.leftReleased) {
+                __dragging = false;
+                __mng.NodeUnlock();
+            }
+        }
     }
     
     OnEnter(function() {
         var _value = ValueGet();
         __value = _value;
     })
-    
-    OnSelect(function() {
-        switch (__zoneActive) {
-            case "BAR": {
-                // starts dragging untill mouse button is released
-            } break;
-        }
-    })
-    
     OnRender(function() {
         for (var i = 0; i < __zoneCount; i++) {
             var _zone = __zoneArray[i];

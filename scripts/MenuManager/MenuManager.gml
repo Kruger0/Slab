@@ -2,16 +2,17 @@
 function MenuManager(config = {}) constructor{
     
     #region Private
-    __style           = config[$ "style"] ?? new MenuStyle("default");
-    __stackArray      = [];
-    __pages           = {};
-    __mouseX          = 0;
-    __mouseY          = 0;
-    __mouseEnabled    = true;
-    __mouseActive     = false;
-    __mouseFocus      = undefined;
+    __style         = config[$ "style"] ?? new MenuStyle("default");
+    __stackArray    = [];
+    __pages         = {};
+    __mouseX        = 0;
+    __mouseY        = 0;
+    __mouseEnabled  = true;
+    __mouseActive   = false;
+    __mouseFocus    = undefined;
+    __nodeLocked    = undefined;
     
-    static __InputMethodActions = function() {
+    static __InputMethodAction = function() {
         return {
             leftPressed         : InputPressed(INPUT_VERB.LEFT),
             rightPressed        : InputPressed(INPUT_VERB.RIGHT),
@@ -19,25 +20,27 @@ function MenuManager(config = {}) constructor{
             downPressed         : InputPressed(INPUT_VERB.DOWN),
                                     
             selectPressed       : InputPressed(INPUT_VERB.ACCEPT),
-            selectCheck         : InputCheck(INPUT_VERB.ACCEPT),
+            selectHeld          : InputCheck(INPUT_VERB.ACCEPT),
             selectReleased      : InputReleased(INPUT_VERB.ACCEPT),
                                     
             backPressed         : InputPressed(INPUT_VERB.CANCEL),
-            backCheck           : InputCheck(INPUT_VERB.CANCEL),
+            backHeld            : InputCheck(INPUT_VERB.CANCEL),
             backReleased        : InputReleased(INPUT_VERB.CANCEL),
         }
     }
     static __InputMethodMouse = function() {
         return {
             leftPressed     : InputMousePressed(mb_left),
-            leftCheck       : InputMouseCheck(mb_left),
+            leftHelf        : InputMouseCheck(mb_left),
             leftReleased    : InputMouseReleased(mb_left),
                                 
             rightPressed    : InputMousePressed(mb_right),
-            rightCheck      : InputMouseCheck(mb_right),
+            rightHeld       : InputMouseCheck(mb_right),
             rightReleased   : InputMouseReleased(mb_right),
-                
-            //scrollDelta     : InputMouseCheck()
+            
+            xDelta          : window_mouse_get_delta_x(),
+            yDelta          : window_mouse_get_delta_y(),
+            scrollDelta     : mouse_wheel_down() - mouse_wheel_up(),
         }
     }
     static __InputClear = function(input) {
@@ -56,13 +59,29 @@ function MenuManager(config = {}) constructor{
         var _page = PageGetActive();
         if (is_undefined(_page)) return;
         
-        var _inputActions   = __InputMethodActions();
+        var _inputAction    = __InputMethodAction();
         var _inputMouse     = __InputMethodMouse();
         
         if (__mouseActive) {
-            __InputClear(_inputActions);
+            __InputClear(_inputAction);
         } else {
             __InputClear(_inputMouse);
+        }
+        
+        // Locked Node
+        if (!is_undefined(__nodeLocked)) {
+            __nodeLocked.Update(true);
+            if (__mouseActive) {
+                if (!is_undefined(__mouseFocus)) {
+                    __nodeLocked.HandleMouse(_inputMouse);
+                }
+            } else {
+                __nodeLocked.HandleAction(_inputAction);
+            }
+            if (_inputAction.backPressed) NodeUnlock();
+            delete _inputAction;
+            delete _inputMouse;
+            return self;
         }
         
         // Input State
@@ -95,7 +114,7 @@ function MenuManager(config = {}) constructor{
             }
             _page.__NodeSet(__mouseFocus);
         } else {
-            var _yDelta = (_inputActions.downPressed - _inputActions.upPressed);
+            var _yDelta = (_inputAction.downPressed - _inputAction.upPressed);
             if (_yDelta != 0) {
                 var _next = _page.__NodeGet();
                 var _guard = 0;
@@ -122,16 +141,15 @@ function MenuManager(config = {}) constructor{
                     _node.HandleMouse(_inputMouse);
                 }
             } else {
-                _node.HandleActions(_inputActions);
-                // TODO node locking for handling in node navigation using xDelta & yDelta
+                _node.HandleAction(_inputAction);
             }
         }
         
         // Back
-        if (_inputActions.backPressed) PagePop();
+        if (_inputAction.backPressed) PagePop();
         
         // Cleanup
-        delete _inputActions;
+        delete _inputAction;
         delete _inputMouse;
         return self;
     }
@@ -189,5 +207,15 @@ function MenuManager(config = {}) constructor{
     static MouseGetEnabled = function() {
         return __mouseEnabled ;
     }
+    
+    static NodeLock = function(node) {
+        __nodeLocked = node;
+        return self;
+    }
+    static NodeUnlock = function() {
+        __nodeLocked = undefined;
+        return self;
+    }
+    
     #endregion
 }
