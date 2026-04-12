@@ -11,7 +11,7 @@ global.options = {
         bloom : true,
         vsync : false,
     },
-    language : "pt_oBR",
+    language : "pt_BR",
 }
 global.debug = false;
 scribble_font_set_default("fnt_test");
@@ -26,48 +26,45 @@ mainMenu.PageAdd(new MenuPage("main_menu", "layerMain", [
     new MenuNodeSeparator("sep"),
     new MenuNodeConfirm("exit", "Exit", function(){game_end()}, {message : "Exit Game?"}),
 ]))
-mainMenu.PageAdd(new MenuPage("menu_options", "layerOptions", [
+.PageAdd(new MenuPage("menu_options", "layerOptions", [
     new MenuNodeText("options", "Options", {bgColorBase : c_ltgray}),
-    new MenuNodeSelector("language", "Language", 
-        [
+    new MenuNodeSelector("language", "Language", [
             ["English", "en_US"], 
             ["Português", "pt_BR"], 
             ["Español", "es_ES"]
         ], 
         function(){return global.options.language},
-        function(v){global.options.language = v}),
+        function(v){global.options.language = v[1]}),
     new MenuNodeButton("audio", "Audio", function(){PagePush("menu_audio")}),
     new MenuNodeButton("video", "Video", function(){PagePush("menu_video")}),
     new MenuNodeConfirm("reset", "Reset", function(){}, {message: "Are You Sure?"}),
     new MenuNodeSeparator("sep"),
     new MenuNodeButton("back", "Back", function(){PagePop()}),
 ]))
-mainMenu.PageAdd(new MenuPage("menu_audio", "layerAudio", [
+.PageAdd(new MenuPage("menu_audio", "layerAudio", [
     new MenuNodeText("audio", "Audio",{bgColorBase : c_ltgray}),
     new MenuNodeSlider("master", "Master", 
         function(){return global.options.audio.master},
         function(v){global.options.audio.master = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
     new MenuNodeSlider("music", "Music", 
-        function(){return global.options.audio.master},
-        function(v){global.options.audio.master = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
+        function(){return global.options.audio.music},
+        function(v){global.options.audio.music = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
     new MenuNodeSlider("sfx", "Effects", 
-        function(){return global.options.audio.master},
-        function(v){global.options.audio.master = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
+        function(){return global.options.audio.sfx},
+        function(v){global.options.audio.sfx = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
     new MenuNodeSeparator("sep"),
     new MenuNodeButton("back", "Back", function(){PagePop()}),
 ]))
-mainMenu.PageAdd(new MenuPage("menu_video", "layerVideo", [
+.PageAdd(new MenuPage("menu_video", "layerVideo", [
     new MenuNodeText("video", "Video", {bgColorBase : c_ltgray}),
-    new MenuNodeSelector("display", "Display", 
-        [
+    new MenuNodeSelector("display", "Display", [
             ["Windowed", 0], 
             ["Fullscreen", 1], 
             ["Borderless", 2]
         ], 
         function(){return global.options.video.display},
         function(v){global.options.video.display = v[1]}),
-    new MenuNodeSelector("resolution", "Resolution", 
-        [
+    new MenuNodeSelector("resolution", "Resolution", [
             ["640x360", 0],
             ["1280x720", 1],
             ["1920x1080", 2]

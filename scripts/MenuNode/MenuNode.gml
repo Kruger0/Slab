@@ -594,10 +594,12 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     static ActionLeft = function() {
         __value -= __valueStep;
         __value = clamp(__value, __valueMin, __valueMax);
+        ValueSet(__value);
     }
     static ActionRight = function() {
         __value += __valueStep;
         __value = clamp(__value, __valueMin, __valueMax);
+        ValueSet(__value);
     }
     
     OnEnter(function() {
