@@ -46,7 +46,7 @@ mainMenu.PageAdd(new MenuPage("menu_audio", "layerAudio", [
     new MenuNodeText("audio", "Audio",{bgColorBase : c_ltgray}),
     new MenuNodeSlider("master", "Master", 
         function(){return global.options.audio.master},
-        function(v){global.options.audio.master = v}, 0, 100, 1, function(v){return string_format(v, 3, 0)+"%"}),
+        function(v){global.options.audio.master = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
     new MenuNodeSlider("music", "Music", 
         function(){return global.options.audio.master},
         function(v){global.options.audio.master = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
