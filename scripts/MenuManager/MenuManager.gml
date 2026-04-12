@@ -164,15 +164,6 @@ function MenuManager(config = {}) constructor{
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
         _pageNext.Enter(__.mouseActive);
-        //_pageNext.Update();
-        //if (__.mouseActive) {
-        //    with (_pageNext) {
-        //        for (var i = 0; i < __.nodeCount; i++) {
-        //            var _node = __.nodeArray[i];
-        //            _node.Update(false);
-        //        }
-        //    }
-        //}
         return self;
     }
     static PagePop = function() {
@@ -184,15 +175,6 @@ function MenuManager(config = {}) constructor{
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
         _pageNext.Enter(__.mouseActive);
-        //_pageNext.Update();
-        //if (__.mouseActive) {
-        //    with (_pageNext) {
-        //        for (var i = 0; i < __.nodeCount; i++) {
-        //            var _node = __.nodeArray[i];
-        //            _node.Update(false);
-        //        }
-        //    }
-        //}
         return self;
     }
     
@@ -206,4 +188,3 @@ function MenuManager(config = {}) constructor{
         return self;
     }
 }
-

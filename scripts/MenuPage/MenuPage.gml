@@ -3,7 +3,6 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     
     // Public
     cycle   = config[$ "cycle"] ?? true;
-    enabled = config[$ "enabled"] ?? true;
     
     // Private
     __ = {};
@@ -164,3 +163,4 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         }
     }
 }
+scribble()
