@@ -1,9 +1,9 @@
 
 global.options = {
     audio : {
-        master  : 50,
-        music   : 50,
-        sfx     : 50,
+        master  : 80,
+        music   : 20,
+        sfx     : 60,
     },
     video : {
         display : 1,
@@ -45,13 +45,13 @@ mainMenu.PageAdd(new MenuPage("main_menu", "layerMain", [
     new MenuNodeText("audio", "Audio",{bgColorBase : c_ltgray}),
     new MenuNodeSlider("master", "Master", 
         function(){return global.options.audio.master},
-        function(v){global.options.audio.master = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
+        function(v){global.options.audio.master = v}, 0, 100, 1, function(v){return string_format(v, 3, 0)+"%"}),
     new MenuNodeSlider("music", "Music", 
         function(){return global.options.audio.music},
-        function(v){global.options.audio.music = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
+        function(v){global.options.audio.music = v}, 0, 100, 1, function(v){return string_format(v, 3, 0)+"%"}),
     new MenuNodeSlider("sfx", "Effects", 
         function(){return global.options.audio.sfx},
-        function(v){global.options.audio.sfx = v}, 0, 100, 5, function(v){return string_format(v, 3, 0)+"%"}),
+        function(v){global.options.audio.sfx = v}, 0, 100, 1, function(v){return string_format(v, 3, 0)+"%"}),
     new MenuNodeSeparator("sep"),
     new MenuNodeButton("back", "Back", function(){PagePop()}),
 ]))

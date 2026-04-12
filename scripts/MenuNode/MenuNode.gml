@@ -5,12 +5,15 @@ function MenuNode(id, name, config = {}) constructor{
     __id            = id;
     __name          = name;
     __nodeType      = "BLANK";
+    __pending       = false;
+    __dragging      = false;
     __focused       = false;    // If the node has focus (either by keyboard or mouse)
     __interactive   = true;     // If the node can have focus (either by keyboard or mouse)
     __enabled       = true;     // If the node can run its callback when selected
     __visible       = true;     // If the node is rendered and calculated on the layout spacing
     __mng           = undefined;
     __style         = config[$ "style"];
+    __value         = undefined;
     
     __hAlign        = fa_left;  // Coordinate position relative to the node
     __vAlign        = fa_middle;
@@ -189,7 +192,9 @@ function MenuNode(id, name, config = {}) constructor{
         __xSclAnim.Snap(1);
         __ySclAnim.Snap(1);
         
-        __focused = false;
+        __focused   = false;
+        __pending   = false;
+        __dragging  = false;
         
         // Custom
         for (var i = 0, n = array_length(__onLeaveCb); i < n; i++) {
@@ -351,7 +356,6 @@ function MenuNodeButton(id, name, callback, config = {}) : MenuNode(id, name, co
 function MenuNodeConfirm(id, name, callback, config = {}) : MenuNode(id, name, config) constructor {
     __nodeType  = "SELECTOR";
     __name      = name;
-    __pending   = false;
     __message   = config[$ "message"] ?? name + "?";
     
     Callback = method(self, callback ?? function(){});
@@ -392,9 +396,6 @@ function MenuNodeConfirm(id, name, callback, config = {}) : MenuNode(id, name, c
             .transform(__xScl, __yScl, __angle)
             .draw(__xPos, __yPos);
     });
-    OnLeave(function() {
-        __pending = false;
-    })
 }
 
 function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : MenuNode(id, name, config) constructor {
@@ -522,7 +523,6 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
 function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(id, name, config) constructor {
     __nodeType  = "CHECKBOX";
     __name      = name;
-    __value     = undefined;
     
     ValueGet = method(self, valueGet);
     ValueSet = method(self, valueSet);
@@ -590,11 +590,9 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
 
 function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueStep, valueFormat = function(v){return string(v)}, config = {}) : MenuNode(id, name, config) constructor {
     __nodeType  = "SLIDER";
-    __value     = undefined;
     __valueMin  = valueMin;
     __valueMax  = valueMax;
     __valueStep = valueStep
-    __dragging  = false;
     
     ValueGet    = method(self, valueGet);
     ValueSet    = method(self, valueSet);

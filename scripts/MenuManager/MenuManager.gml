@@ -14,10 +14,10 @@ function MenuManager(config = {}) constructor{
     
     static __InputMethodAction = function() {
         return {
-            leftPressed         : InputPressed(INPUT_VERB.LEFT),
-            rightPressed        : InputPressed(INPUT_VERB.RIGHT),
-            upPressed           : InputPressed(INPUT_VERB.UP),
-            downPressed         : InputPressed(INPUT_VERB.DOWN),
+            leftPressed         : InputRepeat(INPUT_VERB.LEFT, 0, 2),
+            rightPressed        : InputRepeat(INPUT_VERB.RIGHT, 0, 2),
+            upPressed           : InputRepeat(INPUT_VERB.UP, 0, 2),
+            downPressed         : InputRepeat(INPUT_VERB.DOWN, 0, 2),
                                     
             selectPressed       : InputPressed(INPUT_VERB.ACCEPT),
             selectHeld          : InputCheck(INPUT_VERB.ACCEPT),
