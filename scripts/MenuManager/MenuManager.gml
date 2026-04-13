@@ -83,14 +83,16 @@ function MenuManager(config = {}) constructor{
         }
         
         // Input State
-        var _nodeCount = _page.__nodeCount;
+        var _nodeCount = array_length(_page.__nodeArray);
         if (__mouseEnabled) {
             var _mouseActive = __mouseActive;
             if (InputMouseCheck(mb_any)) __mouseActive = true;
             if (InputMouseMoved()) __mouseActive = true;
             if (InputCheckMany(-1, -1)) __mouseActive = false;
             if (__mouseActive && !_mouseActive) {
-                for (var i = 0; i < _nodeCount; i++) _page.__nodeArray[i].SetFocused(false);
+                for (var i = 0; i < _nodeCount; i++) {
+                    _page.__nodeArray[i].SetFocused(false);
+                }
             }
         } else {
             __mouseActive = false;
@@ -99,8 +101,8 @@ function MenuManager(config = {}) constructor{
         // Node Selection
         __mouseFocus = undefined;
         if (__mouseActive) {
-            for (var i = 0; i < _nodeCount; i++) {
-                var _node = _page.__nodeArray[i];
+            for (var i = 0, n = array_length(_page.__nodeOrder); i < n; i++) {
+                var _node = _page.NodeGet(i);
                 var _isOver = _node.ContainsPoint(__mouseX, __mouseY);
                 if (_isOver && !_node.__interactive) {
                     _node.__focused = false;
@@ -114,17 +116,18 @@ function MenuManager(config = {}) constructor{
         } else {
             var _yDelta = (_inputAction.downPressed - _inputAction.upPressed);
             if (_yDelta != 0) {
-                var _next = _page.__NodeGet();
+                var _next = _page.__nodeActive;
+                var _count = array_length(_page.__nodeOrder);
                 var _guard = 0;
                 do {
                     _next += _yDelta;
                     if (_page.__cycle) {
-                        _next = ((_next % _nodeCount) + _nodeCount) % _nodeCount;
+                        _next = ((_next % _count) + _count) % _count;
                     } else {
-                        _next = clamp(_next, 0, _nodeCount - 1);
+                        _next = clamp(_next, 0, _count - 1);
                     }
                     _guard++;
-                } until (_page.__nodeArray[_next].__interactive || _guard >= _nodeCount);
+                } until (_page.__nodeArray[_page.__nodeOrder[_next]].__interactive || _guard >= _count);
                 _page.__NodeSet(_next);
             }
         }
@@ -215,5 +218,11 @@ function MenuManager(config = {}) constructor{
         return self;
     }
     
+    static StyleSet = function(style) {
+        
+    }
+    static StyleGet = function(style) {
+        
+    }
     #endregion
 }

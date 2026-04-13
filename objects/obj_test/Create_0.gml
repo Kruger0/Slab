@@ -17,13 +17,13 @@ global.debug = false;
 
 scribble_font_set_default("fnt_test");
 
-mainMenu = new MenuManager();
-mainMenu.PageAdd(new MenuPage("main_menu", "layerMain", [
+mainMenu = new MenuManager({style : "MyStyle"})
+.PageAdd(new MenuPage("main_menu", "layerMain", [
     new MenuNodeText("main", "Main Menu", {bgColorBase : c_ltgray}),
     new MenuNodeButton("start", "Start"),
     new MenuNodeButton("continue", "Continue"),
-    new MenuNodeButton("options", "Options", function(){PagePush("menu_options")}),
     new MenuNodeButton("credits", "Credits"),
+    new MenuNodeButton("options", "Options", function(){PagePush("menu_options")}),
     new MenuNodeSeparator("sep"),
     new MenuNodeConfirm("exit", "Exit", function(){game_end()}, {message : "Exit Game?"}),
 ]))
