@@ -422,7 +422,6 @@
     {"id":{"name":"spr_flex_area","path":"sprites/spr_flex_area/spr_flex_area.yy",},},
     {"id":{"name":"spr_flexnode","path":"sprites/spr_flexnode/spr_flexnode.yy",},},
     {"id":{"name":"spr_pixel","path":"sprites/spr_pixel/spr_pixel.yy",},},
-    {"id":{"name":"spr_slider","path":"sprites/spr_slider/spr_slider.yy",},},
   ],
   "resourceType":"GMProject",
   "resourceVersion":"2.0",

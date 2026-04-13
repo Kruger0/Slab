@@ -600,12 +600,12 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     ValueFormat = method(self, valueFormat);
     
     static DoLeft = function() {
-        __value -= __valueStep;
+        __value -= __valueStep ?? 1;
         __value = clamp(__value, __valueMin, __valueMax);
         ValueSet(__value);
     }
     static DoRight = function() {
-        __value += __valueStep;
+        __value += __valueStep ?? 1;
         __value = clamp(__value, __valueMin, __valueMax);
         ValueSet(__value);
     }
@@ -623,7 +623,7 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
             var _bar = ZoneGetData("BAR");
             var _delta = clamp((__mng.__mouseX - _bar.x) / _bar.w, 0, 1);
             var _value = __valueMin + _delta * (__valueMax - __valueMin);
-            _value = round(_value / __valueStep) * __valueStep;
+            if (!is_undefined(__valueStep)) _value = round(_value / __valueStep) * __valueStep;
             _value = clamp(_value, __valueMin, __valueMax);
             if (_value != __value) {
                 __value = _value;
@@ -665,8 +665,6 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
                         .draw(_x+_w, __yPos);
                 } break
                 case "BAR": {
-                    
-                    
                     // Enable Edge Mask
                     gpu_set_stencil_enable(true);
                     draw_clear_stencil(0);
