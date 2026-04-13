@@ -592,7 +592,8 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     __nodeType  = "SLIDER";
     __valueMin  = valueMin;
     __valueMax  = valueMax;
-    __valueStep = valueStep
+    __valueStep = valueStep;
+    __valueNorm = undefined;
     
     ValueGet    = method(self, valueGet);
     ValueSet    = method(self, valueSet);
@@ -664,11 +665,37 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
                         .draw(_x+_w, __yPos);
                 } break
                 case "BAR": {
-                    _c = colors.base;
+                    
+                    
+                    // Enable Edge Mask
+                    gpu_set_stencil_enable(true);
+                    draw_clear_stencil(0);
+                    gpu_set_stencil_func(cmpfunc_always);
+                    gpu_set_stencil_ref(1);
+                    gpu_set_stencil_pass(stencilop_replace);
+                    gpu_set_colorwriteenable(false, false, false, false);
+                    var _r = _h/2;
+                    draw_rectangle(_x+_r, _y, _x+_w-_r, _y+_h, false);
+                    draw_circle(_x+_r, _y+_r, _r, false);
+                    draw_circle(_x+_w-_r, _y+_r, _r,false);
+                    gpu_set_colorwriteenable(true, true, true, true);
+                    gpu_set_stencil_func(cmpfunc_equal);
+                    gpu_set_stencil_ref(1);
+                    gpu_set_stencil_pass(stencilop_keep);
+                    
+                    // Background
+                    _c = #404040;
                     draw_rectangle_colour(_x, _y, _x+_w, _y+_h, _c, _c, _c, _c, false);
-                    _c = colors.focused;
-                    var _n = (__value - __valueMin) / (__valueMax - __valueMin);
+                    
+                    // Slider
+                    _c = (__focused ? colors.focused : colors.base)
+                    var _n = (__value - (__valueMin)) / ((__valueMax) - (__valueMin));
                     draw_rectangle_colour(_x, _y, _x+_w*_n, _y+_h, _c, _c, _c, _c, false);
+                    
+                    // Foreground
+                    
+                    // Disable Edge Mask
+                    gpu_set_stencil_enable(false);
                 } break
             }
         }

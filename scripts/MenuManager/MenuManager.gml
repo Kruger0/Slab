@@ -18,11 +18,11 @@ function MenuManager(config = {}) constructor{
             rightPressed        : InputRepeat(INPUT_VERB.RIGHT, 0, 2),
             upPressed           : InputRepeat(INPUT_VERB.UP, 0, 2),
             downPressed         : InputRepeat(INPUT_VERB.DOWN, 0, 2),
-                                    
+            
             selectPressed       : InputPressed(INPUT_VERB.ACCEPT),
             selectHeld          : InputCheck(INPUT_VERB.ACCEPT),
             selectReleased      : InputReleased(INPUT_VERB.ACCEPT),
-                                    
+            
             backPressed         : InputPressed(INPUT_VERB.CANCEL),
             backHeld            : InputCheck(INPUT_VERB.CANCEL),
             backReleased        : InputReleased(INPUT_VERB.CANCEL),
@@ -33,13 +33,11 @@ function MenuManager(config = {}) constructor{
             leftPressed     : InputMousePressed(mb_left),
             leftHelf        : InputMouseCheck(mb_left),
             leftReleased    : InputMouseReleased(mb_left),
-                                
+            
             rightPressed    : InputMousePressed(mb_right),
             rightHeld       : InputMouseCheck(mb_right),
             rightReleased   : InputMouseReleased(mb_right),
             
-            xDelta          : window_mouse_get_delta_x(),
-            yDelta          : window_mouse_get_delta_y(),
             scrollDelta     : mouse_wheel_down() - mouse_wheel_up(),
         }
     }
