@@ -48,11 +48,11 @@ function MenuNode(id, name, config = {}) constructor{
     };
     alpha       = config[$ "alpha"] ?? 1;
     animSpeed   = config[$ "animSpeed"] ?? 0.5;
-    __xOffAnim      = new AnimTrack(ac_test, "xOff", animSpeed);
-    __yOffAnim      = new AnimTrack(ac_test, "yOff", animSpeed);
-    __xSclAnim      = new AnimTrack(ac_test, "xScl", animSpeed);
-    __ySclAnim      = new AnimTrack(ac_test, "yScl", animSpeed);
-    __angleAnim     = new AnimTrack(ac_test, "angle", animSpeed);
+    __xOffAnim      = new MenuAnimTrack(ac_test, "xOff", animSpeed);
+    __yOffAnim      = new MenuAnimTrack(ac_test, "yOff", animSpeed);
+    __xSclAnim      = new MenuAnimTrack(ac_test, "xScl", animSpeed);
+    __ySclAnim      = new MenuAnimTrack(ac_test, "yScl", animSpeed);
+    __angleAnim     = new MenuAnimTrack(ac_test, "angle", animSpeed);
     #endregion
     
     // Methods

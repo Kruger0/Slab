@@ -159,7 +159,7 @@ function MenuManager(config = {}) constructor{
         if (is_undefined(_page)) return;
         _page.Render();
         if (global.debug) {
-            var _c = #FF00FF
+            var _c = #FF00FF;
             draw_circle_color(__mouseX, __mouseY, 2, _c, _c, false);
             draw_circle_color(__mouseX, __mouseY, 6, _c, _c, true);
         }
@@ -170,15 +170,17 @@ function MenuManager(config = {}) constructor{
         var _page = array_last(__stackArray);
         return __pages[$ _page];
     }
-    static PageAdd = function(page) {
-        __pages[$ page.__name] = page;
-        __pages[$ page.__name].__mng = self;
+    static PageAdd = function(name) {
+        static cache = __MenuCache();
+        var _page = cache.pages[$ name];
+        __pages[$ name] = _page; // TODO make copy instead of referencing
+        __pages[$ name].__mng = self;
         return self;
     }
-    static PagePush = function(page) {
+    static PagePush = function(name) {
         var _pageCurr = PageGetActive();
         if !(is_undefined(_pageCurr)) _pageCurr.Leave(false);
-        array_push(__stackArray, page);
+        array_push(__stackArray, name);
         var _pageNext = PageGetActive();
         if (is_undefined(_pageNext)) return;
         _pageNext.Enter(__mouseActive);

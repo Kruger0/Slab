@@ -1,5 +1,5 @@
 
-function AnimTrack(curve, channel, duration) constructor {
+function MenuAnimTrack(curve, channel, duration) constructor {
     self.channel    = animcurve_get_channel(curve, channel);
     self.duration   = duration;
     currValue       = 0;

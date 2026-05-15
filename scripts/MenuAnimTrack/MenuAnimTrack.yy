@@ -1,12 +1,12 @@
 {
   "$GMScript":"v1",
-  "%Name":"MenuConstants",
+  "%Name":"MenuAnimTrack",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"MenuConstants",
+  "name":"MenuAnimTrack",
   "parent":{
-    "name":"Private",
-    "path":"folders/Menu System/Private.yy",
+    "name":"Classes",
+    "path":"folders/Menu System/Private/Classes.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -1,12 +1,12 @@
 {
   "$GMScript":"v1",
-  "%Name":"AnimTrack",
+  "%Name":"__PageDefinitions",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"AnimTrack",
+  "name":"__PageDefinitions",
   "parent":{
-    "name":"Menu System",
-    "path":"folders/Menu System.yy",
+    "name":"Public",
+    "path":"folders/Menu System/Public.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

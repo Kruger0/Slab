@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"__MenuCache",
   "parent":{
-    "name":"Menu System",
-    "path":"folders/Menu System.yy",
+    "name":"Private",
+    "path":"folders/Menu System/Private.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",
