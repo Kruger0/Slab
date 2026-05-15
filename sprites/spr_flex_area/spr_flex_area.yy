@@ -46,8 +46,8 @@
   },
   "origin":0,
   "parent":{
-    "name":"GM-MenuSystem",
-    "path":"GM-MenuSystem.yyp",
+    "name":"Sprites",
+    "path":"folders/Sprites.yy",
   },
   "preMultiplyAlpha":false,
   "resourceType":"GMSprite",

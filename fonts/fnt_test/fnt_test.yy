@@ -3200,8 +3200,8 @@
   "maintainGms1Font":false,
   "name":"fnt_test",
   "parent":{
-    "name":"GM-MenuSystem",
-    "path":"GM-MenuSystem.yyp",
+    "name":"Assets",
+    "path":"folders/Assets.yy",
   },
   "pointRounding":0,
   "ranges":[

@@ -11,6 +11,7 @@ function MenuManager(config = {}) constructor{
     __mouseActive   = false;
     __mouseFocus    = undefined;
     __nodeLocked    = undefined;
+    __enabled       = true;
     
     static __InputMethodAction = function() {
         return {
@@ -46,6 +47,10 @@ function MenuManager(config = {}) constructor{
         for (var i = 0; i < array_length(_keys); i++) {
             input[$ _keys[i]] = 0;
         }
+    }
+    
+    static __PageCopy = function() {
+        
     }
     #endregion
     
@@ -172,9 +177,10 @@ function MenuManager(config = {}) constructor{
     }
     static PageAdd = function(name) {
         static cache = __MenuCache();
-        var _page = cache.pages[$ name];
-        __pages[$ name] = _page; // TODO make copy instead of referencing
-        __pages[$ name].__mng = self;
+        var _data = cache.pages[$ name];
+        var _page = new MenuPage(name, _data.layer, _data.nodes);
+        _page.__mng = self;
+        __pages[$ name] = _page;
         return self;
     }
     static PagePush = function(name) {

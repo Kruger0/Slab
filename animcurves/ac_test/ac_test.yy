@@ -42,8 +42,8 @@
   "function":2,
   "name":"ac_test",
   "parent":{
-    "name":"GM-MenuSystem",
-    "path":"GM-MenuSystem.yyp",
+    "name":"Assets",
+    "path":"folders/Assets.yy",
   },
   "resourceType":"GMAnimCurve",
   "resourceVersion":"2.0",
