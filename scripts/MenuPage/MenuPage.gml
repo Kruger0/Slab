@@ -11,7 +11,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     __nodeActive    = 0;
     __nodeOrder     = [];
     
-    static __NodeSet = function(value) {
+    static __SetNode = function(value) {
         if (is_undefined(value)) return;
         if (value != clamp(value, 0, array_length(__nodeOrder)-1)) return;
         __nodeActive = value;
@@ -91,67 +91,68 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         return data;
     };
     
-    static __PageInit = function() {
-            var _root = layer_get_flexpanel_node(__layer);
-            var _layout = __FlexParse(_root);
-            var _rootPos = flexpanel_node_layout_get_position(_root);
-            flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
-            _layout = __FlexParse(_root);
+    static __InitPage = function() {
+        var _root = layer_get_flexpanel_node(__layer);
+        var _layout = __FlexParse(_root);
+        var _rootPos = flexpanel_node_layout_get_position(_root);
+        flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
+        _layout = __FlexParse(_root);
             
-            // Updates node navigation order
-            __nodeOrder = [];
-            for (var i = 0, n = array_length(_layout); i < n; i++) {
-                if (_layout[i].type != "BODY") continue;
-                var _id = _layout[i].id;
-                for (var j = 0, o = array_length(__nodeArray); j < o; j++) {
-                    if (__nodeArray[j].__id == _id) {
-                        array_push(__nodeOrder, j);
-                        break;
-                    }
-                }
-            }
-            
-            // Link nodes to their zones
-            for (var i = 0, n = array_length(__nodeArray); i < n ; i++) {
-                var _node = __nodeArray[i];
-                var _flex = _node.__zoneNode;
-                if (_flex == undefined) continue;
-                var _data = __FlexParse(_flex);
-                with (_node) {
-                    __zoneArray = _data;
-                    __zoneCount = array_length(_data);
+        // Updates node navigation order
+        __nodeOrder = [];
+        for (var i = 0, n = array_length(_layout); i < n; i++) {
+            if (_layout[i].type != "BODY") continue;
+            var _id = _layout[i].id;
+            for (var j = 0, o = array_length(__nodeArray); j < o; j++) {
+                if (__nodeArray[j].__id == _id) {
+                    array_push(__nodeOrder, j);
+                    break;
                 }
             }
         }
-    
-    #endregion
-    
-    #region Public
-    static NodeGetActiveIndex = function() {
-        return __nodeOrder[__nodeActive];
+            
+        // Link nodes to their zones
+        for (var i = 0, n = array_length(__nodeArray); i < n ; i++) {
+            var _node = __nodeArray[i];
+            var _flex = _node.__zoneNode;
+            if (_flex == undefined) continue;
+            var _data = __FlexParse(_flex);
+            with (_node) {
+                __zoneArray = _data;
+                __zoneCount = array_length(_data);
+            }
+        }
     }
-    static NodeGetActive = function() {
-        return __nodeArray[__nodeOrder[__nodeActive]];
-    }
-    static NodeGetIndex = function(index) {
-        return __nodeOrder[index];
-    }
-    static NodeGet = function(index) {
-        return __nodeArray[__nodeOrder[index]];
-    }
-    static NodeFindFirst = function() {
+    static __InitActiveNode = function() {
         var _guard = 0;
         var _count = array_length(__nodeOrder);
-        while (!NodeGetActive().__interactive && _guard < _count) {
+        while (!GetNodeActive().__interactive && _guard < _count) {
             __nodeActive = (__nodeActive + 1) % _count;
             _guard++;
         }
     }
     
+    #endregion
+    
+    #region Public
+    static GetNodeActiveIndex = function() {
+        return __nodeOrder[__nodeActive];
+    }
+    static GetNodeActive = function() {
+        return __nodeArray[__nodeOrder[__nodeActive]];
+    }
+    static GetNodeIndex = function(index) {
+        return __nodeOrder[index];
+    }
+    static GetNode = function(index) {
+        return __nodeArray[__nodeOrder[index]];
+    }
+    
+    
     static Update = function(mouseActive){
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
-            _node.Update(mouseActive ? undefined : (NodeGetActive() == _node));
+            _node.Update(mouseActive ? undefined : (GetNodeActive() == _node));
         }
     };
     static Render = function(){
@@ -161,8 +162,8 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         }
     };
     static Enter = function(resetNode) {
-        __PageInit();
-        NodeFindFirst();
+        __InitPage();
+        __InitActiveNode();
         __style ??= __mng.__style;
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
@@ -172,7 +173,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             if (resetNode) {
                 _node.Update(false);
             } else {
-                _node.Update(NodeGetActive() == _node);
+                _node.Update(GetNodeActive() == _node);
             }
         }
     }

@@ -1,8 +1,8 @@
 
 mainMenu = new MenuManager({style : "style_0"})
-    .PageAdd("page_main")
-    .PageAdd("page_options")
-    .PageAdd("page_audio")
-    .PageAdd("page_video")
+    .AddPage("page_main")
+    .AddPage("page_options")
+    .AddPage("page_audio")
+    .AddPage("page_video")
 
-mainMenu.PagePush("page_main");
+mainMenu.PushPage("page_main");

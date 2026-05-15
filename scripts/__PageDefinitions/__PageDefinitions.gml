@@ -19,7 +19,7 @@ MenuPageDefine("page_main", "layerMain", [
     new MenuNodeButton("continue", "Continue"),
     new MenuNodeButton("credits", "Credits"),
     new MenuNodeButton("options", "Options", function(){
-        PagePush("page_options")
+        PushPage("page_options")
     }),
     new MenuNodeSeparator("sep"),
     new MenuNodeConfirm("exit", "Exit", function(){
@@ -32,7 +32,7 @@ MenuPageDefine("page_pause", "layerPause", [
     new MenuNodeText("pause", "Pause", {bgColorBase : c_ltgray}),
     new MenuNodeButton("resume", "Resume", function(){show_debug_message(__style)}),
     new MenuNodeButton("restart", "Restart"),
-    new MenuNodeButton("options", "Options", function(){PagePush("page_options")}),
+    new MenuNodeButton("options", "Options", function(){PushPage("page_options")}),
     new MenuNodeSeparator("sep"),
     new MenuNodeConfirm("exit", "Leave", function(){
         room_goto(rm_menu);
@@ -49,11 +49,11 @@ MenuPageDefine("page_options", "layerOptions", [
         ], 
         function(){return global.options.language},
         function(v){global.options.language = v[1]}),
-    new MenuNodeButton("audio", "Audio", function(){PagePush("page_audio")}),
-    new MenuNodeButton("video", "Video", function(){PagePush("page_video")}),
+    new MenuNodeButton("audio", "Audio", function(){PushPage("page_audio")}),
+    new MenuNodeButton("video", "Video", function(){PushPage("page_video")}),
     new MenuNodeConfirm("reset", "Reset", function(){}, {message: "Are You Sure?"}),
     new MenuNodeSeparator("sep"),
-    new MenuNodeButton("back", "Back", function(){PagePop()})
+    new MenuNodeButton("back", "Back", function(){PopPage()})
 ])
 
 // Audio
@@ -69,7 +69,7 @@ MenuPageDefine("page_audio", "layerAudio", [
         function(){return global.options.audio.sfx},
         function(v){global.options.audio.sfx = v}, 0, 100, 1, function(v){return string_format(v, 3, 0)+"%"}),
     new MenuNodeSeparator("sep"),
-    new MenuNodeButton("back", "Back", function(){PagePop()}),
+    new MenuNodeButton("back", "Back", function(){PopPage()}),
 ])
 
 // Video
@@ -96,5 +96,5 @@ MenuPageDefine("page_video", "layerVideo", [
         function(){return global.options.video.vsync},
         function(v){global.options.video.vsync = v}),
     new MenuNodeSeparator("sep"),
-    new MenuNodeButton("back", "Back", function(){PagePop()}),
+    new MenuNodeButton("back", "Back", function(){PopPage()}),
 ])

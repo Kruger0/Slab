@@ -10,29 +10,29 @@ function MenuManager(config = {}) constructor{
     __mouseEnabled  = true;
     __mouseActive   = false;
     __mouseFocus    = undefined;
-    __nodeLocked    = undefined;
+    __lockedNode    = undefined;
     __enabled       = true;
     
-    static __InputMethodAction = function() {
+    static __GetActionInput  = function() {
         return {
-            leftPressed         : InputRepeat(INPUT_VERB.LEFT, 0, 2),
-            rightPressed        : InputRepeat(INPUT_VERB.RIGHT, 0, 2),
-            upPressed           : InputRepeat(INPUT_VERB.UP, 0, 2),
-            downPressed         : InputRepeat(INPUT_VERB.DOWN, 0, 2),
+            leftPressed     : InputRepeat(INPUT_VERB.LEFT, 0, 2),
+            rightPressed    : InputRepeat(INPUT_VERB.RIGHT, 0, 2),
+            upPressed       : InputRepeat(INPUT_VERB.UP, 0, 2),
+            downPressed     : InputRepeat(INPUT_VERB.DOWN, 0, 2),
             
-            selectPressed       : InputPressed(INPUT_VERB.ACCEPT),
-            selectHeld          : InputCheck(INPUT_VERB.ACCEPT),
-            selectReleased      : InputReleased(INPUT_VERB.ACCEPT),
+            selectPressed   : InputPressed(INPUT_VERB.ACCEPT),
+            selectHeld      : InputCheck(INPUT_VERB.ACCEPT),
+            selectReleased  : InputReleased(INPUT_VERB.ACCEPT),
             
-            backPressed         : InputPressed(INPUT_VERB.CANCEL),
-            backHeld            : InputCheck(INPUT_VERB.CANCEL),
-            backReleased        : InputReleased(INPUT_VERB.CANCEL),
+            backPressed     : InputPressed(INPUT_VERB.CANCEL),
+            backHeld        : InputCheck(INPUT_VERB.CANCEL),
+            backReleased    : InputReleased(INPUT_VERB.CANCEL),
         }
     }
-    static __InputMethodMouse = function() {
+    static __GetMouseInput = function() {
         return {
             leftPressed     : InputMousePressed(mb_left),
-            leftHelf        : InputMouseCheck(mb_left),
+            leftHeld        : InputMouseCheck(mb_left),
             leftReleased    : InputMouseReleased(mb_left),
             
             rightPressed    : InputMousePressed(mb_right),
@@ -42,16 +42,13 @@ function MenuManager(config = {}) constructor{
             scrollDelta     : mouse_wheel_down() - mouse_wheel_up(),
         }
     }
-    static __InputClear = function(input) {
+    static __ClearInput = function(input) {
         var _keys = struct_get_names(input);
         for (var i = 0; i < array_length(_keys); i++) {
             input[$ _keys[i]] = 0;
         }
     }
-    
-    static __PageCopy = function() {
-        
-    }
+
     #endregion
     
     #region Public
@@ -59,29 +56,29 @@ function MenuManager(config = {}) constructor{
         __mouseX = mx;
         __mouseY = my;
         
-        var _page = PageGetActive();
+        var _page = GetActivePage();
         if (is_undefined(_page)) return;
         
-        var _inputAction    = __InputMethodAction();
-        var _inputMouse     = __InputMethodMouse();
+        var _inputAction = __GetActionInput ();
+        var _inputMouse = __GetMouseInput();
         
         if (__mouseActive) {
-            __InputClear(_inputAction);
+            __ClearInput(_inputAction);
         } else {
-            __InputClear(_inputMouse);
+            __ClearInput(_inputMouse);
         }
         
         // Locked Node
-        if (!is_undefined(__nodeLocked)) {
-            __nodeLocked.Update(true);
+        if (!is_undefined(__lockedNode)) {
+            __lockedNode.Update(true);
             if (__mouseActive) {
                 if (!is_undefined(__mouseFocus)) {
-                    __nodeLocked.HandleMouse(_inputMouse);
+                    __lockedNode.HandleMouse(_inputMouse);
                 }
             } else {
-                __nodeLocked.HandleAction(_inputAction);
+                __lockedNode.HandleAction(_inputAction);
             }
-            if (_inputAction.backPressed) NodeUnlock();
+            if (_inputAction.backPressed) UnlockNode();
             delete _inputAction;
             delete _inputMouse;
             return self;
@@ -107,7 +104,7 @@ function MenuManager(config = {}) constructor{
         __mouseFocus = undefined;
         if (__mouseActive) {
             for (var i = 0, n = array_length(_page.__nodeOrder); i < n; i++) {
-                var _node = _page.NodeGet(i);
+                var _node = _page.GetNode(i);
                 var _isOver = _node.ContainsPoint(__mouseX, __mouseY);
                 if (_isOver && !_node.__interactive) {
                     _node.__focused = false;
@@ -117,7 +114,7 @@ function MenuManager(config = {}) constructor{
                 if (!_isOver && _node.__focused) _node.SetFocused(false);
                 if (_isOver) __mouseFocus = i;
             }
-            _page.__NodeSet(__mouseFocus);
+            _page.__SetNode(__mouseFocus);
         } else {
             var _yDelta = (_inputAction.downPressed - _inputAction.upPressed);
             if (_yDelta != 0) {
@@ -133,12 +130,12 @@ function MenuManager(config = {}) constructor{
                     }
                     _guard++;
                 } until (_page.__nodeArray[_page.__nodeOrder[_next]].__interactive || _guard >= _count);
-                _page.__NodeSet(_next);
+                _page.__SetNode(_next);
             }
         }
         
         _page.Update(__mouseActive);
-        var _node = _page.NodeGetActive();
+        var _node = _page.GetNodeActive();
         
         // Input Handling
         if (_node.__interactive) {
@@ -152,7 +149,7 @@ function MenuManager(config = {}) constructor{
         }
         
         // Back
-        if (_inputAction.backPressed) PagePop();
+        if (_inputAction.backPressed) PopPage();
         
         // Cleanup
         delete _inputAction;
@@ -160,7 +157,7 @@ function MenuManager(config = {}) constructor{
         return self;
     }
     static Render = function() {
-        var _page = PageGetActive();
+        var _page = GetActivePage();
         if (is_undefined(_page)) return;
         _page.Render();
         if (global.debug) {
@@ -171,11 +168,11 @@ function MenuManager(config = {}) constructor{
         return self;
     }
     
-    static PageGetActive = function() {
+    static GetActivePage = function() {
         var _page = array_last(__stackArray);
         return __pages[$ _page];
     }
-    static PageAdd = function(name) {
+    static AddPage = function(name) {
         static cache = __MenuCache();
         var _data = cache.pages[$ name];
         var _page = new MenuPage(name, _data.layer, _data.nodes);
@@ -183,53 +180,53 @@ function MenuManager(config = {}) constructor{
         __pages[$ name] = _page;
         return self;
     }
-    static PagePush = function(name) {
-        var _pageCurr = PageGetActive();
+    static PushPage = function(name) {
+        var _pageCurr = GetActivePage();
         if !(is_undefined(_pageCurr)) _pageCurr.Leave(false);
         array_push(__stackArray, name);
-        var _pageNext = PageGetActive();
+        var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
         _pageNext.Enter(__mouseActive);
         return self;
     }
-    static PagePop = function() {
+    static PopPage = function() {
         if (array_length(__stackArray) <= 1) return;
-        var _pageCurr = PageGetActive();
+        var _pageCurr = GetActivePage();
         if (is_undefined(_pageCurr)) return;
         _pageCurr.Leave(true);
         array_pop(__stackArray);
-        var _pageNext = PageGetActive();
+        var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
         _pageNext.Enter(__mouseActive);
         return self;
     }
     
-    static MouseGetState = function() {
+    static SetMouseEnabled = function(enabled) {
+        __mouseEnabled = enabled;
+        return self;
+    }
+    static GetMouseEnabled = function() {
+        return __mouseEnabled ;
+    }
+    static GetMouseState = function() {
         if (!__mouseActive) return MENU_MOUSE.INACTIVE;
         if (is_undefined(__mouseFocus)) return MENU_MOUSE.IDLE;
         return MENU_MOUSE.HOVER;
     }
-    static MouseSetEnabled = function(enabled) {
-        __mouseEnabled = enabled;
-        return self;
-    }
-    static MouseGetEnabled = function() {
-        return __mouseEnabled ;
-    }
     
-    static NodeLock = function(node) {
-        __nodeLocked = node;
+    static LockNode = function(node) {
+        __lockedNode = node;
         return self;
     }
-    static NodeUnlock = function() {
-        __nodeLocked = undefined;
+    static UnlockNode = function() {
+        __lockedNode = undefined;
         return self;
     }
     
-    static StyleSet = function(style) {
+    static GetStyle = function(style) {
         
     }
-    static StyleGet = function(style) {
+    static SetStyle = function(style) {
         
     }
     #endregion

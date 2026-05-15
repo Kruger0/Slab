@@ -56,11 +56,11 @@ function MenuNode(id, name, config = {}) constructor{
     #endregion
     
     // Methods
-    static PagePush = function(page) {
-        __mng.PagePush(page);
+    static PushPage = function(page) {
+        __mng.PushPage(page);
     }
-    static PagePop = function() {
-        __mng.PagePop();
+    static PopPage = function() {
+        __mng.PopPage();
     }
     
     static OnUpdate = function(callback, data = undefined) {
@@ -93,7 +93,7 @@ function MenuNode(id, name, config = {}) constructor{
         __yScl = __ySclAnim.GetValue();
         
         // Aligmnet
-        var _body = ZoneGetData("BODY");
+        var _body = GetZoneData("BODY");
         var _xOff = __xOffAnim.GetValue();
         var _yOff = __yOffAnim.GetValue();
         
@@ -217,7 +217,7 @@ function MenuNode(id, name, config = {}) constructor{
         return false;
     }
     
-    static ZoneGetData = function(type) {
+    static GetZoneData = function(type) {
         var _data = undefined
         for (var i = 0; i < __zoneCount; i++) {
             var _zone = __zoneArray[i];
@@ -263,7 +263,7 @@ function MenuNodeText(id, name, config = {}) : MenuNode(id, name, config) constr
     __bgSpriteBase  = config[$ "bgSpriteBase"];
     
     OnRender(function() {
-        var _body = ZoneGetData("BODY");
+        var _body = GetZoneData("BODY");
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -299,7 +299,7 @@ function MenuNodeSeparator(id, name = id, config = {}) : MenuNode(id, name, conf
     OnRender(function() {
         if (!__drawLine) return;;
         var _c = colors.base;
-        var _body = ZoneGetData("BODY");
+        var _body = GetZoneData("BODY");
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -335,7 +335,7 @@ function MenuNodeButton(id, name, callback, config = {}) : MenuNode(id, name, co
     }
     
     OnRender(function() {
-        var _body = ZoneGetData("BODY");
+        var _body = GetZoneData("BODY");
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -379,7 +379,7 @@ function MenuNodeConfirm(id, name, callback, config = {}) : MenuNode(id, name, c
     }
     
     OnRender(function() {
-        var _body = ZoneGetData("BODY");
+        var _body = GetZoneData("BODY");
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -617,10 +617,10 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     static HandleMouse = function(mouse) {
         if (mouse.leftPressed && __zoneActive == "BAR") {
             __dragging = true;
-            __mng.NodeLock(self);
+            __mng.LockNode(self);
         }
         if (__dragging) {
-            var _bar = ZoneGetData("BAR");
+            var _bar = GetZoneData("BAR");
             var _delta = clamp((__mng.__mouseX - _bar.x) / _bar.w, 0, 1);
             var _value = __valueMin + _delta * (__valueMax - __valueMin);
             if (!is_undefined(__valueStep)) _value = round(_value / __valueStep) * __valueStep;
@@ -631,7 +631,7 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
             }
             if (mouse.leftReleased) {
                 __dragging = false;
-                __mng.NodeUnlock();
+                __mng.UnlockNode();
             }
         }
     }
