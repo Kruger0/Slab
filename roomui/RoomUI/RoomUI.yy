@@ -137,7 +137,7 @@
             {"$GMRFlexPanel":"","%Name":"SEPARATOR_sep","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":8.0,},"justifyContent":1,"name":"SEPARATOR_sep","nodeColour":4285666287,"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
             {"$GMRFlexPanel":"","%Name":"BUTTON_back","alignItems":2,"children":[],"flexDirection":0,"height":{"unit":1,"value":32.0,},"justifyContent":1,"name":"BUTTON_back","nodeColour":4294095688,"paddingBottom":{"unit":1,"value":8.0,},"paddingLeft":{"unit":1,"value":8.0,},"paddingRight":{"unit":1,"value":8.0,},"paddingTop":{"unit":1,"value":8.0,},"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":100.0,},},
           ],"flexDirection":0,"gapRow":8.0,"height":{"unit":3,"value":100.0,},"justifyContent":1,"name":"Container","nodeColour":4286611584,"paddingBottom":{"unit":1,"value":8.0,},"paddingLeft":{"unit":1,"value":8.0,},"paddingRight":{"unit":1,"value":8.0,},"paddingTop":{"unit":1,"value":8.0,},"resourceType":"GMRFlexPanel","resourceVersion":"2.0","width":{"unit":2,"value":60.0,},},
-      ],"flexDirection":0,"gridX":16,"gridY":16,"justifyContent":1,"name":"layerVideo","nodeColour":4294110024,"resourceType":"GMRUILayer","resourceVersion":"2.0","visible":false,},
+      ],"flexDirection":0,"gridX":16,"gridY":16,"justifyContent":1,"name":"layerVideo","nodeColour":4294110024,"resourceType":"GMRUILayer","resourceVersion":"2.0",},
   ],
   "locked":false,
   "name":"RoomUI",

@@ -13,7 +13,7 @@ function MenuNode(id, label, config = {}) constructor{
     __enabled       = true;     // If the node can run its callback when selected
     __visible       = true;     // If the node is rendered and calculated on the layout spacing
     __mng           = undefined;
-    __style         = config[$ "style"];
+    __style         = new MenuStyle("myStyle", config[$ "style"] ?? {});
     __value         = undefined;
     
     __hAlign        = fa_left;  // Coordinate position relative to the node
@@ -280,7 +280,7 @@ function MenuNodeText(id, label, config = {}) : MenuNode(id, label, config) cons
             draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, __bgColorBase, 1);
         }
         
-        // label
+        // Label
         scribble(_t, __id)
             .align(__hAlign, __vAlign)
             .blend(_c, __alpha)
@@ -344,7 +344,7 @@ function MenuNodeButton(id, label, callback, config = {}) : MenuNode(id, label, 
         var _t = __label;
         // Background
         
-        // label
+        // Label
         var _c = (__focused ? colors.focused : colors.base);
         scribble(_t, __id)
             .align(__hAlign, __vAlign)
@@ -389,7 +389,7 @@ function MenuNodeConfirm(id, label, callback, config = {}) : MenuNode(id, label,
         
         // Background
         
-        // label
+        // Label
         scribble(_t, __id)
             .align(__hAlign, __vAlign)
             .blend(_c, __alpha)
@@ -481,6 +481,7 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
             var _t = __label;
             switch (_zone.type) {
                 case MENU_ZONE_BODY: {
+                    // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
                         .blend(_c, __alpha)
@@ -565,6 +566,7 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
             var _t = __label;
             switch (_zone.type) {
                 case MENU_ZONE_BODY: {
+                    // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
                         .blend(_c, __alpha)
@@ -647,6 +649,7 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
             var _t = __label;
             switch (_zone.type) {
                 case MENU_ZONE_BODY: {
+                    // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
                         .blend(_c, __alpha)
