@@ -29,12 +29,12 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         self.active = false;
     };
     static __FlexParse = function(root, data = []) {
-        var _name   = string_split(flexpanel_node_get_name(root), "_");
-        var _type   = _name[0];
-        var _id     = (array_length(_name) > 1 ? string_join_ext("_", _name, 1) : ""); 
-        var _z      = 0;
+        var _name = string_split(flexpanel_node_get_name(root), "_");
+        var _type = _name[0];
+        var _id = (array_length(_name) > 1 ? string_join_ext("_", _name, 1) : ""); 
+        var _z = 0;
         var _isNode = true;
-              
+        
         switch (_type) {
             // Body
             case "TEXT":
@@ -61,7 +61,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
                 _isNode = false;
             }
         }
-            
+        
         // Create a ref on the node
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
@@ -75,13 +75,13 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
                 break;
             }
         }
-            
+        
         // Push to node data
         if (_isNode) {
             var _n = flexpanel_node_layout_get_position(root, false);
             array_push(data, new __FlexNode(_type, _id, _n.left, _n.top, _z, _n.width, _n.height));
         }
-            
+        
         // Continue
         var _childs = flexpanel_node_get_num_children(root);
         for (var i = 0; i < _childs; i++) {
@@ -126,33 +126,27 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     static __InitActiveNode = function() {
         var _guard = 0;
         var _count = array_length(__nodeOrder);
-        while (!GetNodeActive().__interactive && _guard < _count) {
+        while (!__GetNodeActive().__interactive && _guard < _count) {
             __nodeActive = (__nodeActive + 1) % _count;
             _guard++;
         }
     }
     
-    #endregion
-    
-    #region Public
-    static GetNodeActiveIndex = function() {
-        return __nodeOrder[__nodeActive];
-    }
-    static GetNodeActive = function() {
+    static __GetNodeActive = function() {
         return __nodeArray[__nodeOrder[__nodeActive]];
     }
-    static GetNodeIndex = function(index) {
-        return __nodeOrder[index];
-    }
-    static GetNode = function(index) {
+    static __GetNode = function(index) {
         return __nodeArray[__nodeOrder[index]];
     }
     
+    #endregion
+    
+    #region Public
     
     static Update = function(mouseActive){
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
-            _node.Update(mouseActive ? undefined : (GetNodeActive() == _node));
+            _node.__Update(mouseActive ? undefined : (__GetNodeActive() == _node));
         }
     };
     static Render = function(){
@@ -161,7 +155,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             _node.Render()
         }
     };
-    static Enter = function(resetNode) {
+    static __Enter = function(resetNode) {
         __InitPage();
         __InitActiveNode();
         __style ??= __mng.__style;
@@ -169,11 +163,11 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             var _node = __nodeArray[i];
             _node.__mng = __mng;
             _node.__style ??= __style;
-            _node.Enter();
+            _node.__Enter();
             if (resetNode) {
-                _node.Update(false);
+                _node.__Update(false);
             } else {
-                _node.Update(GetNodeActive() == _node);
+                _node.__Update(__GetNodeActive() == _node);
             }
         }
     }

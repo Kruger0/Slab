@@ -79,7 +79,7 @@ function MenuNode(id, name, config = {}) constructor{
         array_push(__onLeaveCb, {callback, data});
     }
     
-    static Update = function(focused){
+    static __Update = function(focused){
         // Input
         if (!is_undefined(focused)) SetFocused(focused);
         
@@ -176,7 +176,7 @@ function MenuNode(id, name, config = {}) constructor{
             show_debug_message($"{instanceof(self)} '{__name}' - Select()");
         }
     }
-    static Enter = function() {
+    static __Enter = function() {
         __xSclAnim.Snap(0.8).Play(1);
         __ySclAnim.Snap(0.8).Play(1);
         
@@ -398,7 +398,7 @@ function MenuNodeConfirm(id, name, callback, config = {}) : MenuNode(id, name, c
     });
 }
 
-function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : MenuNode(id, name, config) constructor {
+function MenuNodeSelector(id, name, options, valueGetter, valueSetter, config = {}) : MenuNode(id, name, config) constructor {
     __nodeType      = "SELECTOR";
     __name          = name;
     __optionArray   = options;
@@ -406,13 +406,13 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
     __optionIndex   = undefined;
     __optionCycle   = config[$ "cycle"] ?? true;
     
-    ValueGet = method(self, valueGet);
-    ValueSet = method(self, valueSet);
+    GetValue = method(self, valueGetter);
+    SetValue = method(self, valueSetter);
 
-    static OptionGetActive = function() {
+    static GetActiveOption = function() {
         return __optionArray[__optionIndex];
     }
-    static OptionCycleLeft = function() {
+    static CycleOptionLeft = function() {
         if (__optionCycle) {
             __optionIndex = ((__optionIndex - 1) % __optionCount + __optionCount) % __optionCount;
         } else {
@@ -421,7 +421,7 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
         }
         return true;
     }
-    static OptionCycleRight = function() {
+    static CycleOptionRight = function() {
         if (__optionCycle) {
             __optionIndex = (__optionIndex + 1) % __optionCount;
         } else {
@@ -431,34 +431,34 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
         return true;
     }
     
-    static DoLeft = function() {
-        if (OptionCycleLeft()) {
+    static SelectLeft = function() {
+        if (CycleOptionLeft()) {
             __xOffAnim.Snap(-10).Play(0);
-            ValueSet(OptionGetActive());
+            SetValue(GetActiveOption());
         }
     }
-    static DoRight = function() {
-        if (OptionCycleRight()) {
+    static SelectRight = function() {
+        if (CycleOptionRight()) {
             __xOffAnim.Snap(10).Play(0);
-            ValueSet(OptionGetActive());
+            SetValue(GetActiveOption());
         }
     }
     
     static HandleAction = function(action) {
-        if (action.leftPressed) DoLeft();
-        if (action.rightPressed) DoRight();
+        if (action.leftPressed) SelectLeft();
+        if (action.rightPressed) SelectRight();
     }
     static HandleMouse = function(mouse) {
         if (mouse.leftPressed) {
             switch (__zoneActive) {
-                case "LEFT": DoLeft(); break;
-                case "RIGHT": DoRight(); break;
+                case "LEFT": SelectLeft(); break;
+                case "RIGHT": SelectRight(); break;
             }
         }
     }
     
     OnEnter(function() {
-        var _value = ValueGet();
+        var _value = GetValue();
         for (var i = 0; i < __optionCount; i++) {
             if (__optionArray[i][1] == _value) {
                 __optionIndex = i;
@@ -508,7 +508,7 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
                         .draw(_x+_w/2, _y+_h/2);
                 } break;
                 case "VALUE": {
-                    _t = string(OptionGetActive()[0]);
+                    _t = string(GetActiveOption()[0]);
                     scribble(_t, __id)
                         .align(1, 1)
                         .blend(_c, __alpha)
@@ -520,18 +520,18 @@ function MenuNodeSelector(id, name, options, valueGet, valueSet, config = {}) : 
     });
 }
 
-function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(id, name, config) constructor {
+function MenuNodeCheckbox(id, name, valueGetter, valueSetter, config = {}) : MenuNode(id, name, config) constructor {
     __nodeType  = "CHECKBOX";
     __name      = name;
     
-    ValueGet = method(self, valueGet);
-    ValueSet = method(self, valueSet);
+    GetValue = method(self, valueGetter);
+    SetValue = method(self, valueSetter);
     
     static DoSelect = function() {
         __xSclAnim.Snap(1).Play(1.2);
         __ySclAnim.Snap(1).Play(1.2);
         __value = !__value;
-        ValueSet(__value);
+        SetValue(__value);
     }
     
     static HandleMouse = function(mouse) {
@@ -542,7 +542,7 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
     }
     
     OnEnter(function() {
-        var _value = ValueGet();
+        var _value = GetValue();
         if (is_real(_value) || is_bool(_value)) {
             __value = _value;
         }
@@ -588,31 +588,31 @@ function MenuNodeCheckbox(id, name, valueGet, valueSet, config = {}) : MenuNode(
     });
 }
 
-function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueStep, valueFormat = function(v){return string(v)}, config = {}) : MenuNode(id, name, config) constructor {
+function MenuNodeSlider(id, name, valueGetter, valueSetter, valueMin, valueMax, valueStep, valueFormat = function(v){return string(v)}, config = {}) : MenuNode(id, name, config) constructor {
     __nodeType  = "SLIDER";
     __valueMin  = valueMin;
     __valueMax  = valueMax;
     __valueStep = valueStep;
     __valueNorm = undefined;
     
-    ValueGet    = method(self, valueGet);
-    ValueSet    = method(self, valueSet);
-    ValueFormat = method(self, valueFormat);
+    GetValue    = method(self, valueGetter);
+    SetValue    = method(self, valueSetter);
+    FormatValue = method(self, valueFormat);
     
-    static DoLeft = function() {
+    static SelectLeft = function() {
         __value -= __valueStep ?? 1;
         __value = clamp(__value, __valueMin, __valueMax);
-        ValueSet(__value);
+        SetValue(__value);
     }
-    static DoRight = function() {
+    static SelectRight = function() {
         __value += __valueStep ?? 1;
         __value = clamp(__value, __valueMin, __valueMax);
-        ValueSet(__value);
+        SetValue(__value);
     }
     
     static HandleAction = function(action) {
-        if (action.leftPressed) DoLeft();
-        if (action.rightPressed) DoRight();
+        if (action.leftPressed) SelectLeft();
+        if (action.rightPressed) SelectRight();
     }
     static HandleMouse = function(mouse) {
         if (mouse.leftPressed && __zoneActive == "BAR") {
@@ -627,7 +627,7 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
             _value = clamp(_value, __valueMin, __valueMax);
             if (_value != __value) {
                 __value = _value;
-                ValueSet(__value);
+                SetValue(__value);
             }
             if (mouse.leftReleased) {
                 __dragging = false;
@@ -637,7 +637,7 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
     }
     
     OnEnter(function() {
-        var _value = ValueGet();
+        var _value = GetValue();
         __value = _value;
     })
     OnRender(function() {
@@ -658,7 +658,7 @@ function MenuNodeSlider(id, name, valueGet, valueSet, valueMin, valueMax, valueS
                         .draw(__xPos, __yPos);
                 } break;
                 case "VALUE": {
-                    scribble(ValueFormat(__value), __id)
+                    scribble(FormatValue(__value), __id)
                         .align(2, __vAlign)
                         .blend(_c, __alpha)
                         .transform(__xScl, __yScl, __angle)

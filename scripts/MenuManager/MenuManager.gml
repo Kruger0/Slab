@@ -104,7 +104,7 @@ function MenuManager(config = {}) constructor{
         __mouseFocus = undefined;
         if (__mouseActive) {
             for (var i = 0, n = array_length(_page.__nodeOrder); i < n; i++) {
-                var _node = _page.GetNode(i);
+                var _node = _page.__GetNode(i);
                 var _isOver = _node.ContainsPoint(__mouseX, __mouseY);
                 if (_isOver && !_node.__interactive) {
                     _node.__focused = false;
@@ -135,7 +135,7 @@ function MenuManager(config = {}) constructor{
         }
         
         _page.Update(__mouseActive);
-        var _node = _page.GetNodeActive();
+        var _node = _page.__GetNodeActive();
         
         // Input Handling
         if (_node.__interactive) {
@@ -186,7 +186,7 @@ function MenuManager(config = {}) constructor{
         array_push(__stackArray, name);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
-        _pageNext.Enter(__mouseActive);
+        _pageNext.__Enter(__mouseActive);
         return self;
     }
     static PopPage = function() {
@@ -197,7 +197,7 @@ function MenuManager(config = {}) constructor{
         array_pop(__stackArray);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
-        _pageNext.Enter(__mouseActive);
+        _pageNext.__Enter(__mouseActive);
         return self;
     }
     
