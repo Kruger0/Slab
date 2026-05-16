@@ -6,3 +6,26 @@ enum MENU_MOUSE {
     DRAGGING,
 }
 
+enum MENU_STATE {
+    BASE,
+    HOVERED,
+    DISABLED,
+    PENDING,
+}
+
+#macro MENU_NODE_BLANK      "BLANK"
+#macro MENU_NODE_TEXT       "TEXT"
+#macro MENU_NODE_SEPARATOR  "SEPARATOR"
+#macro MENU_NODE_BUTTON     "BUTTON"
+#macro MENU_NODE_SPRITE     "SPRITE"
+#macro MENU_NODE_SELECTOR   "SELECTOR"
+#macro MENU_NODE_SLIDER     "SLIDER"
+#macro MENU_NODE_CONFIRM    "CONFIRM"
+#macro MENU_NODE_CHECKBOX   "CHECKBOX"
+
+#macro MENU_ZONE_BODY       "BODY"
+#macro MENU_ZONE_VALUE      "VALUE"
+#macro MENU_ZONE_BAR        "BAR"
+#macro MENU_ZONE_BOX        "BOX"
+#macro MENU_ZONE_LEFT       "LEFT"
+#macro MENU_ZONE_RIGHT      "RIGHT"

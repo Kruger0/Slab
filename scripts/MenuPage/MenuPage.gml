@@ -37,24 +37,24 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         
         switch (_type) {
             // Body
-            case "TEXT":
-            case "SEPARATOR":
-            case "BUTTON":
-            case "SPRITE":
-            case "SELECTOR":
-            case "SLIDER":
-            case "CONFIRM":
-            case "CHECKBOX": {
-                _type = "BODY";
+            case MENU_NODE_TEXT:
+            case MENU_NODE_SEPARATOR:
+            case MENU_NODE_BUTTON:
+            case MENU_NODE_SPRITE:
+            case MENU_NODE_SELECTOR:
+            case MENU_NODE_SLIDER:
+            case MENU_NODE_CONFIRM:
+            case MENU_NODE_CHECKBOX: {
+                _type = MENU_ZONE_BODY;
             } break;
             // Zones
-            case "VALUE": {
+            case MENU_ZONE_VALUE: {
                     
             } break;
-            case "BAR":
-            case "BOX":
-            case "LEFT":
-            case "RIGHT": {
+            case MENU_ZONE_BAR:
+            case MENU_ZONE_BOX:
+            case MENU_ZONE_LEFT:
+            case MENU_ZONE_RIGHT: {
                 _z = 1;
             } break;
             default: {
@@ -143,16 +143,16 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     
     #region Public
     
-    static Update = function(mouseActive){
+    static __Update = function(mouseActive){
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
             _node.__Update(mouseActive ? undefined : (__GetNodeActive() == _node));
         }
     };
-    static Render = function(){
+    static __Render = function(){
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
-            _node.Render()
+            _node.__Render()
         }
     };
     static __Enter = function(resetNode) {
@@ -171,11 +171,11 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             }
         }
     }
-    static Leave = function(resetNode) {
+    static __Leave = function(resetNode) {
         if (resetNode) __nodeActive = 0;
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
-            _node.Leave();
+            _node.__Leave();
         }
     }
     #endregion

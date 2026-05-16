@@ -134,7 +134,7 @@ function MenuManager(config = {}) constructor{
             }
         }
         
-        _page.Update(__mouseActive);
+        _page.__Update(__mouseActive);
         var _node = _page.__GetNodeActive();
         
         // Input Handling
@@ -159,7 +159,7 @@ function MenuManager(config = {}) constructor{
     static Render = function() {
         var _page = GetActivePage();
         if (is_undefined(_page)) return;
-        _page.Render();
+        _page.__Render();
         if (global.debug) {
             var _c = #FF00FF;
             draw_circle_color(__mouseX, __mouseY, 2, _c, _c, false);
@@ -182,7 +182,7 @@ function MenuManager(config = {}) constructor{
     }
     static PushPage = function(name) {
         var _pageCurr = GetActivePage();
-        if !(is_undefined(_pageCurr)) _pageCurr.Leave(false);
+        if !(is_undefined(_pageCurr)) _pageCurr.__Leave(false);
         array_push(__stackArray, name);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
@@ -193,7 +193,7 @@ function MenuManager(config = {}) constructor{
         if (array_length(__stackArray) <= 1) return;
         var _pageCurr = GetActivePage();
         if (is_undefined(_pageCurr)) return;
-        _pageCurr.Leave(true);
+        _pageCurr.__Leave(true);
         array_pop(__stackArray);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
