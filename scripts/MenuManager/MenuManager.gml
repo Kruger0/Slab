@@ -70,7 +70,7 @@ function MenuManager(config = {}) constructor{
         
         // Locked Node
         if (!is_undefined(__lockedNode)) {
-            __lockedNode.Update(true);
+            __lockedNode.__Update(true);
             if (__mouseActive) {
                 if (!is_undefined(__mouseFocus)) {
                     __lockedNode.HandleMouse(_inputMouse);

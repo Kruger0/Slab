@@ -5,6 +5,7 @@ function MenuNode(id, label, config = {}) constructor{
     __id            = id;
     __label         = label;
     __type          = MENU_NODE_BLANK;
+    __state         = MENU_STATE.BASE;
     __pending       = false;
     __dragging      = false;
     __focused       = false;    // If the node has focus (either by keyboard or mouse)
@@ -164,18 +165,18 @@ function MenuNode(id, label, config = {}) constructor{
             draw_circle_color(__xPos, __yPos, 6, _c1, _c1, true);
         }
     }
-    //static Select = function() { // whut?
-    //    // Custom
-    //    for (var i = 0, n = array_length(__onSelectCb); i < n; i++) {
-    //        var _e = __onSelectCb[i];
-    //        _e.callback(_e.data);
-    //    }
+    static __Select = function() {
+        // Custom
+        for (var i = 0, n = array_length(__onSelectCb); i < n; i++) {
+            var _e = __onSelectCb[i];
+            _e.callback(_e.data);
+        }
         
-    //    // Debug
-    //    if (global.debug) {
-    //        show_debug_message($"{instanceof(self)} '{__label}' - Select()");
-    //    }
-    //}
+        // Debug
+        if (global.debug) {
+            show_debug_message($"{instanceof(self)} '{__label}' - Select()");
+        }
+    }
     static __Enter = function() {
         __xSclAnim.Snap(0.8).Play(1);
         __ySclAnim.Snap(0.8).Play(1);
@@ -252,6 +253,7 @@ function MenuNode(id, label, config = {}) constructor{
     
     static HandleAction = function(action) {};
     static HandleMouse = function(mouse) {};
+    
 }
 
 function MenuNodeText(id, label, config = {}) : MenuNode(id, label, config) constructor {
@@ -321,19 +323,18 @@ function MenuNodeButton(id, label, callback, config = {}) : MenuNode(id, label, 
     
     Callback = method(self, callback ?? function(){});
     
-    static DoSelect = function() {
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) __Select();
+    }
+    static HandleAction = function(action) {
+        if (action.selectPressed) __Select();
+    }
+    
+    OnSelect(function() {
         __xSclAnim.Snap(1).Play(1.2);
         __ySclAnim.Snap(1).Play(1.2);
         Callback();
-    }
-    
-    static HandleMouse = function(mouse) {
-        if (mouse.leftPressed) DoSelect();
-    }
-    static HandleAction = function(action) {
-        if (action.selectPressed) DoSelect();
-    }
-    
+    });
     OnRender(function() {
         var _body = GetZoneData(MENU_ZONE_BODY);
         var _x = _body.x;
@@ -360,7 +361,14 @@ function MenuNodeConfirm(id, label, callback, config = {}) : MenuNode(id, label,
     
     Callback = method(self, callback ?? function(){});
     
-    static DoSelect = function() {
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) __Select();
+    }
+    static HandleAction = function(action) {
+        if (action.selectPressed) __Select();
+    }
+    
+    OnSelect(function() {
         __xSclAnim.Snap(1).Play(1.2);
         __ySclAnim.Snap(1).Play(1.2);
         if (__pending) {
@@ -369,15 +377,7 @@ function MenuNodeConfirm(id, label, callback, config = {}) : MenuNode(id, label,
         } else {
             __pending = true;
         }
-    }
-    
-    static HandleMouse = function(mouse) {
-        if (mouse.leftPressed) DoSelect();
-    }
-    static HandleAction = function(action) {
-        if (action.selectPressed) DoSelect();
-    }
-    
+    });
     OnRender(function() {
         var _body = GetZoneData(MENU_ZONE_BODY);
         var _x = _body.x;
@@ -527,18 +527,15 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
     GetValue = method(self, valueGetter);
     SetValue = method(self, valueSetter);
     
-    static DoSelect = function() {
-        __xSclAnim.Snap(1).Play(1.2);
-        __ySclAnim.Snap(1).Play(1.2);
-        __value = !__value;
-        SetValue(__value);
-    }
-    
     static HandleMouse = function(mouse) {
-        if (mouse.leftPressed) DoSelect();
+        if (mouse.leftPressed) {
+            switch (__zoneActive) {
+                case MENU_ZONE_BOX: __Select(); break;
+            }
+        };
     }
     static HandleAction = function(action) {
-        if (action.selectPressed) DoSelect();
+        if (action.selectPressed) __Select();
     }
     
     OnEnter(function() {
@@ -552,12 +549,11 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
         }
     });
     OnSelect(function() {
-        switch (__zoneActive) {
-            case MENU_ZONE_BOX: {
-                ActionSelect();
-            } break;
-        }
-    })
+        __xSclAnim.Snap(1).Play(1.2);
+        __ySclAnim.Snap(1).Play(1.2);
+        __value = !__value;
+        SetValue(__value);
+    });
     OnRender(function() {
         for (var i = 0; i < __zoneCount; i++) {
             var _zone = __zoneArray[i];

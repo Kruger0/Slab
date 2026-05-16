@@ -1,6 +1,6 @@
 
-function MenuStyle(id, config = {}) constructor {
-    self.id = id;
+function MenuStyle(name, config = {}) constructor {
+    self.name = name;
     
     // ─── GENERIC ─────────────────────────────────────
     colorBase               = config[$ "colorBase"]                 ?? #808080;
@@ -17,8 +17,19 @@ function MenuStyle(id, config = {}) constructor {
     bgSpriteFocused         = config[$ "bgSpriteFocused"]           ?? undefined;
     bgSpriteDisabled        = config[$ "bgSpriteDisabled"]          ?? undefined;
     bgSpritePending         = config[$ "bgSpritePending"]           ?? undefined;
-
+    
+    alphaBase               = config[$ "alphaBase"]                 ?? 1.0;
+    alphaFocused            = config[$ "alphaFocused"]              ?? 1.0;
+    alphaDisabled           = config[$ "alphaDisabled"]             ?? 0.4;
+    alphaPending            = config[$ "alphaPending"]              ?? 1.0;
+    
+    scaleBase               = config[$ "scaleBase"]                 ?? 1.0;
+    scaleFocused            = config[$ "scaleFocused"]              ?? 1.1;
+    scaleDisabled           = config[$ "scaleDisabled"]             ?? 1.0;
+    scalePending            = config[$ "scalePending"]              ?? 1.0;
+    
     font                    = config[$ "font"]                      ?? undefined;
+    animSpeed               = config[$ "animSpeed"]                 ?? 0.15;
 
     // ─── BUTTON ──────────────────────────────────────
     colorButtonBase         = config[$ "colorButtonBase"]           ?? colorBase;
@@ -52,4 +63,21 @@ function MenuStyle(id, config = {}) constructor {
     bgSpriteConfirmPending  = config[$ "bgSpriteConfirmPending"]    ?? bgSpritePending;
 
     fontConfirm             = config[$ "fontConfirm"]               ?? font;
+    
+    static __GetColor = function(state, type) {
+        var _key = "color";
+        switch (type) {
+            case MENU_NODE_BUTTON:      _key += "Button"; break;
+            case MENU_NODE_CONFIRM:     _key += "Confirm"; break;
+        }
+        switch (state) {
+            case MENU_STATE.FOCUSED:    _key += "Focused";
+            case MENU_STATE.DISABLED:   _key += "Disabled";
+            case MENU_STATE.PENDING:    _key += "Pending";
+            case MENU_STATE.BASE:       _key += "Base";
+        }
+        return self[$ _key] ?? 0xFFFFFF;
+    }
 }
+
+global.style = new MenuStyle("testStyle", {});

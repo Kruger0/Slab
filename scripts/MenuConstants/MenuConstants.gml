@@ -8,7 +8,7 @@ enum MENU_MOUSE {
 
 enum MENU_STATE {
     BASE,
-    HOVERED,
+    FOCUSED,
     DISABLED,
     PENDING,
 }
