@@ -1,83 +1,95 @@
 
-function MenuStyle(name, config = {}) constructor {
+function __MenuStyle(name, config = {}) constructor {
     self.name = name;
     
-    // ─── GENERIC ─────────────────────────────────────
-    colorBase               = config[$ "colorBase"]                 ?? #808080;
-    colorFocused            = config[$ "colorFocused"]              ?? #FFFFFF;
-    colorDisabled           = config[$ "colorDisabled"]             ?? #444444;
-    colorPending            = config[$ "colorPending"]              ?? #FF4444;
-
-    bgColorBase             = config[$ "bgColorBase"]               ?? #202020;
-    bgColorFocused          = config[$ "bgColorFocused"]            ?? #202020;
-    bgColorDisabled         = config[$ "bgColorDisabled"]           ?? #202020;
-    bgColorPending          = config[$ "bgColorPending"]            ?? #202020;
-
-    bgSpriteBase            = config[$ "bgSpriteBase"]              ?? undefined;
-    bgSpriteFocused         = config[$ "bgSpriteFocused"]           ?? undefined;
-    bgSpriteDisabled        = config[$ "bgSpriteDisabled"]          ?? undefined;
-    bgSpritePending         = config[$ "bgSpritePending"]           ?? undefined;
+    colorBase           = config[$ "colorBase"]         ?? #808080;
+    colorFocused        = config[$ "colorFocused"]      ?? #00FF00;
+    colorDisabled       = config[$ "colorDisabled"]     ?? #444444;
+    colorPending        = config[$ "colorPending"]      ?? #FF4444;
     
-    alphaBase               = config[$ "alphaBase"]                 ?? 1.0;
-    alphaFocused            = config[$ "alphaFocused"]              ?? 1.0;
-    alphaDisabled           = config[$ "alphaDisabled"]             ?? 0.4;
-    alphaPending            = config[$ "alphaPending"]              ?? 1.0;
+    bgColorBase         = config[$ "bgColorBase"]       ?? #202020;
+    bgColorFocused      = config[$ "bgColorFocused"]    ?? #202020;
+    bgColorDisabled     = config[$ "bgColorDisabled"]   ?? #202020;
+    bgColorPending      = config[$ "bgColorPending"]    ?? #202020;
     
-    scaleBase               = config[$ "scaleBase"]                 ?? 1.0;
-    scaleFocused            = config[$ "scaleFocused"]              ?? 1.1;
-    scaleDisabled           = config[$ "scaleDisabled"]             ?? 1.0;
-    scalePending            = config[$ "scalePending"]              ?? 1.0;
+    bgSpriteBase        = config[$ "bgSpriteBase"]      ?? undefined;
+    bgSpriteFocused     = config[$ "bgSpriteFocused"]   ?? undefined;
+    bgSpriteDisabled    = config[$ "bgSpriteDisabled"]  ?? undefined;
+    bgSpritePending     = config[$ "bgSpritePending"]   ?? undefined;
     
-    font                    = config[$ "font"]                      ?? undefined;
-    animSpeed               = config[$ "animSpeed"]                 ?? 0.15;
-
-    // ─── BUTTON ──────────────────────────────────────
-    colorButtonBase         = config[$ "colorButtonBase"]           ?? colorBase;
-    colorButtonFocused      = config[$ "colorButtonFocused"]        ?? colorFocused;
-    colorButtonDisabled     = config[$ "colorButtonDisabled"]       ?? colorDisabled;
-
-    bgColorButtonBase       = config[$ "bgColorButtonBase"]         ?? bgColorBase;
-    bgColorButtonFocused    = config[$ "bgColorButtonFocused"]      ?? bgColorFocused;
-    bgColorButtonDisabled   = config[$ "bgColorButtonDisabled"]     ?? bgColorDisabled;
-
-    bgSpriteButtonBase      = config[$ "bgSpriteButtonBase"]        ?? bgSpriteBase;
-    bgSpriteButtonFocused   = config[$ "bgSpriteButtonFocused"]     ?? bgSpriteFocused;
-    bgSpriteButtonDisabled  = config[$ "bgSpriteButtonDisabled"]    ?? bgSpriteDisabled;
-
-    fontButton              = config[$ "fontButton"]                ?? font;
-
-    // ─── CONFIRM ─────────────────────────────────────
-    colorConfirmBase        = config[$ "colorConfirmBase"]          ?? colorBase;
-    colorConfirmFocused     = config[$ "colorConfirmFocused"]       ?? colorFocused;
-    colorConfirmDisabled    = config[$ "colorConfirmDisabled"]      ?? colorDisabled;
-    colorConfirmPending     = config[$ "colorConfirmPending"]       ?? colorPending;
-
-    bgColorConfirmBase      = config[$ "bgColorConfirmBase"]        ?? bgColorBase;
-    bgColorConfirmFocused   = config[$ "bgColorConfirmFocused"]     ?? bgColorFocused;
-    bgColorConfirmDisabled  = config[$ "bgColorConfirmDisabled"]    ?? bgColorDisabled;
-    bgColorConfirmPending   = config[$ "bgColorConfirmPending"]     ?? bgColorPending;
-
-    bgSpriteConfirmBase     = config[$ "bgSpriteConfirmBase"]       ?? bgSpriteBase;
-    bgSpriteConfirmFocused  = config[$ "bgSpriteConfirmFocused"]    ?? bgSpriteFocused;
-    bgSpriteConfirmDisabled = config[$ "bgSpriteConfirmDisabled"]   ?? bgSpriteDisabled;
-    bgSpriteConfirmPending  = config[$ "bgSpriteConfirmPending"]    ?? bgSpritePending;
-
-    fontConfirm             = config[$ "fontConfirm"]               ?? font;
+    alphaBase           = config[$ "alphaBase"]         ?? 1.0;
+    alphaFocused        = config[$ "alphaFocused"]      ?? 1.0;
+    alphaDisabled       = config[$ "alphaDisabled"]     ?? 0.4;
+    alphaPending        = config[$ "alphaPending"]      ?? 1.0;
     
-    static __GetColor = function(state, type) {
-        var _key = "color";
-        switch (type) {
-            case MENU_NODE_BUTTON:      _key += "Button"; break;
-            case MENU_NODE_CONFIRM:     _key += "Confirm"; break;
-        }
+    scaleBase           = config[$ "scaleBase"]         ?? 1.0;
+    scaleFocused        = config[$ "scaleFocused"]      ?? 1.1;
+    scaleDisabled       = config[$ "scaleDisabled"]     ?? 1.0;
+    scalePending        = config[$ "scalePending"]      ?? 1.0;
+    
+    font                = config[$ "font"]              ?? undefined;
+    animSpeed           = config[$ "animSpeed"]         ?? 0.15;
+    
+    soundFocused        = config[$ "sndSelect"]         ?? undefined;
+    soundSelect         = config[$ "sndSelect"]         ?? undefined;
+    
+    static __GetColor = function(state) {
         switch (state) {
-            case MENU_STATE.FOCUSED:    _key += "Focused";
-            case MENU_STATE.DISABLED:   _key += "Disabled";
-            case MENU_STATE.PENDING:    _key += "Pending";
-            case MENU_STATE.BASE:       _key += "Base";
+            case MENU_STATE.FOCUSED:  return colorFocused;
+            case MENU_STATE.DISABLED: return colorDisabled;
+            case MENU_STATE.PENDING:  return colorPending;
+            default:                  return colorBase;
         }
-        return self[$ _key] ?? 0xFFFFFF;
+    }
+    static __GetAlpha = function(state) {
+        switch (state) {
+            case MENU_STATE.FOCUSED:  return alphaFocused;
+            case MENU_STATE.DISABLED: return alphaDisabled;
+            case MENU_STATE.PENDING:  return alphaPending;
+            default:                  return alphaBase;
+        }
+    }
+    static __GetScale = function(state) {
+        switch (state) {
+            case MENU_STATE.FOCUSED:  return scaleFocused;
+            case MENU_STATE.DISABLED: return scaleDisabled;
+            case MENU_STATE.PENDING:  return scalePending;
+            default:                  return scaleBase;
+        }
     }
 }
 
-global.style = new MenuStyle("testStyle", {});
+function MenuGetDefaultStyle() {
+    static cache = __MenuCache();
+    return cache.styles.base;
+}
+
+function MenuGetStyle(name) {
+    static cache = __MenuCache();
+    return cache.styles[$ name];
+}
+
+function MenuCreateStyle(name, config = {}) {
+    static cache = __MenuCache();
+    cache.styles[$ name] = new __MenuStyle(name, config);
+}
+
+function MenuStyleDelete(name) {
+    static cache = __MenuCache();
+}
+
+function MenuStyleExists(name) {
+    static cache = __MenuCache();
+    return (!is_undefined(cache.styles[$ name]));
+}
+
+function MenuBindStyle(style) {
+    static cache = __MenuCache();
+    if (is_undefined(style)) return MenuGetDefaultStyle();
+    if (is_struct(style)) return new __MenuStyle("style", style);
+    if (is_string(style)) return cache.styles[$ style] ?? new __MenuStyle("style");
+}
+
+function MenuMergeStyle(source, override) {
+    return source;
+}

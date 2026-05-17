@@ -4,16 +4,23 @@ function MenuNode(id, label, config = {}) constructor{
     #region Private
     __id            = id;
     __label         = label;
+    __style         = undefined;
+    __styleSource   = undefined;
+    __styleOverride = MenuBindStyle(config[$ "style"]);
     __type          = MENU_NODE_BLANK;
     __state         = MENU_STATE.BASE;
+    
     __pending       = false;
     __dragging      = false;
     __focused       = false;    // If the node has focus (either by keyboard or mouse)
+    
     __interactive   = true;     // If the node can have focus (either by keyboard or mouse)
     __enabled       = true;     // If the node can run its callback when selected
     __visible       = true;     // If the node is rendered and calculated on the layout spacing
-    __mng           = undefined;
-    __style         = new MenuStyle("myStyle", config[$ "style"] ?? {});
+    
+    __manager       = undefined;
+    __page          = undefined;
+    
     __value         = undefined;
     
     __hAlign        = fa_left;  // Coordinate position relative to the node
@@ -58,10 +65,10 @@ function MenuNode(id, label, config = {}) constructor{
     
     // Methods
     static PushPage = function(page) {
-        __mng.PushPage(page);
+        __manager.PushPage(page);
     }
     static PopPage = function() {
-        __mng.PopPage();
+        __manager.PopPage();
     }
     
     static OnUpdate = function(callback, data = undefined) {
@@ -120,7 +127,7 @@ function MenuNode(id, label, config = {}) constructor{
             var _y1 = _zoneCurr.y;
             var _x2 = _x1+_zoneCurr.w;
             var _y2 = _y1+_zoneCurr.h;
-            if (point_in_rectangle(__mng.__mouseX, __mng.__mouseY, _x1, _y1, _x2, _y2)) {
+            if (point_in_rectangle(__manager.__mouseX, __manager.__mouseY, _x1, _y1, _x2, _y2)) {
                 if (_zoneCurr.z > _zCurr) {
                     _zCurr = _zoneCurr.z;
                     _zoneActive = _zoneCurr;
@@ -177,7 +184,14 @@ function MenuNode(id, label, config = {}) constructor{
             show_debug_message($"{instanceof(self)} '{__label}' - Select()");
         }
     }
-    static __Enter = function() {
+    static __Enter = function(page) {
+        // Define
+        __page = page;
+        __manager = page.__manager;
+        __styleSource = page.__styleSource;
+        __style = MenuMergeStyle(__styleSource, __styleOverride);
+        
+        // Animate
         __xSclAnim.Snap(0.8).Play(1);
         __ySclAnim.Snap(0.8).Play(1);
         
@@ -345,7 +359,7 @@ function MenuNodeButton(id, label, callback, config = {}) : MenuNode(id, label, 
         // Background
         
         // Label
-        var _c = (__focused ? colors.focused : colors.base);
+        var _c = (__focused ? __style.colorFocused : __style.colorBase);
         scribble(_t, __id)
             .align(__hAlign, __vAlign)
             .blend(_c, __alpha)
@@ -615,11 +629,11 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
     static HandleMouse = function(mouse) {
         if (mouse.leftPressed && __zoneActive == MENU_ZONE_BAR) {
             __dragging = true;
-            __mng.LockNode(self);
+            __manager.LockNode(self);
         }
         if (__dragging) {
             var _bar = GetZoneData(MENU_ZONE_BAR);
-            var _delta = clamp((__mng.__mouseX - _bar.x) / _bar.w, 0, 1);
+            var _delta = clamp((__manager.__mouseX - _bar.x) / _bar.w, 0, 1);
             var _value = __valueMin + _delta * (__valueMax - __valueMin);
             if (!is_undefined(__valueStep)) _value = round(_value / __valueStep) * __valueStep;
             _value = clamp(_value, __valueMin, __valueMax);
@@ -629,7 +643,7 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
             }
             if (mouse.leftReleased) {
                 __dragging = false;
-                __mng.UnlockNode();
+                __manager.UnlockNode();
             }
         }
     }

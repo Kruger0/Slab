@@ -1,15 +1,16 @@
 
-function MenuPage(name, layer, nodes, config = {}) constructor{
+function __MenuPage(data, manager) constructor{
+    static cache = __MenuCache();
     
-    #region Private
-    __name          = name;
-    __layer         = layer;
-    __cycle         = config[$ "cycle"] ?? true;
-    __style         = config[$ "style"];
-    __mng           = undefined;
-    __nodeArray     = nodes;
-    __nodeActive    = 0;
+    __layer         = data.layer;
+    __nodeArray     = data.nodes;
+    __cycle         = data.config[$ "cycle"] ?? true;
+    __manager       = manager;
+    __style         = undefined;
+    __styleSource   = MenuBindStyle(manager.__style);
+    __styleOverride = MenuBindStyle(data.config[$ "style"]);
     __nodeOrder     = [];
+    __nodeActive    = 0;
     
     static __SetNode = function(value) {
         if (is_undefined(value)) return;
@@ -101,7 +102,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         // Updates node navigation order
         __nodeOrder = [];
         for (var i = 0, n = array_length(_layout); i < n; i++) {
-            if (_layout[i].type != "BODY") continue;
+            if (_layout[i].type != MENU_ZONE_BODY) continue;
             var _id = _layout[i].id;
             for (var j = 0, o = array_length(__nodeArray); j < o; j++) {
                 if (__nodeArray[j].__id == _id) {
@@ -122,8 +123,8 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
                 __zoneCount = array_length(_data);
             }
         }
-    }
-    static __InitActiveNode = function() {
+        
+        // Set first interactive node as active
         var _guard = 0;
         var _count = array_length(__nodeOrder);
         while (!__GetNodeActive().__interactive && _guard < _count) {
@@ -138,11 +139,7 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
     static __GetNode = function(index) {
         return __nodeArray[__nodeOrder[index]];
     }
-    
-    #endregion
-    
-    #region Public
-    
+
     static __Update = function(mouseActive){
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
@@ -156,14 +153,11 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
         }
     };
     static __Enter = function(resetNode) {
+        __style = MenuMergeStyle(__styleSource, __styleOverride);
         __InitPage();
-        __InitActiveNode();
-        __style ??= __mng.__style;
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
-            _node.__mng = __mng;
-            _node.__style ??= __style;
-            _node.__Enter();
+            _node.__Enter(self);
             if (resetNode) {
                 _node.__Update(false);
             } else {
@@ -178,5 +172,4 @@ function MenuPage(name, layer, nodes, config = {}) constructor{
             _node.__Leave();
         }
     }
-    #endregion
 }

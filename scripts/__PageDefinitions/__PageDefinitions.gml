@@ -1,36 +1,46 @@
 
 function MenuPageDelete(name) {
-    var _cache = __MenuCache();
-    delete _cache.pages[$ name];
+    static cache = __MenuCache();
+    delete cache.pages[$ name];
 }
 
-function MenuPageDefine(name, layer, nodes) {
-    var _cache = __MenuCache();
-    _cache.pages[$ name] = {layer, nodes};
+function MenuPageDefine(name, layer, nodes, config = {}) {
+    static cache = __MenuCache();
+    cache.pages[$ name] = {layer, nodes, config};
 }
 
 // Main
 MenuPageDefine("page_main", "layerMain", [
-    new MenuNodeText("main", "Main Menu", {bgColorBase : c_ltgray}),
+    new MenuNodeText("main", "Main Menu", {
+        style: {
+            colorBase: c_red
+        }
+    }),
     new MenuNodeButton("start", "Start", function(){
-        show_debug_message(__style);
+        show_debug_message(id);
         room_goto(rm_game);
     }),
     new MenuNodeButton("continue", "Continue"),
     new MenuNodeButton("credits", "Credits"),
     new MenuNodeButton("options", "Options", function(){
-        PushPage("page_options")
+        PushPage("page_options");
     }),
     new MenuNodeSeparator("sep"),
     new MenuNodeConfirm("exit", "Exit", function(){
-        game_end()
-    }, {message : "Exit Game?"}),
-])
+        game_end();
+    }, {
+        message : "Exit Game?",
+    })
+], {
+    style: {
+        colorBase: c_blue
+    }
+})
 
 // Pause
 MenuPageDefine("page_pause", "layerPause", [
     new MenuNodeText("pause", "Pause", {bgColorBase : c_ltgray}),
-    new MenuNodeButton("resume", "Resume", function(){show_debug_message(__style)}),
+    new MenuNodeButton("resume", "Resume", function(){show_debug_message(id)}),
     new MenuNodeButton("restart", "Restart"),
     new MenuNodeButton("options", "Options", function(){PushPage("page_options")}),
     new MenuNodeSeparator("sep"),

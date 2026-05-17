@@ -2,7 +2,6 @@
 function MenuManager(config = {}) constructor{
     
     #region Private
-    __style         = config[$ "style"] ?? new MenuStyle("default");
     __stackArray    = [];
     __pages         = {};
     __mouseX        = 0;
@@ -12,6 +11,7 @@ function MenuManager(config = {}) constructor{
     __mouseFocus    = undefined;
     __lockedNode    = undefined;
     __enabled       = true;
+    __style         = MenuBindStyle(config[$ "style"]);
     
     static __GetActionInput  = function() {
         return {
@@ -59,7 +59,7 @@ function MenuManager(config = {}) constructor{
         var _page = GetActivePage();
         if (is_undefined(_page)) return;
         
-        var _inputAction = __GetActionInput ();
+        var _inputAction = __GetActionInput();
         var _inputMouse = __GetMouseInput();
         
         if (__mouseActive) {
@@ -175,8 +175,7 @@ function MenuManager(config = {}) constructor{
     static AddPage = function(name) {
         static cache = __MenuCache();
         var _data = cache.pages[$ name];
-        var _page = new MenuPage(name, _data.layer, _data.nodes);
-        _page.__mng = self;
+        var _page = new __MenuPage(_data, self);
         __pages[$ name] = _page;
         return self;
     }
