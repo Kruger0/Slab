@@ -16,4 +16,4 @@ global.debug = false;
 
 scribble_font_set_default("fnt_test");
 
-room_goto(rm_menu)
+room_goto(rm_menu);

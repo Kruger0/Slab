@@ -1,14 +1,14 @@
 
-function MenuNode(id, label, config = {}) constructor{
+function SlabNode(id, label, config = {}) constructor{
     
     #region Private
     __id            = id;
     __label         = label;
     __styleSource   = {};
-    __styleOverride = MenuStyleResolve(config[$ "style"]);
-    __style         = MenuStyleMerge(__styleSource, __styleOverride);;
-    __type          = MENU_NODE_BLANK;
-    __state         = MENU_STATE.BASE;
+    __styleOverride = SlabStyleResolve(config[$ "style"]);
+    __style         = SlabStyleMerge(__styleSource, __styleOverride);;
+    __type          = SLAB_NODE_BLANK;
+    __state         = SLAB_STATE.BASE;
     
     __pending       = false;
     __dragging      = false;
@@ -48,12 +48,12 @@ function MenuNode(id, label, config = {}) constructor{
     #endregion
     
     #region Style
-    animSpeed   = config[$ "animSpeed"] ?? 0.5;
-    __xOffAnim      = new MenuAnimTrack(ac_test, "xOff", animSpeed);
-    __yOffAnim      = new MenuAnimTrack(ac_test, "yOff", animSpeed);
-    __xSclAnim      = new MenuAnimTrack(ac_test, "xScl", animSpeed);
-    __ySclAnim      = new MenuAnimTrack(ac_test, "yScl", animSpeed);
-    __angleAnim     = new MenuAnimTrack(ac_test, "angle", animSpeed);
+    animSpeed       = config[$ "animSpeed"] ?? 0.5;
+    __xOffAnim      = new __SlabAnimTrack(ac_test, "xOff", animSpeed);
+    __yOffAnim      = new __SlabAnimTrack(ac_test, "yOff", animSpeed);
+    __xSclAnim      = new __SlabAnimTrack(ac_test, "xScl", animSpeed);
+    __ySclAnim      = new __SlabAnimTrack(ac_test, "yScl", animSpeed);
+    __angleAnim     = new __SlabAnimTrack(ac_test, "angle", animSpeed);
     #endregion
     
     // Methods
@@ -97,7 +97,7 @@ function MenuNode(id, label, config = {}) constructor{
         __yScl = __ySclAnim.GetValue();
         
         // Aligmnet
-        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _body = GetZoneData(SLAB_ZONE_BODY);
         var _xOff = __xOffAnim.GetValue();
         var _yOff = __yOffAnim.GetValue();
         
@@ -150,7 +150,7 @@ function MenuNode(id, label, config = {}) constructor{
         }
         
         // Debug
-        if (global.debug) {
+        if (SlabDebugGetEnabled()) {
             for (var i = 0; i < __zoneCount; i++) {
                 var _zone = __zoneArray[i];
                 var _x = _zone.x;
@@ -175,16 +175,16 @@ function MenuNode(id, label, config = {}) constructor{
         }
         
         // Debug
-        if (global.debug) {
-            show_debug_message($"{instanceof(self)} '{__label}' - Select()");
+        if (SlabDebugGetEnabled()) {
+            __SlabTrace($"{instanceof(self)} '{__label}' - Select()");
         }
     }
     static __Enter = function(page) {
         // Load
         __page = page;
         __manager = page.__manager;
-        __styleSource = MenuStyleResolve(page.__style);
-        __style = MenuStyleMerge(__styleSource, __styleOverride);
+        __styleSource = SlabStyleResolve(page.__style);
+        __style = SlabStyleMerge(__styleSource, __styleOverride);
         
         // Animate
         __xSclAnim.Snap(0.8).Play(1);
@@ -205,6 +205,8 @@ function MenuNode(id, label, config = {}) constructor{
         __focused   = false;
         __pending   = false;
         __dragging  = false;
+        
+        __UpdateState();
         
         // Custom
         for (var i = 0, n = array_length(__onLeaveCb); i < n; i++) {
@@ -268,10 +270,10 @@ function MenuNode(id, label, config = {}) constructor{
         __state = state;
     }
     static __ResolveState = function() {
-        if (!__enabled) return MENU_STATE.DISABLED;
-        if (__pending)  return MENU_STATE.PENDING;
-        if (__focused)  return MENU_STATE.FOCUSED;
-        return MENU_STATE.BASE;
+        if (!__enabled) return SLAB_STATE.DISABLED;
+        if (__pending)  return SLAB_STATE.PENDING;
+        if (__focused)  return SLAB_STATE.FOCUSED;
+        return SLAB_STATE.BASE;
     }
     static __UpdateState = function() {
         __SetState(__ResolveState());
@@ -279,16 +281,15 @@ function MenuNode(id, label, config = {}) constructor{
     
     static HandleAction = function(action) {};
     static HandleMouse = function(mouse) {};
-    
 }
 
-function MenuNodeText(id, label, config = {}) : MenuNode(id, label, config) constructor {
-    __type = MENU_NODE_TEXT;
+function SlabNodeText(id, label, config = {}) : SlabNode(id, label, config) constructor {
+    __type = SLAB_NODE_TEXT;
     __label = label;
     __interactive = false;
     
     OnRender(function() {
-        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _body = GetZoneData(SLAB_ZONE_BODY);
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -314,8 +315,8 @@ function MenuNodeText(id, label, config = {}) : MenuNode(id, label, config) cons
     });
 }
 
-function MenuNodeSeparator(id, label = id, config = {}) : MenuNode(id, label, config) constructor {
-    __type = MENU_NODE_SEPARATOR;
+function SlabNodeSeparator(id, label = id, config = {}) : SlabNode(id, label, config) constructor {
+    __type = SLAB_NODE_SEPARATOR;
     __label = label;
     __interactive = false;
     
@@ -325,7 +326,7 @@ function MenuNodeSeparator(id, label = id, config = {}) : MenuNode(id, label, co
     
     OnRender(function() {
         if (!__drawLine) return;;
-        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _body = GetZoneData(SLAB_ZONE_BODY);
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -336,13 +337,13 @@ function MenuNodeSeparator(id, label = id, config = {}) : MenuNode(id, label, co
     });
 }
 
-function MenuNodeSprite(id, label, sprite, config = {}) : MenuNode(id, label, config) constructor {
-    __type = MENU_NODE_SPRITE;
+function SlabNodeSprite(id, label, sprite, config = {}) : SlabNode(id, label, config) constructor {
+    __type = SLAB_NODE_SPRITE;
     __label = label;
 }
 
-function MenuNodeButton(id, label, callback, config = {}) : MenuNode(id, label, config) constructor {
-    __type = MENU_NODE_BUTTON;
+function SlabNodeButton(id, label, callback, config = {}) : SlabNode(id, label, config) constructor {
+    __type = SLAB_NODE_BUTTON;
     __label = label;
     
     Callback = method(self, callback ?? function(){});
@@ -360,7 +361,7 @@ function MenuNodeButton(id, label, callback, config = {}) : MenuNode(id, label, 
         Callback();
     });
     OnRender(function() {
-        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _body = GetZoneData(SLAB_ZONE_BODY);
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -386,8 +387,8 @@ function MenuNodeButton(id, label, callback, config = {}) : MenuNode(id, label, 
     });
 }
 
-function MenuNodeConfirm(id, label, callback, config = {}) : MenuNode(id, label, config) constructor {
-    __type = MENU_NODE_SELECTOR;
+function SlabNodeConfirm(id, label, callback, config = {}) : SlabNode(id, label, config) constructor {
+    __type = SLAB_NODE_SELECTOR;
     __label = label;
     __message = config[$ "message"] ?? label + "?";
     
@@ -411,7 +412,7 @@ function MenuNodeConfirm(id, label, callback, config = {}) : MenuNode(id, label,
         }
     });
     OnRender(function() {
-        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _body = GetZoneData(SLAB_ZONE_BODY);
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
@@ -437,8 +438,8 @@ function MenuNodeConfirm(id, label, callback, config = {}) : MenuNode(id, label,
     });
 }
 
-function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config = {}) : MenuNode(id, label, config) constructor {
-    __type = MENU_NODE_SELECTOR;
+function SlabNodeSelector(id, label, options, valueGetter, valueSetter, config = {}) : SlabNode(id, label, config) constructor {
+    __type = SLAB_NODE_SELECTOR;
     __label = label;
     __optionArray = options;
     __optionCount = array_length(options);
@@ -490,8 +491,8 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
     static HandleMouse = function(mouse) {
         if (mouse.leftPressed) {
             switch (__zoneActive) {
-                case MENU_ZONE_LEFT: SelectLeft(); break;
-                case MENU_ZONE_RIGHT: SelectRight(); break;
+                case SLAB_ZONE_LEFT: SelectLeft(); break;
+                case SLAB_ZONE_RIGHT: SelectRight(); break;
             }
         }
     }
@@ -505,7 +506,7 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
             }
         }
         if (__optionIndex == undefined) {
-            show_debug_message($"MenuNodeSelector: value '{_value}' not found in options. Defaulting to 0");
+            show_debug_message($"SlabNodeSelector: value '{_value}' not found in options. Defaulting to 0");
             __optionIndex = 0;
         }
     });
@@ -530,7 +531,7 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
             
             // Content
             switch (_zone.type) {
-                case MENU_ZONE_BODY: {
+                case SLAB_ZONE_BODY: {
                     // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
@@ -538,9 +539,9 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
                         .transform(__xScl, __yScl, __angle)
                         .draw(__xPos, __yPos);
                 } break;
-                case MENU_ZONE_LEFT: {
+                case SLAB_ZONE_LEFT: {
                     if (!__optionCycle && __optionIndex == 0) break;
-                    _c = __style.__GetColor(_zone.active ? MENU_STATE.FOCUSED : MENU_STATE.BASE);
+                    _c = __style.__GetColor(_zone.active ? SLAB_STATE.FOCUSED : SLAB_STATE.BASE);
                     _t = "<";
                     scribble(_t, __id)
                         .align(1, 1)
@@ -548,9 +549,9 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
                         .transform(__xScl, __yScl, __angle)
                         .draw(_x+_w/2, _y+_h/2);
                 } break;
-                case MENU_ZONE_RIGHT: {
+                case SLAB_ZONE_RIGHT: {
                     if (!__optionCycle && __optionIndex == __optionCount-1) break;
-                    _c = __style.__GetColor(_zone.active ? MENU_STATE.FOCUSED : MENU_STATE.BASE);
+                    _c = __style.__GetColor(_zone.active ? SLAB_STATE.FOCUSED : SLAB_STATE.BASE);
                     _t = ">";
                     scribble(_t, __id)
                         .align(1, 1)
@@ -558,7 +559,7 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
                         .transform(__xScl, __yScl, __angle)
                         .draw(_x+_w/2, _y+_h/2);
                 } break;
-                case MENU_ZONE_VALUE: {
+                case SLAB_ZONE_VALUE: {
                     _t = string(GetActiveOption()[0]);
                     scribble(_t, __id)
                         .align(1, 1)
@@ -571,8 +572,8 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
     });
 }
 
-function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : MenuNode(id, label, config) constructor {
-    __type = MENU_NODE_CHECKBOX;
+function SlabNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : SlabNode(id, label, config) constructor {
+    __type = SLAB_NODE_CHECKBOX;
     __label = label;
     
     GetValue = method(self, valueGetter);
@@ -581,7 +582,7 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
     static HandleMouse = function(mouse) {
         if (mouse.leftPressed) {
             switch (__zoneActive) {
-                case MENU_ZONE_BOX: __Select(); break;
+                case SLAB_ZONE_BOX: __Select(); break;
             }
         };
     }
@@ -595,7 +596,7 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
             __value = _value;
         }
         if (is_undefined(_value)) {
-            show_debug_message($"MenuNodeCheckbox: bool '{_value}' could not be solved. Defaulting to false");
+            show_debug_message($"SlabNodeCheckbox: bool '{_value}' could not be solved. Defaulting to false");
             __value = false;
         }
     });
@@ -626,7 +627,7 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
             
             // Content
             switch (_zone.type) {
-                case MENU_ZONE_BODY: {
+                case SLAB_ZONE_BODY: {
                     // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
@@ -634,7 +635,7 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
                         .transform(__xScl, __yScl, __angle)
                         .draw(__xPos, __yPos);
                 } break;
-                case MENU_ZONE_BOX: {
+                case SLAB_ZONE_BOX: {
                     _t = (__value ? "[[X]" : "[[   ]");
                     scribble(_t, __id)
                         .align(1, 1)
@@ -647,8 +648,8 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
     });
 }
 
-function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax, valueStep, valueFormat = function(v){return string(v)}, config = {}) : MenuNode(id, label, config) constructor {
-    __type = MENU_NODE_SLIDER;
+function SlabNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax, valueStep, valueFormat = function(v){return string(v)}, config = {}) : SlabNode(id, label, config) constructor {
+    __type = SLAB_NODE_SLIDER;
     __valueMin = valueMin;
     __valueMax = valueMax;
     __valueStep = valueStep;
@@ -674,12 +675,12 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
         if (action.rightPressed) SelectRight();
     }
     static HandleMouse = function(mouse) {
-        if (mouse.leftPressed && __zoneActive == MENU_ZONE_BAR) {
+        if (mouse.leftPressed && __zoneActive == SLAB_ZONE_BAR) {
             __dragging = true;
             __manager.LockNode(self);
         }
         if (__dragging) {
-            var _bar = GetZoneData(MENU_ZONE_BAR);
+            var _bar = GetZoneData(SLAB_ZONE_BAR);
             var _delta = clamp((__manager.__mouseX - _bar.x) / _bar.w, 0, 1);
             var _value = __valueMin + _delta * (__valueMax - __valueMin);
             if (!is_undefined(__valueStep)) _value = round(_value / __valueStep) * __valueStep;
@@ -720,7 +721,7 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
             
             // Content
             switch (_zone.type) {
-                case MENU_ZONE_BODY: {
+                case SLAB_ZONE_BODY: {
                     // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
@@ -728,14 +729,14 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
                         .transform(__xScl, __yScl, __angle)
                         .draw(__xPos, __yPos);
                 } break;
-                case MENU_ZONE_VALUE: {
+                case SLAB_ZONE_VALUE: {
                     scribble(FormatValue(__value), __id)
                         .align(2, __vAlign)
                         .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(_x+_w, __yPos);
                 } break
-                case MENU_ZONE_BAR: {
+                case SLAB_ZONE_BAR: {
                     // Enable Edge Mask
                     gpu_set_stencil_enable(true);
                     draw_clear_stencil(0);
@@ -753,7 +754,7 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
                     gpu_set_stencil_pass(stencilop_keep);
                     
                     // Background
-                    var _cbg = __style.__GetColor(MENU_STATE.DISABLED);
+                    var _cbg = __style.__GetColor(SLAB_STATE.DISABLED);
                     draw_rectangle_colour(_x, _y, _x+_w, _y+_h, _cbg, _cbg, _cbg, _cbg, false);
                     
                     // Slider

@@ -1,12 +1,12 @@
 {
   "$GMScript":"v1",
-  "%Name":"MenuPage",
+  "%Name":"__Pages",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"MenuPage",
+  "name":"__Pages",
   "parent":{
-    "name":"Classes",
-    "path":"folders/Slab/Private/Classes.yy",
+    "name":"Slab",
+    "path":"folders/Slab.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

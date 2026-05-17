@@ -1,14 +1,14 @@
 
-function __MenuPage(data, manager) constructor{
-    static cache = __SlateCache();
+function __SlabPage(data, manager) constructor{
+    static cache = __SlabCache();
     
     __layer         = data.layer;
     __nodeArray     = data.nodes;
     __cycle         = data.config[$ "cycle"] ?? true;
     __manager       = manager;
-    __styleSource   = MenuStyleResolve(manager.__style);
-    __styleOverride = MenuStyleResolve(data.config[$ "style"]);
-    __style         = MenuStyleMerge(__styleSource, __styleOverride);;
+    __styleSource   = SlabStyleResolve(manager.__style);
+    __styleOverride = SlabStyleResolve(data.config[$ "style"]);
+    __style         = SlabStyleMerge(__styleSource, __styleOverride);;
     __nodeOrder     = [];
     __nodeActive    = 0;
     
@@ -38,24 +38,24 @@ function __MenuPage(data, manager) constructor{
         
         switch (_type) {
             // Body
-            case MENU_NODE_TEXT:
-            case MENU_NODE_SEPARATOR:
-            case MENU_NODE_BUTTON:
-            case MENU_NODE_SPRITE:
-            case MENU_NODE_SELECTOR:
-            case MENU_NODE_SLIDER:
-            case MENU_NODE_CONFIRM:
-            case MENU_NODE_CHECKBOX: {
-                _type = MENU_ZONE_BODY;
+            case SLAB_NODE_TEXT:
+            case SLAB_NODE_SEPARATOR:
+            case SLAB_NODE_BUTTON:
+            case SLAB_NODE_SPRITE:
+            case SLAB_NODE_SELECTOR:
+            case SLAB_NODE_SLIDER:
+            case SLAB_NODE_CONFIRM:
+            case SLAB_NODE_CHECKBOX: {
+                _type = SLAB_ZONE_BODY;
             } break;
             // Zones
-            case MENU_ZONE_VALUE: {
+            case SLAB_ZONE_VALUE: {
                     
             } break;
-            case MENU_ZONE_BAR:
-            case MENU_ZONE_BOX:
-            case MENU_ZONE_LEFT:
-            case MENU_ZONE_RIGHT: {
+            case SLAB_ZONE_BAR:
+            case SLAB_ZONE_BOX:
+            case SLAB_ZONE_LEFT:
+            case SLAB_ZONE_RIGHT: {
                 _z = 1;
             } break;
             default: {
@@ -102,7 +102,7 @@ function __MenuPage(data, manager) constructor{
         // Updates node navigation order
         __nodeOrder = [];
         for (var i = 0, n = array_length(_layout); i < n; i++) {
-            if (_layout[i].type != MENU_ZONE_BODY) continue;
+            if (_layout[i].type != SLAB_ZONE_BODY) continue;
             var _id = _layout[i].id;
             for (var j = 0, o = array_length(__nodeArray); j < o; j++) {
                 if (__nodeArray[j].__id == _id) {
@@ -153,7 +153,7 @@ function __MenuPage(data, manager) constructor{
         }
     };
     static __Enter = function(resetNode) {
-        __style = MenuStyleMerge(__styleSource, __styleOverride);
+        __style = SlabStyleMerge(__styleSource, __styleOverride);
         __InitPage();
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
@@ -175,3 +175,12 @@ function __MenuPage(data, manager) constructor{
 }
 
 
+function SlabPageDelete(name) {
+    static cache = __SlabCache();
+    delete cache.pages[$ name];
+}
+
+function SlabPageDefine(name, layer, nodes, config = {}) {
+    static cache = __SlabCache();
+    cache.pages[$ name] = {layer, nodes, config};
+}

@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"__SlabManager",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"__SlabManager",
+  "parent":{
+    "name":"Classes",
+    "path":"folders/Slab/Private/Classes.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

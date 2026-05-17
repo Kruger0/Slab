@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"__SlateCache",
+  "%Name":"__SlabConstants",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"__SlateCache",
+  "name":"__SlabConstants",
   "parent":{
     "name":"Private",
     "path":"folders/Slab/Private.yy",

@@ -1,12 +1,12 @@
 {
   "$GMScript":"v1",
-  "%Name":"MenuManager",
+  "%Name":"__Styles",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"MenuManager",
+  "name":"__Styles",
   "parent":{
-    "name":"Classes",
-    "path":"folders/Slab/Private/Classes.yy",
+    "name":"Slab",
+    "path":"folders/Slab.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

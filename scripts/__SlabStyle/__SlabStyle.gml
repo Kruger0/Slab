@@ -1,5 +1,5 @@
 
-function __MenuStyle(config = {}) constructor {    
+function __SlabStyle(config = {}) constructor {    
     colorBase           = config[$ "colorBase"]         ?? #808080;
     colorFocused        = config[$ "colorFocused"]      ?? #FFFFFF;
     colorDisabled       = config[$ "colorDisabled"]     ?? #444444;
@@ -15,7 +15,7 @@ function __MenuStyle(config = {}) constructor {
     bgSpriteDisabled    = config[$ "bgSpriteDisabled"]  ?? undefined;
     bgSpritePending     = config[$ "bgSpritePending"]   ?? undefined;
     
-    alphaBase           = config[$ "alphaBase"]         ?? 1.0;
+    alphaBase           = config[$ "alphaBase"]         ?? 1.5;
     alphaFocused        = config[$ "alphaFocused"]      ?? 1.0;
     alphaDisabled       = config[$ "alphaDisabled"]     ?? 0.4;
     alphaPending        = config[$ "alphaPending"]      ?? 1.0;
@@ -34,75 +34,75 @@ function __MenuStyle(config = {}) constructor {
     
     static __GetColor = function(state) {
         switch (state) {
-            case MENU_STATE.FOCUSED:  return colorFocused;
-            case MENU_STATE.DISABLED: return colorDisabled;
-            case MENU_STATE.PENDING:  return colorPending;
+            case SLAB_STATE.FOCUSED:  return colorFocused;
+            case SLAB_STATE.DISABLED: return colorDisabled;
+            case SLAB_STATE.PENDING:  return colorPending;
             default:                  return colorBase;
         }
     }
     static __GetBgColor = function(state) {
         switch (state) {
-            case MENU_STATE.FOCUSED:  return bgColorFocused;
-            case MENU_STATE.DISABLED: return bgColorDisabled;
-            case MENU_STATE.PENDING:  return bgColorPending;
+            case SLAB_STATE.FOCUSED:  return bgColorFocused;
+            case SLAB_STATE.DISABLED: return bgColorDisabled;
+            case SLAB_STATE.PENDING:  return bgColorPending;
             default:                  return bgColorBase;
         }
     }
     static __GetBgSprite = function(state) {
         switch (state) {
-            case MENU_STATE.FOCUSED:  return bgSpriteFocused;
-            case MENU_STATE.DISABLED: return bgSpriteDisabled;
-            case MENU_STATE.PENDING:  return bgSpritePending;
+            case SLAB_STATE.FOCUSED:  return bgSpriteFocused;
+            case SLAB_STATE.DISABLED: return bgSpriteDisabled;
+            case SLAB_STATE.PENDING:  return bgSpritePending;
             default:                  return bgSpriteBase;
         }
     }
     static __GetAlpha = function(state) {
         switch (state) {
-            case MENU_STATE.FOCUSED:  return alphaFocused;
-            case MENU_STATE.DISABLED: return alphaDisabled;
-            case MENU_STATE.PENDING:  return alphaPending;
+            case SLAB_STATE.FOCUSED:  return alphaFocused;
+            case SLAB_STATE.DISABLED: return alphaDisabled;
+            case SLAB_STATE.PENDING:  return alphaPending;
             default:                  return alphaBase;
         }
     }
     static __GetScale = function(state) {
         switch (state) {
-            case MENU_STATE.FOCUSED:  return scaleFocused;
-            case MENU_STATE.DISABLED: return scaleDisabled;
-            case MENU_STATE.PENDING:  return scalePending;
+            case SLAB_STATE.FOCUSED:  return scaleFocused;
+            case SLAB_STATE.DISABLED: return scaleDisabled;
+            case SLAB_STATE.PENDING:  return scalePending;
             default:                  return scaleBase;
         }
     }
 }
 
-function MenuStyleGetId(name) {
-    static cache = __SlateCache();
+function SlabStyleGetId(name) {
+    static cache = __SlabCache();
     return cache.styles[$ name];
 }
 
-function StaleStyleCreate(name, config = {}) {
-    static cache = __SlateCache();
-    cache.styles[$ name] = new __MenuStyle(config);
+function SlabStyleCreate(name, config = {}) {
+    static cache = __SlabCache();
+    cache.styles[$ name] = new __SlabStyle(config);
     return cache.styles[$ name];
 }
 
-function MenuStyleDelete(name) {
-    static cache = __SlateCache();
+function SlabStyleDelete(name) {
+    static cache = __SlabCache();
     struct_remove(cache.styles, name);
 }
 
-function MenuStyleExists(name) {
-    static cache = __SlateCache();
+function SlabStyleExists(name) {
+    static cache = __SlabCache();
     return struct_exists(cache.styles, name);
 }
 
-function MenuStyleResolve(style) {
-    static cache = __SlateCache();
+function SlabStyleResolve(style) {
+    static cache = __SlabCache();
     if (is_string(style)) return variable_clone(cache.styles[$ style] ?? {});
     if (is_struct(style)) return style;
     return {};
 }
 
-function MenuStyleMerge(source, override) {
+function SlabStyleMerge(source, override) {
     var _result = variable_clone(source);
     var _keys = struct_get_names(override);
     for (var i = 0, n = array_length(_keys); i < n; i++) {

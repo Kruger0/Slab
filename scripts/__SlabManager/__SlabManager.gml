@@ -1,5 +1,5 @@
 
-function MenuManager(config = {}) constructor{
+function SlabManager(config = {}) constructor{
     
     #region Private
     __stackArray    = [];
@@ -11,9 +11,9 @@ function MenuManager(config = {}) constructor{
     __mouseFocus    = undefined;
     __lockedNode    = undefined;
     __enabled       = false;
-    __styleSource   = new __MenuStyle();
-    __styleOverride = MenuStyleResolve(config[$ "style"]);
-    __style         = MenuStyleMerge(__styleSource, __styleOverride);
+    __styleSource   = new __SlabStyle();
+    __styleOverride = SlabStyleResolve(config[$ "style"]);
+    __style         = SlabStyleMerge(__styleSource, __styleOverride);
     
     static __GetActionInput  = function() {
         return {
@@ -165,7 +165,7 @@ function MenuManager(config = {}) constructor{
         var _page = GetActivePage();
         if (is_undefined(_page)) return;
         _page.__Render();
-        if (global.debug) {
+        if (SlabDebugGetEnabled()) {
             var _c = #FF00FF;
             draw_circle_color(__mouseX, __mouseY, 2, _c, _c, false);
             draw_circle_color(__mouseX, __mouseY, 6, _c, _c, true);
@@ -178,9 +178,9 @@ function MenuManager(config = {}) constructor{
         return __pages[$ _page];
     }
     static AddPage = function(name) {
-        static cache = __SlateCache();
+        static cache = __SlabCache();
         var _data = cache.pages[$ name];
-        var _page = new __MenuPage(_data, self);
+        var _page = new __SlabPage(_data, self);
         __pages[$ name] = _page;
         return self;
     }
@@ -190,7 +190,7 @@ function MenuManager(config = {}) constructor{
         array_push(__stackArray, name);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
-        __style = MenuStyleMerge(__styleSource, __styleOverride);
+        __style = SlabStyleMerge(__styleSource, __styleOverride);
         _pageNext.__Enter(__mouseActive);
         return self;
     }
@@ -202,7 +202,7 @@ function MenuManager(config = {}) constructor{
         array_pop(__stackArray);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
-        __style = MenuStyleMerge(__styleSource, __styleOverride);
+        __style = SlabStyleMerge(__styleSource, __styleOverride);
         _pageNext.__Enter(__mouseActive);
         return self;
     }
@@ -215,9 +215,9 @@ function MenuManager(config = {}) constructor{
         return __mouseEnabled ;
     }
     static GetMouseState = function() {
-        if (!__mouseActive) return MENU_MOUSE.INACTIVE;
-        if (is_undefined(__mouseFocus)) return MENU_MOUSE.IDLE;
-        return MENU_MOUSE.HOVER;
+        if (!__mouseActive) return SLAB_MOUSE.INACTIVE;
+        if (is_undefined(__mouseFocus)) return SLAB_MOUSE.IDLE;
+        return SLAB_MOUSE.HOVER;
     }
     
     static LockNode = function(node) {
@@ -236,7 +236,7 @@ function MenuManager(config = {}) constructor{
         __styleOverride = style;
     }
     static ResetStyle = function() {
-        __styleSource = new __MenuStyle();
+        __styleSource = new __SlabStyle();
         __styleOverride = {};
     }
     

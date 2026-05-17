@@ -1,0 +1,31 @@
+
+enum SLAB_MOUSE {
+    INACTIVE,
+    IDLE,
+    HOVER,
+    DRAGGING,
+}
+
+enum SLAB_STATE {
+    BASE,
+    FOCUSED,
+    DISABLED,
+    PENDING,
+}
+
+#macro SLAB_NODE_BLANK      "BLANK"
+#macro SLAB_NODE_TEXT       "TEXT"
+#macro SLAB_NODE_SEPARATOR  "SEPARATOR"
+#macro SLAB_NODE_BUTTON     "BUTTON"
+#macro SLAB_NODE_SPRITE     "SPRITE"
+#macro SLAB_NODE_SELECTOR   "SELECTOR"
+#macro SLAB_NODE_SLIDER     "SLIDER"
+#macro SLAB_NODE_CONFIRM    "CONFIRM"
+#macro SLAB_NODE_CHECKBOX   "CHECKBOX"
+
+#macro SLAB_ZONE_BODY       "BODY"
+#macro SLAB_ZONE_VALUE      "VALUE"
+#macro SLAB_ZONE_BAR        "BAR"
+#macro SLAB_ZONE_BOX        "BOX"
+#macro SLAB_ZONE_LEFT       "LEFT"
+#macro SLAB_ZONE_RIGHT      "RIGHT"

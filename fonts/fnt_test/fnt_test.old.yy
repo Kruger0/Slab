@@ -3200,8 +3200,8 @@
   "maintainGms1Font":false,
   "name":"fnt_test",
   "parent":{
-    "name":"Slate",
-    "path":"Slate.yyp",
+    "name":"Slab",
+    "path":"Slab.yyp",
   },
   "pointRounding":0,
   "ranges":[

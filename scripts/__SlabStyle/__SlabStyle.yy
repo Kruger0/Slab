@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"MenuNode",
+  "%Name":"__SlabStyle",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"MenuNode",
+  "name":"__SlabStyle",
   "parent":{
     "name":"Classes",
     "path":"folders/Slab/Private/Classes.yy",

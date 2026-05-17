@@ -1,4 +1,4 @@
-pauseMenu = new MenuManager({style : "style_1"})
+pauseMenu = new SlabManager({style : "style_1"})
     .AddPage("page_pause")
     .AddPage("page_options")
     .AddPage("page_audio")

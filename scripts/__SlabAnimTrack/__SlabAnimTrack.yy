@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"MenuAnimTrack",
+  "%Name":"__SlabAnimTrack",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"MenuAnimTrack",
+  "name":"__SlabAnimTrack",
   "parent":{
     "name":"Classes",
     "path":"folders/Slab/Private/Classes.yy",

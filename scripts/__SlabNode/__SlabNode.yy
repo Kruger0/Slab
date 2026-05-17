@@ -1,12 +1,12 @@
 {
   "$GMScript":"v1",
-  "%Name":"__PageDefinitions",
+  "%Name":"__SlabNode",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"__PageDefinitions",
+  "name":"__SlabNode",
   "parent":{
-    "name":"Public",
-    "path":"folders/Slab/Public.yy",
+    "name":"Classes",
+    "path":"folders/Slab/Private/Classes.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

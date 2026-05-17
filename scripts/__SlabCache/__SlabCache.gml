@@ -1,7 +1,8 @@
 
 /// @ignore
-function __SlateCache() {
+function __SlabCache() {
     static data = {
+        debug:  false,
         pages:  {},
         styles: {},
     }
@@ -9,5 +10,5 @@ function __SlateCache() {
 }
 
 if (debug_mode) {
-    global.cache = __SlateCache()
+    global.cache = __SlabCache()
 }

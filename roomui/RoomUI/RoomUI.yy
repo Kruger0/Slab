@@ -142,8 +142,8 @@
   "locked":false,
   "name":"RoomUI",
   "parent":{
-    "name":"Slate",
-    "path":"Slate.yyp",
+    "name":"Slab",
+    "path":"Slab.yyp",
   },
   "resourceType":"GMRoomUI",
   "resourceVersion":"2.0",
