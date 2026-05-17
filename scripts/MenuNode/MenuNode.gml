@@ -185,7 +185,7 @@ function MenuNode(id, label, config = {}) constructor{
         }
     }
     static __Enter = function(page) {
-        // Define
+        // Load
         __page = page;
         __manager = page.__manager;
         __styleSource = MenuBindStyle(page.__style);
@@ -264,6 +264,14 @@ function MenuNode(id, label, config = {}) constructor{
         __ySclAnim.Play(1);
         __pending = false;
     };
+    
+    static __GetState = function() {
+        return __state;
+    }
+    static __SetState = function(state) {
+        if (__state == state) return;
+        __state = state
+    }
     
     static HandleAction = function(action) {};
     static HandleMouse = function(mouse) {};
