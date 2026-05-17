@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"MenuConstants",
+  "%Name":"__SlateConstants",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"MenuConstants",
+  "name":"__SlateConstants",
   "parent":{
     "name":"Private",
     "path":"folders/Slate/Private.yy",

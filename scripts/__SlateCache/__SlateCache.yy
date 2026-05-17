@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"__MenuCache",
+  "%Name":"__SlateCache",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"__MenuCache",
+  "name":"__SlateCache",
   "parent":{
     "name":"Private",
     "path":"folders/Slate/Private.yy",

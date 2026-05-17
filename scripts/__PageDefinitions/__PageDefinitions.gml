@@ -1,10 +1,10 @@
 
-function MenuPageDelete(name) {
+function SlatePageDelete(name) {
     static cache = __SlateCache();
     delete cache.pages[$ name];
 }
 
-function MenuPageDefine(name, layer, nodes, config = {}) {
+function SlatePageDefine(name, layer, nodes, config = {}) {
     static cache = __SlateCache();
     cache.pages[$ name] = {layer, nodes, config};
 }
@@ -16,7 +16,7 @@ MenuStyleCreate("text", {
 
 
 // Main
-MenuPageDefine("page_main", "layerMain", [
+SlatePageDefine("page_main", "layerMain", [
     new MenuNodeText("main", "Main Menu", {style: "text"}),
     new MenuNodeButton("start", "Start", function(){
         show_debug_message(__id);
@@ -40,7 +40,7 @@ MenuPageDefine("page_main", "layerMain", [
 ])
 
 // Pause
-MenuPageDefine("page_pause", "layerPause", [
+SlatePageDefine("page_pause", "layerPause", [
     new MenuNodeText("pause", "Pause", {style: "text"}),
     new MenuNodeButton("resume", "Resume", function(){
         __manager.SetEnabled(false)
@@ -54,7 +54,7 @@ MenuPageDefine("page_pause", "layerPause", [
 ])
 
 // Options
-MenuPageDefine("page_options", "layerOptions", [
+SlatePageDefine("page_options", "layerOptions", [
     new MenuNodeText("options", "Options", {style: "text"}),
     new MenuNodeSelector("language", "Language", [
             ["English", "en_US"], 
@@ -71,7 +71,7 @@ MenuPageDefine("page_options", "layerOptions", [
 ])
 
 // Audio
-MenuPageDefine("page_audio", "layerAudio", [
+SlatePageDefine("page_audio", "layerAudio", [
     new MenuNodeText("audio", "Audio", {style: "text"}),
     new MenuNodeSlider("master", "Master", 
         function(){return global.options.audio.master},
@@ -87,7 +87,7 @@ MenuPageDefine("page_audio", "layerAudio", [
 ])
 
 // Video
-MenuPageDefine("page_video", "layerVideo", [
+SlatePageDefine("page_video", "layerVideo", [
     new MenuNodeText("video", "Video", {style: "text"}),
     new MenuNodeSelector("display", "Display", [
             ["Windowed", 0],

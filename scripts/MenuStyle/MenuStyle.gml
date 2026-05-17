@@ -79,7 +79,7 @@ function MenuStyleGetId(name) {
     return cache.styles[$ name];
 }
 
-function MenuStyleCreate(name, config = {}) {
+function StaleStyleCreate(name, config = {}) {
     static cache = __SlateCache();
     cache.styles[$ name] = new __MenuStyle(config);
     return cache.styles[$ name];
