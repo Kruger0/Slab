@@ -12,8 +12,8 @@ function MenuManager(config = {}) constructor{
     __lockedNode    = undefined;
     __enabled       = false;
     __styleSource   = new __MenuStyle();
-    __styleOverride = MenuBindStyle(config[$ "style"]);
-    __style         = MenuMergeStyle(__styleSource, __styleOverride);
+    __styleOverride = MenuStyleResolve(config[$ "style"]);
+    __style         = MenuStyleMerge(__styleSource, __styleOverride);
     
     static __GetActionInput  = function() {
         return {
@@ -190,7 +190,7 @@ function MenuManager(config = {}) constructor{
         array_push(__stackArray, name);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
-        __style = MenuMergeStyle(__styleSource, __styleOverride);
+        __style = MenuStyleMerge(__styleSource, __styleOverride);
         _pageNext.__Enter(__mouseActive);
         return self;
     }
@@ -202,7 +202,7 @@ function MenuManager(config = {}) constructor{
         array_pop(__stackArray);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
-        __style = MenuMergeStyle(__styleSource, __styleOverride);
+        __style = MenuStyleMerge(__styleSource, __styleOverride);
         _pageNext.__Enter(__mouseActive);
         return self;
     }

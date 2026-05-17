@@ -20,13 +20,14 @@ function __MenuStyle(config = {}) constructor {
     alphaDisabled       = config[$ "alphaDisabled"]     ?? 0.4;
     alphaPending        = config[$ "alphaPending"]      ?? 1.0;
     
-    scaleBase           = config[$ "scaleBase"]         ?? 1.0;
-    scaleFocused        = config[$ "scaleFocused"]      ?? 1.1;
-    scaleDisabled       = config[$ "scaleDisabled"]     ?? 1.0;
-    scalePending        = config[$ "scalePending"]      ?? 1.0;
+    scaleBase           = config[$ "scaleBase"]         ?? [1.0, 1.0];
+    scaleFocused        = config[$ "scaleFocused"]      ?? [1.1, 1.1];
+    scaleDisabled       = config[$ "scaleDisabled"]     ?? [1.0, 1.0];
+    scalePending        = config[$ "scalePending"]      ?? [1.0, 1.0];
     
     font                = config[$ "font"]              ?? undefined;
     animSpeed           = config[$ "animSpeed"]         ?? 0.15;
+    animCurve           = config[$ "animCurve"]         ?? ac_test;
     
     soundFocused        = config[$ "sndSelect"]         ?? undefined;
     soundSelect         = config[$ "sndSelect"]         ?? undefined;
@@ -37,6 +38,22 @@ function __MenuStyle(config = {}) constructor {
             case MENU_STATE.DISABLED: return colorDisabled;
             case MENU_STATE.PENDING:  return colorPending;
             default:                  return colorBase;
+        }
+    }
+    static __GetBgColor = function(state) {
+        switch (state) {
+            case MENU_STATE.FOCUSED:  return bgColorFocused;
+            case MENU_STATE.DISABLED: return bgColorDisabled;
+            case MENU_STATE.PENDING:  return bgColorPending;
+            default:                  return bgColorBase;
+        }
+    }
+    static __GetBgSprite = function(state) {
+        switch (state) {
+            case MENU_STATE.FOCUSED:  return bgSpriteFocused;
+            case MENU_STATE.DISABLED: return bgSpriteDisabled;
+            case MENU_STATE.PENDING:  return bgSpritePending;
+            default:                  return bgSpriteBase;
         }
     }
     static __GetAlpha = function(state) {
@@ -57,40 +74,35 @@ function __MenuStyle(config = {}) constructor {
     }
 }
 
-function MenuGetDefaultStyle() {
-    static cache = __MenuCache();
-    return cache.styles.base;
-}
-
-function MenuGetStyle(name) {
+function MenuStyleGetId(name) {
     static cache = __MenuCache();
     return cache.styles[$ name];
 }
 
-function MenuCreateStyle(name, config = {}) {
+function MenuStyleCreate(name, config = {}) {
     static cache = __MenuCache();
     cache.styles[$ name] = new __MenuStyle(config);
+    return cache.styles[$ name];
 }
 
 function MenuStyleDelete(name) {
     static cache = __MenuCache();
+    struct_remove(cache.styles, name);
 }
 
 function MenuStyleExists(name) {
     static cache = __MenuCache();
-    return (!is_undefined(cache.styles[$ name]));
+    return struct_exists(cache.styles, name);
 }
 
-// se for struct, passa normal, se for string, pega o template
-function MenuBindStyle(style) {
+function MenuStyleResolve(style) {
     static cache = __MenuCache();
     if (is_string(style)) return variable_clone(cache.styles[$ style] ?? {});
     if (is_struct(style)) return style;
     return {};
 }
 
-// merge two structs
-function MenuMergeStyle(source, override) {
+function MenuStyleMerge(source, override) {
     var _result = variable_clone(source);
     var _keys = struct_get_names(override);
     for (var i = 0, n = array_length(_keys); i < n; i++) {
@@ -99,3 +111,4 @@ function MenuMergeStyle(source, override) {
     }
     return _result;
 }
+

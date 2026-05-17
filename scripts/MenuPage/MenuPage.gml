@@ -6,9 +6,9 @@ function __MenuPage(data, manager) constructor{
     __nodeArray     = data.nodes;
     __cycle         = data.config[$ "cycle"] ?? true;
     __manager       = manager;
-    __styleSource   = MenuBindStyle(manager.__style);
-    __styleOverride = MenuBindStyle(data.config[$ "style"]);
-    __style         = MenuMergeStyle(__styleSource, __styleOverride);;
+    __styleSource   = MenuStyleResolve(manager.__style);
+    __styleOverride = MenuStyleResolve(data.config[$ "style"]);
+    __style         = MenuStyleMerge(__styleSource, __styleOverride);;
     __nodeOrder     = [];
     __nodeActive    = 0;
     
@@ -153,7 +153,7 @@ function __MenuPage(data, manager) constructor{
         }
     };
     static __Enter = function(resetNode) {
-        __style = MenuMergeStyle(__styleSource, __styleOverride);
+        __style = MenuStyleMerge(__styleSource, __styleOverride);
         __InitPage();
         for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
             var _node = __nodeArray[i];
@@ -173,3 +173,5 @@ function __MenuPage(data, manager) constructor{
         }
     }
 }
+
+

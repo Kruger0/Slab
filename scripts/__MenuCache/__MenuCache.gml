@@ -3,9 +3,9 @@
 function __MenuCache() {
     static data = {
         pages:  {},
-        styles: {
-            base: new __MenuStyle(),
-        },
+        styles: {},
     }
     return data;
 }
+
+global.cache = __MenuCache()

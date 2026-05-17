@@ -9,9 +9,15 @@ function MenuPageDefine(name, layer, nodes, config = {}) {
     cache.pages[$ name] = {layer, nodes, config};
 }
 
+MenuStyleCreate("text", {
+    colorBase: c_dkgray,
+    bgColorBase: c_ltgray
+})
+
+
 // Main
 MenuPageDefine("page_main", "layerMain", [
-    new MenuNodeText("main", "Main Menu"),
+    new MenuNodeText("main", "Main Menu", {style: "text"}),
     new MenuNodeButton("start", "Start", function(){
         show_debug_message(__id);
         room_goto(rm_game);
@@ -31,16 +37,11 @@ MenuPageDefine("page_main", "layerMain", [
     }, {
         message : "Exit Game?",
     })
-], {
-    style: {
-        colorBase: c_red
-    },
-    //cycle: false
-})
+])
 
 // Pause
 MenuPageDefine("page_pause", "layerPause", [
-    new MenuNodeText("pause", "Pause", {bgColorBase : c_ltgray}),
+    new MenuNodeText("pause", "Pause", {style: "text"}),
     new MenuNodeButton("resume", "Resume", function(){
         __manager.SetEnabled(false)
     }),
@@ -50,15 +51,11 @@ MenuPageDefine("page_pause", "layerPause", [
     new MenuNodeConfirm("exit", "Leave", function(){
         room_goto(rm_menu);
     }, {message : "Leave Game?"}),
-], {
-    style: {
-        colorBase: c_lime
-    }
-})
+])
 
 // Options
 MenuPageDefine("page_options", "layerOptions", [
-    new MenuNodeText("options", "Options", {bgColorBase : c_ltgray}),
+    new MenuNodeText("options", "Options", {style: "text"}),
     new MenuNodeSelector("language", "Language", [
             ["English", "en_US"], 
             ["Português", "pt_BR"], 
@@ -75,7 +72,7 @@ MenuPageDefine("page_options", "layerOptions", [
 
 // Audio
 MenuPageDefine("page_audio", "layerAudio", [
-    new MenuNodeText("audio", "Audio",{bgColorBase : c_ltgray}),
+    new MenuNodeText("audio", "Audio", {style: "text"}),
     new MenuNodeSlider("master", "Master", 
         function(){return global.options.audio.master},
         function(v){global.options.audio.master = v}, 0, 100, 1, function(v){return string_format(v, 3, 0)+"%"}),
@@ -91,7 +88,7 @@ MenuPageDefine("page_audio", "layerAudio", [
 
 // Video
 MenuPageDefine("page_video", "layerVideo", [
-    new MenuNodeText("video", "Video", {bgColorBase : c_ltgray}),
+    new MenuNodeText("video", "Video", {style: "text"}),
     new MenuNodeSelector("display", "Display", [
             ["Windowed", 0],
             ["Fullscreen", 1],
