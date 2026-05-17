@@ -1,6 +1,6 @@
 
 /// @ignore
-function __MenuCache() {
+function __SlateCache() {
     static data = {
         pages:  {},
         styles: {},
@@ -9,5 +9,5 @@ function __MenuCache() {
 }
 
 if (debug_mode) {
-    global.cache = __MenuCache()
+    global.cache = __SlateCache()
 }

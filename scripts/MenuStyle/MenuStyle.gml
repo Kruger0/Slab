@@ -75,28 +75,28 @@ function __MenuStyle(config = {}) constructor {
 }
 
 function MenuStyleGetId(name) {
-    static cache = __MenuCache();
+    static cache = __SlateCache();
     return cache.styles[$ name];
 }
 
 function MenuStyleCreate(name, config = {}) {
-    static cache = __MenuCache();
+    static cache = __SlateCache();
     cache.styles[$ name] = new __MenuStyle(config);
     return cache.styles[$ name];
 }
 
 function MenuStyleDelete(name) {
-    static cache = __MenuCache();
+    static cache = __SlateCache();
     struct_remove(cache.styles, name);
 }
 
 function MenuStyleExists(name) {
-    static cache = __MenuCache();
+    static cache = __SlateCache();
     return struct_exists(cache.styles, name);
 }
 
 function MenuStyleResolve(style) {
-    static cache = __MenuCache();
+    static cache = __SlateCache();
     if (is_string(style)) return variable_clone(cache.styles[$ style] ?? {});
     if (is_struct(style)) return style;
     return {};

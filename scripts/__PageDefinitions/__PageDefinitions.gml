@@ -1,11 +1,11 @@
 
 function MenuPageDelete(name) {
-    static cache = __MenuCache();
+    static cache = __SlateCache();
     delete cache.pages[$ name];
 }
 
 function MenuPageDefine(name, layer, nodes, config = {}) {
-    static cache = __MenuCache();
+    static cache = __SlateCache();
     cache.pages[$ name] = {layer, nodes, config};
 }
 

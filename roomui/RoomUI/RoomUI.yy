@@ -142,8 +142,8 @@
   "locked":false,
   "name":"RoomUI",
   "parent":{
-    "name":"GM-MenuSystem",
-    "path":"GM-MenuSystem.yyp",
+    "name":"Slate",
+    "path":"Slate.yyp",
   },
   "resourceType":"GMRoomUI",
   "resourceVersion":"2.0",

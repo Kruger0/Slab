@@ -178,7 +178,7 @@ function MenuManager(config = {}) constructor{
         return __pages[$ _page];
     }
     static AddPage = function(name) {
-        static cache = __MenuCache();
+        static cache = __SlateCache();
         var _data = cache.pages[$ name];
         var _page = new __MenuPage(_data, self);
         __pages[$ name] = _page;

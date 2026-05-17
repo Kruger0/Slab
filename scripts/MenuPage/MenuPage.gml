@@ -1,6 +1,6 @@
 
 function __MenuPage(data, manager) constructor{
-    static cache = __MenuCache();
+    static cache = __SlateCache();
     
     __layer         = data.layer;
     __nodeArray     = data.nodes;
