@@ -6,7 +6,7 @@
   "name":"scribble_typist",
   "parent":{
     "name":"Scribble",
-    "path":"folders/Dependencies/Scribble.yy",
+    "path":"folders/Slate/Dependencies/Scribble.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

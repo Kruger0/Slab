@@ -6,7 +6,7 @@
   "name":"__InputConfig",
   "parent":{
     "name":"Config",
-    "path":"folders/Dependencies/Input/Config.yy",
+    "path":"folders/Slate/Dependencies/Input/Config.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

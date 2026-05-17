@@ -5,17 +5,17 @@ function MenuNode(id, label, config = {}) constructor{
     __id            = id;
     __label         = label;
     __styleSource   = {};
-    __styleOverride = MenuBindStyle(config[$ "style"]);
-    __style         = MenuMergeStyle(__styleSource, __styleOverride);;
+    __styleOverride = MenuStyleResolve(config[$ "style"]);
+    __style         = MenuStyleMerge(__styleSource, __styleOverride);;
     __type          = MENU_NODE_BLANK;
     __state         = MENU_STATE.BASE;
     
     __pending       = false;
     __dragging      = false;
     __focused       = false;    // If the node has focus (either by keyboard or mouse)
+    __enabled       = true;     // If the node can run its callback when selected    __interactive   = true;     // If the node can have focus (either by keyboard or mouse)
     
     __interactive   = true;     // If the node can have focus (either by keyboard or mouse)
-    __enabled       = true;     // If the node can run its callback when selected
     __visible       = true;     // If the node is rendered and calculated on the layout spacing
     
     __manager       = undefined;
@@ -48,13 +48,6 @@ function MenuNode(id, label, config = {}) constructor{
     #endregion
     
     #region Style
-    colors      = config[$ "colors"] ?? {
-        base        : #808080,
-        focused     : #FFFFFF,
-        pending     : #FF0000,
-        disabled    : #606060
-    };
-    alpha       = config[$ "alpha"] ?? 1;
     animSpeed   = config[$ "animSpeed"] ?? 0.5;
     __xOffAnim      = new MenuAnimTrack(ac_test, "xOff", animSpeed);
     __yOffAnim      = new MenuAnimTrack(ac_test, "yOff", animSpeed);
@@ -90,6 +83,9 @@ function MenuNode(id, label, config = {}) constructor{
     static __Update = function(focused){
         // Input
         if (!is_undefined(focused)) SetFocused(focused);
+        
+        // State
+        __UpdateState();
         
         // Animation
         __xOffAnim.Update();
@@ -146,7 +142,6 @@ function MenuNode(id, label, config = {}) constructor{
         }
     }
     static __Render = function() {
-        
         // Custom
         if (__zoneCount < 1) return;
         for (var i = 0, n = array_length(__onRenderCb); i < n; i++) {
@@ -188,8 +183,8 @@ function MenuNode(id, label, config = {}) constructor{
         // Load
         __page = page;
         __manager = page.__manager;
-        __styleSource = MenuBindStyle(page.__style);
-        __style = MenuMergeStyle(__styleSource, __styleOverride);
+        __styleSource = MenuStyleResolve(page.__style);
+        __style = MenuStyleMerge(__styleSource, __styleOverride);
         
         // Animate
         __xSclAnim.Snap(0.8).Play(1);
@@ -270,7 +265,16 @@ function MenuNode(id, label, config = {}) constructor{
     }
     static __SetState = function(state) {
         if (__state == state) return;
-        __state = state
+        __state = state;
+    }
+    static __ResolveState = function() {
+        if (!__enabled) return MENU_STATE.DISABLED;
+        if (__pending)  return MENU_STATE.PENDING;
+        if (__focused)  return MENU_STATE.FOCUSED;
+        return MENU_STATE.BASE;
+    }
+    static __UpdateState = function() {
+        __SetState(__ResolveState());
     }
     
     static HandleAction = function(action) {};
@@ -283,29 +287,28 @@ function MenuNodeText(id, label, config = {}) : MenuNode(id, label, config) cons
     __label = label;
     __interactive = false;
     
-    __bgColorBase = config[$ "bgColorBase"];
-    __bgSpriteBase = config[$ "bgSpriteBase"];
-    
     OnRender(function() {
         var _body = GetZoneData(MENU_ZONE_BODY);
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
         var _h = _body.h;
-        var _c = #202020;//colors.disabled;
+        var _c = __style.__GetColor(__state);
+        var _a = __style.__GetAlpha(__state);
         var _t = __label;
         
         // Background
-        if (!is_undefined(__bgSpriteBase)) {
-            draw_sprite_stretched_ext(__bgSpriteBase, 0, _x, _y, _w, _h, __bgColorBase ?? c_white, 1);
-        } else if (!is_undefined(__bgColorBase)) {
-            draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, __bgColorBase, 1);
+        var _col = __style.__GetBgColor(__state);
+        draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+        var _spr = __style.__GetBgSprite(__state);
+        if (!is_undefined(_spr)) {
+            draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
         }
         
         // Label
         scribble(_t, __id)
             .align(__hAlign, __vAlign)
-            .blend(_c, __alpha)
+            .blend(_c, _a)
             .transform(__xScl, __yScl, __angle)
             .draw(__xPos, __yPos);
     });
@@ -322,15 +325,14 @@ function MenuNodeSeparator(id, label = id, config = {}) : MenuNode(id, label, co
     
     OnRender(function() {
         if (!__drawLine) return;;
-        var _c = colors.base;
         var _body = GetZoneData(MENU_ZONE_BODY);
         var _x = _body.x;
         var _y = _body.y;
         var _w = _body.w;
         var _h = _body.h;
-        draw_set_alpha(__alpha);
-        draw_rectangle_colour(_x, _y, _x + _w, _y + _h, _c, _c, _c, _c, false);
-        draw_set_alpha(1);
+        var _c = __style.__GetColor(__state);
+        var _a = __style.__GetAlpha(__state);
+        draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _c, _a);
     });
 }
 
@@ -363,14 +365,22 @@ function MenuNodeButton(id, label, callback, config = {}) : MenuNode(id, label, 
         var _y = _body.y;
         var _w = _body.w;
         var _h = _body.h;
+        var _c = __style.__GetColor(__state);
+        var _a = __style.__GetAlpha(__state);
         var _t = __label;
+        
         // Background
+        var _col = __style.__GetBgColor(__state);
+        draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+        var _spr = __style.__GetBgSprite(__state);
+        if (!is_undefined(_spr)) {
+            draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+        }
         
         // Label
-        var _c = (__focused ? __style.colorFocused : __style.colorBase);
         scribble(_t, __id)
             .align(__hAlign, __vAlign)
-            .blend(_c, __alpha)
+            .blend(_c, _a)
             .transform(__xScl, __yScl, __angle)
             .draw(__xPos, __yPos);
     });
@@ -406,15 +416,22 @@ function MenuNodeConfirm(id, label, callback, config = {}) : MenuNode(id, label,
         var _y = _body.y;
         var _w = _body.w;
         var _h = _body.h;
-        var _c = (__focused ? (__pending ? colors.pending : colors.focused) : colors.base);
+        var _c = __style.__GetColor(__state);
+        var _a = __style.__GetAlpha(__state);
         var _t = (__pending ? __message : __label);
         
         // Background
+        var _col = __style.__GetBgColor(__state);
+        draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+        var _spr = __style.__GetBgSprite(__state);
+        if (!is_undefined(_spr)) {
+            draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+        }
         
         // Label
         scribble(_t, __id)
             .align(__hAlign, __vAlign)
-            .blend(_c, __alpha)
+            .blend(_c, _a)
             .transform(__xScl, __yScl, __angle)
             .draw(__xPos, __yPos);
     });
@@ -499,34 +516,45 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
             var _y = _zone.y;
             var _w = _zone.w;
             var _h = _zone.h;
-            var _c = (__focused ? colors.focused : colors.base);
+            var _c = __style.__GetColor(__state);
+            var _a = __style.__GetAlpha(__state);
             var _t = __label;
+            
+            // Background
+            var _col = __style.__GetBgColor(__state);
+            draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+            var _spr = __style.__GetBgSprite(__state);
+            if (!is_undefined(_spr)) {
+                draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+            }
+            
+            // Content
             switch (_zone.type) {
                 case MENU_ZONE_BODY: {
                     // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
-                        .blend(_c, __alpha)
+                        .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(__xPos, __yPos);
                 } break;
                 case MENU_ZONE_LEFT: {
                     if (!__optionCycle && __optionIndex == 0) break;
-                    _c = _zone.active ? colors.focused : colors.base;
+                    _c = __style.__GetColor(_zone.active ? MENU_STATE.FOCUSED : MENU_STATE.BASE);
                     _t = "<";
                     scribble(_t, __id)
                         .align(1, 1)
-                        .blend(_c, __alpha)
+                        .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(_x+_w/2, _y+_h/2);
                 } break;
                 case MENU_ZONE_RIGHT: {
                     if (!__optionCycle && __optionIndex == __optionCount-1) break;
+                    _c = __style.__GetColor(_zone.active ? MENU_STATE.FOCUSED : MENU_STATE.BASE);
                     _t = ">";
-                    _c = _zone.active ? colors.focused : colors.base;
                     scribble(_t, __id)
                         .align(1, 1)
-                        .blend(_c, __alpha)
+                        .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(_x+_w/2, _y+_h/2);
                 } break;
@@ -534,7 +562,7 @@ function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config =
                     _t = string(GetActiveOption()[0]);
                     scribble(_t, __id)
                         .align(1, 1)
-                        .blend(_c, __alpha)
+                        .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(_x+_w/2+__xOffAnim.GetValue(), _y+_h/2);
                 } break;
@@ -584,14 +612,25 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
             var _y = _zone.y;
             var _w = _zone.w;
             var _h = _zone.h;
-            var _c = (__focused ? colors.focused : colors.base);
+            var _c = __style.__GetColor(__state);
+            var _a = __style.__GetAlpha(__state);
             var _t = __label;
+            
+            // Background
+            var _col = __style.__GetBgColor(__state);
+            draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+            var _spr = __style.__GetBgSprite(__state);
+            if (!is_undefined(_spr)) {
+                draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+            }
+            
+            // Content
             switch (_zone.type) {
                 case MENU_ZONE_BODY: {
                     // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
-                        .blend(_c, __alpha)
+                        .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(__xPos, __yPos);
                 } break;
@@ -599,7 +638,7 @@ function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : Me
                     _t = (__value ? "[[X]" : "[[   ]");
                     scribble(_t, __id)
                         .align(1, 1)
-                        .blend(_c, __alpha)
+                        .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(_x+_w/2, _y+_h/2);
                 } break
@@ -667,21 +706,32 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
             var _y = _zone.y;
             var _w = _zone.w;
             var _h = _zone.h;
-            var _c = (__focused ? colors.focused : colors.base);
+            var _c = __style.__GetColor(__state);
+            var _a = __style.__GetAlpha(__state);
             var _t = __label;
+            
+            // Background
+            var _col = __style.__GetBgColor(__state);
+            draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+            var _spr = __style.__GetBgSprite(__state);
+            if (!is_undefined(_spr)) {
+                draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+            }
+            
+            // Content
             switch (_zone.type) {
                 case MENU_ZONE_BODY: {
                     // Label
                     scribble(_t, __id)
                         .align(__hAlign, __vAlign)
-                        .blend(_c, __alpha)
+                        .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(__xPos, __yPos);
                 } break;
                 case MENU_ZONE_VALUE: {
                     scribble(FormatValue(__value), __id)
                         .align(2, __vAlign)
-                        .blend(_c, __alpha)
+                        .blend(_c, _a)
                         .transform(__xScl, __yScl, __angle)
                         .draw(_x+_w, __yPos);
                 } break
@@ -703,11 +753,10 @@ function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax,
                     gpu_set_stencil_pass(stencilop_keep);
                     
                     // Background
-                    _c = #404040;
-                    draw_rectangle_colour(_x, _y, _x+_w, _y+_h, _c, _c, _c, _c, false);
+                    var _cbg = __style.__GetColor(MENU_STATE.DISABLED);
+                    draw_rectangle_colour(_x, _y, _x+_w, _y+_h, _cbg, _cbg, _cbg, _cbg, false);
                     
                     // Slider
-                    _c = (__focused ? colors.focused : colors.base)
                     var _n = (__value - (__valueMin)) / ((__valueMax) - (__valueMin));
                     draw_rectangle_colour(_x, _y, _x+_w*_n, _y+_h, _c, _c, _c, _c, false);
                     

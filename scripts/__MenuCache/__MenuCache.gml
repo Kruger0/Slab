@@ -8,4 +8,6 @@ function __MenuCache() {
     return data;
 }
 
-global.cache = __MenuCache()
+if (debug_mode) {
+    global.cache = __MenuCache()
+}

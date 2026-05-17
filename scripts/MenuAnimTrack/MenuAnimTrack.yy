@@ -6,7 +6,7 @@
   "name":"MenuAnimTrack",
   "parent":{
     "name":"Classes",
-    "path":"folders/Menu System/Private/Classes.yy",
+    "path":"folders/Slate/Private/Classes.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

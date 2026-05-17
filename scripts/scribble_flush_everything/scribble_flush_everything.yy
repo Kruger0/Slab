@@ -6,7 +6,7 @@
   "name":"scribble_flush_everything",
   "parent":{
     "name":"Miscellaneous",
-    "path":"folders/Dependencies/Scribble/Miscellaneous.yy",
+    "path":"folders/Slate/Dependencies/Scribble/Miscellaneous.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

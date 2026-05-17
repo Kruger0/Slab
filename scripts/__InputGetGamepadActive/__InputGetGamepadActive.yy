@@ -6,7 +6,7 @@
   "name":"__InputGetGamepadActive",
   "parent":{
     "name":"Device Scanning",
-    "path":"folders/Dependencies/Input/(System)/Device Scanning.yy",
+    "path":"folders/Slate/Dependencies/Input/(System)/Device Scanning.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

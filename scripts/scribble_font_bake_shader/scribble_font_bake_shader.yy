@@ -6,7 +6,7 @@
   "name":"scribble_font_bake_shader",
   "parent":{
     "name":"Font Modification",
-    "path":"folders/Dependencies/Scribble/Font Modification.yy",
+    "path":"folders/Slate/Dependencies/Scribble/Font Modification.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

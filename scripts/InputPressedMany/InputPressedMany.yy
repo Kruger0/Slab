@@ -6,7 +6,7 @@
   "name":"InputPressedMany",
   "parent":{
     "name":"Many",
-    "path":"folders/Dependencies/Input/Checkers/Many.yy",
+    "path":"folders/Slate/Dependencies/Input/Checkers/Many.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

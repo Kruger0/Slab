@@ -6,7 +6,7 @@
   "name":"__MenuCache",
   "parent":{
     "name":"Private",
-    "path":"folders/Menu System/Private.yy",
+    "path":"folders/Slate/Private.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",
