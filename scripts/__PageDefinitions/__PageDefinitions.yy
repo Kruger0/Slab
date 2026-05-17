@@ -6,7 +6,7 @@
   "name":"__PageDefinitions",
   "parent":{
     "name":"Public",
-    "path":"folders/Slate/Public.yy",
+    "path":"folders/Slab/Public.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

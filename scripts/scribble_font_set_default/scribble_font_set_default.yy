@@ -6,7 +6,7 @@
   "name":"scribble_font_set_default",
   "parent":{
     "name":"Fonts",
-    "path":"folders/Slate/Dependencies/Scribble/Fonts.yy",
+    "path":"folders/Slab/Dependencies/Scribble/Fonts.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

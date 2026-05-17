@@ -6,7 +6,7 @@
   "name":"InputXYOldest",
   "parent":{
     "name":"Clusters",
-    "path":"folders/Slate/Dependencies/Input/Checkers/Clusters.yy",
+    "path":"folders/Slab/Dependencies/Input/Checkers/Clusters.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

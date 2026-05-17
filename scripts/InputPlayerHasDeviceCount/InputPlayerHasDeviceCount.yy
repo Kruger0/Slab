@@ -6,7 +6,7 @@
   "name":"InputPlayerHasDeviceCount",
   "parent":{
     "name":"Player",
-    "path":"folders/Slate/Dependencies/Input/Player.yy",
+    "path":"folders/Slab/Dependencies/Input/Player.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

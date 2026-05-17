@@ -6,7 +6,7 @@
   "name":"InputPlugInGamepadBlock",
   "parent":{
     "name":"Gamepads",
-    "path":"folders/Slate/Dependencies/Input/Plug-In API/Gamepads.yy",
+    "path":"folders/Slab/Dependencies/Input/Plug-In API/Gamepads.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -6,7 +6,7 @@
   "name":"scribble_font_force_bilinear_filtering",
   "parent":{
     "name":"Font Modification",
-    "path":"folders/Slate/Dependencies/Scribble/Font Modification.yy",
+    "path":"folders/Slab/Dependencies/Scribble/Font Modification.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

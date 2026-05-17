@@ -6,7 +6,7 @@
   "name":"__InputRestart",
   "parent":{
     "name":"(System)",
-    "path":"folders/Slate/Dependencies/Input/(System).yy",
+    "path":"folders/Slab/Dependencies/Input/(System).yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

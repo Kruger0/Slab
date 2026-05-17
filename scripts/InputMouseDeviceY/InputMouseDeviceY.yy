@@ -6,7 +6,7 @@
   "name":"InputMouseDeviceY",
   "parent":{
     "name":"Mouse (& Touch)",
-    "path":"folders/Slate/Dependencies/Input/Mouse (& Touch).yy",
+    "path":"folders/Slab/Dependencies/Input/Mouse (& Touch).yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

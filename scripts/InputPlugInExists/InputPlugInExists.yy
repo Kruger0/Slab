@@ -6,7 +6,7 @@
   "name":"InputPlugInExists",
   "parent":{
     "name":"Plug-In API",
-    "path":"folders/Slate/Dependencies/Input/Plug-In API.yy",
+    "path":"folders/Slab/Dependencies/Input/Plug-In API.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

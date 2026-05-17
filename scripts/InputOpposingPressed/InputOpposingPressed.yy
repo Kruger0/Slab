@@ -6,7 +6,7 @@
   "name":"InputOpposingPressed",
   "parent":{
     "name":"Advanced",
-    "path":"folders/Slate/Dependencies/Input/Checkers/Advanced.yy",
+    "path":"folders/Slab/Dependencies/Input/Checkers/Advanced.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

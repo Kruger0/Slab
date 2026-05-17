@@ -6,7 +6,7 @@
   "name":"__SlateConstants",
   "parent":{
     "name":"Private",
-    "path":"folders/Slate/Private.yy",
+    "path":"folders/Slab/Private.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

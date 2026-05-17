@@ -6,7 +6,7 @@
   "name":"__InputRegisterCollect",
   "parent":{
     "name":"Callbacks",
-    "path":"folders/Slate/Dependencies/Input/(System)/Callbacks.yy",
+    "path":"folders/Slab/Dependencies/Input/(System)/Callbacks.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

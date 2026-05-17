@@ -6,7 +6,7 @@
   "name":"InputDeviceSetRebinding",
   "parent":{
     "name":"Rebinding",
-    "path":"folders/Slate/Dependencies/Input/Rebinding.yy",
+    "path":"folders/Slab/Dependencies/Input/Rebinding.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

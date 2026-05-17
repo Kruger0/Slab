@@ -6,7 +6,7 @@
   "name":"MenuManager",
   "parent":{
     "name":"Classes",
-    "path":"folders/Slate/Private/Classes.yy",
+    "path":"folders/Slab/Private/Classes.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",
