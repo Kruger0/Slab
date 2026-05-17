@@ -6,7 +6,7 @@
   "name":"scribble_anim_wave",
   "parent":{
     "name":"Animation",
-    "path":"folders/Dependencies/Scribble/Animation.yy",
+    "path":"folders/Slate/Dependencies/Scribble/Animation.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

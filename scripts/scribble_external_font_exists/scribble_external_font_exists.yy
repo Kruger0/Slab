@@ -6,7 +6,7 @@
   "name":"scribble_external_font_exists",
   "parent":{
     "name":"External Assets",
-    "path":"folders/Dependencies/Scribble/External Assets.yy",
+    "path":"folders/Slate/Dependencies/Scribble/External Assets.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

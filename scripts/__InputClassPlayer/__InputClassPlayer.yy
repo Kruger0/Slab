@@ -6,7 +6,7 @@
   "name":"__InputClassPlayer",
   "parent":{
     "name":"Classes",
-    "path":"folders/Dependencies/Input/(System)/Classes.yy",
+    "path":"folders/Slate/Dependencies/Input/(System)/Classes.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -6,7 +6,7 @@
   "name":"__scribble_gen_9_build_vbuff_grids",
   "parent":{
     "name":"Generator",
-    "path":"folders/Dependencies/Scribble/(System - don't call these functions)/Generator.yy",
+    "path":"folders/Slate/Dependencies/Scribble/(System - don't call these functions)/Generator.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

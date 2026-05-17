@@ -1,404 +1,771 @@
 
-
-function MenuNode(name, config = {}) constructor{
-    self.name   = name;
-    
-    #region Public
-    colors      = config[$ "colors"] ?? {
-        base        : #FFFFFF,
-        focused     : #FFFF00,
-        pending     : #FF0000,
-        disabled    : #606060
-    };
-    alpha       = config[$ "alpha"] ?? 1;
-    enabled     = config[$ "enabled"] ?? true;
-    hAlign      = config[$ "hAlign"] ?? fa_center;
-    vAlign      = config[$ "vAlign"] ?? fa_middle;
-    animSpeed   = config[$ "animSpeed"] ?? 0.5;
-    #endregion
+function MenuNode(id, label, config = {}) constructor{
     
     #region Private
-    isFocused   = false;
-    interactive = true;
-    angle       = 0;
-    xPos        = 0;
-    yPos        = 0;
-    xScl        = 1;
-    yScl        = 1;
+    __id            = id;
+    __label         = label;
+    __styleSource   = {};
+    __styleOverride = MenuStyleResolve(config[$ "style"]);
+    __style         = MenuStyleMerge(__styleSource, __styleOverride);;
+    __type          = MENU_NODE_BLANK;
+    __state         = MENU_STATE.BASE;
     
-    xOffAnim    = new AnimTrack(ac_test, "xOff", animSpeed);
-    yOffAnim    = new AnimTrack(ac_test, "yOff", animSpeed);
-    xSclAnim    = new AnimTrack(ac_test, "xScl", animSpeed);
-    ySclAnim    = new AnimTrack(ac_test, "yScl", animSpeed);
-    angleAnim   = new AnimTrack(ac_test, "angle", animSpeed);
+    __pending       = false;
+    __dragging      = false;
+    __focused       = false;    // If the node has focus (either by keyboard or mouse)
+    __enabled       = true;     // If the node can run its callback when selected    __interactive   = true;     // If the node can have focus (either by keyboard or mouse)
     
-    onUpdateCb  = [];
-    onRenderCb  = [];
-    onSelectCb  = [];
+    __interactive   = true;     // If the node can have focus (either by keyboard or mouse)
+    __visible       = true;     // If the node is rendered and calculated on the layout spacing
     
-    zones       = [];
+    __manager       = undefined;
+    __page          = undefined;
+    
+    __value         = undefined;
+    
+    __hAlign        = fa_left;  // Coordinate position relative to the node
+    __vAlign        = fa_middle;
+    __xAnchor       = 0;
+    __yAnchor       = 0;
+    __angle         = 0;
+    __xPos          = 0;
+    __yPos          = 0;
+    __xScl          = 1;
+    __yScl          = 1;
+    
+    __alpha         = 1;
+    
+    __zoneArray     = [];
+    __zoneCount     = 0;
+    __zoneActive    = "";
+    __zoneNode      = undefined;
+    
+    __onUpdateCb    = [];
+    __onRenderCb    = [];
+    __onSelectCb    = [];
+    __onEnterCb     = [];
+    __onLeaveCb     = [];
+    #endregion
+    
+    #region Style
+    animSpeed   = config[$ "animSpeed"] ?? 0.5;
+    __xOffAnim      = new MenuAnimTrack(ac_test, "xOff", animSpeed);
+    __yOffAnim      = new MenuAnimTrack(ac_test, "yOff", animSpeed);
+    __xSclAnim      = new MenuAnimTrack(ac_test, "xScl", animSpeed);
+    __ySclAnim      = new MenuAnimTrack(ac_test, "yScl", animSpeed);
+    __angleAnim     = new MenuAnimTrack(ac_test, "angle", animSpeed);
     #endregion
     
     // Methods
-    static PagePush = function(page) {
-        mng.PagePush(page);
+    static PushPage = function(page) {
+        __manager.PushPage(page);
     }
-    static PagePop = function() {
-        mng.PagePop();
+    static PopPage = function() {
+        __manager.PopPage();
     }
     
     static OnUpdate = function(callback, data = undefined) {
-        array_push(onUpdateCb, {callback, data});
+        array_push(__onUpdateCb, {callback, data});
     }
     static OnRender = function(callback, data = undefined) {
-        array_push(onRenderCb, {callback, data});
+        array_push(__onRenderCb, {callback, data});
     }
     static OnSelect = function(callback, data = undefined) {
-        array_push(onSelectCb, {callback, data});
+        array_push(__onSelectCb, {callback, data});
+    }
+    static OnEnter = function(callback, data = undefined) {
+        array_push(__onEnterCb, {callback, data});
+    }
+    static OnLeave = function(callback, data = undefined) {
+        array_push(__onLeaveCb, {callback, data});
     }
     
-    static Update = function(isFocused){
+    static __Update = function(focused){
         // Input
-        if (!is_undefined(isFocused)) SetFocused(isFocused);
+        if (!is_undefined(focused)) SetFocused(focused);
+        
+        // State
+        __UpdateState();
         
         // Animation
-        xOffAnim.Update();
-        yOffAnim.Update();
-        xSclAnim.Update();
-        ySclAnim.Update();
+        __xOffAnim.Update();
+        __yOffAnim.Update();
+        __xSclAnim.Update();
+        __ySclAnim.Update();
+        __angleAnim.Update();
+        __xScl = __xSclAnim.GetValue();
+        __yScl = __ySclAnim.GetValue();
+        
+        // Aligmnet
+        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _xOff = __xOffAnim.GetValue();
+        var _yOff = __yOffAnim.GetValue();
+        
+        switch (__hAlign) {
+            case fa_left:   __xPos = _body.x; break;
+            case fa_center: __xPos = _xOff + _body.x + (_body.w / 2); break;
+            case fa_right:  __xPos = _xOff + _body.x + _body.w; break;
+        }
+        switch (__vAlign) {
+            case fa_top:    __yPos = _yOff + _body.y; break;
+            case fa_middle: __yPos = _yOff + _body.y + (_body.h / 2); break;
+            case fa_bottom: __yPos = _yOff + _body.y + _body.n; break;
+        }
+        
+        // Active Zone
+        __zoneActive = "";
+        var _zoneActive = undefined;
+        var _zCurr = -1;
+        for (var i = 0, n = __zoneCount; i < n; i++) {
+            var _zoneCurr = __zoneArray[i];
+            _zoneCurr.active = false;
+            var _x1 = _zoneCurr.x;
+            var _y1 = _zoneCurr.y;
+            var _x2 = _x1+_zoneCurr.w;
+            var _y2 = _y1+_zoneCurr.h;
+            if (point_in_rectangle(__manager.__mouseX, __manager.__mouseY, _x1, _y1, _x2, _y2)) {
+                if (_zoneCurr.z > _zCurr) {
+                    _zCurr = _zoneCurr.z;
+                    _zoneActive = _zoneCurr;
+                }
+            }
+        }
+        if (!is_undefined(_zoneActive)) {
+            _zoneActive.active = true;
+            __zoneActive = _zoneActive.type;
+        }
         
         // Custom
-        for (var i = 0, n = array_length(onUpdateCb); i < n; i++) {
-            var _entry = onUpdateCb[i];
+        for (var i = 0, n = array_length(__onUpdateCb); i < n; i++) {
+            var _entry = __onUpdateCb[i];
             _entry.callback(_entry.data);
         }
     }
-    static Render = function(ctx) {
-        UpdateLayout(ctx);
-        
+    static __Render = function() {
         // Custom
-        for (var i = 0, n = array_length(onRenderCb); i < n; i++) {
-            var _entry = onRenderCb[i];
+        if (__zoneCount < 1) return;
+        for (var i = 0, n = array_length(__onRenderCb); i < n; i++) {
+            var _entry = __onRenderCb[i];
             _entry.callback(_entry.data);
         }
         
         // Debug
         if (global.debug) {
-            var _activeZone = ZoneGetActive();
-            for (var i = 0, n = array_length(zones); i < n; i++) {
-                var _z = zones[i];
-                var _c = (_activeZone == _z.name ? #00FF00 : #0000FF)
-                draw_rectangle_color(_z.x, _z.y, _z.x + _z.w, _z.y + _z.h, _c, _c, _c, _c, true);
+            for (var i = 0; i < __zoneCount; i++) {
+                var _zone = __zoneArray[i];
+                var _x = _zone.x;
+                var _y = _zone.y;
+                var _w = _zone.w;
+                var _h = _zone.h;
+                var _c1 = #FF0000;
+                var _c2 = #00FF00
+                draw_rectangle_colour(_x, _y, _x+_w, _y+_h, _c1, _c2, _c1, _c2, true);
             }
-            draw_circle_color(xPos, yPos, 2, c_red, c_red, false);
-            draw_text(xPos + 100, yPos, _activeZone);
+            var _c1 = #000000;
+            var _c2 = #FFFFFF;
+            draw_circle_color(__xPos, __yPos, 6, _c1, _c2, false);
+            draw_circle_color(__xPos, __yPos, 6, _c1, _c1, true);
         }
     }
-    static Select = function() {
+    static __Select = function() {
         // Custom
-        for (var i = 0, n = array_length(onSelectCb); i < n; i++) {
-            var _e = onSelectCb[i];
+        for (var i = 0, n = array_length(__onSelectCb); i < n; i++) {
+            var _e = __onSelectCb[i];
             _e.callback(_e.data);
         }
         
         // Debug
         if (global.debug) {
-            show_debug_message($"{instanceof(self)} '{name}' - Select()");
+            show_debug_message($"{instanceof(self)} '{__label}' - Select()");
         }
     }
-    
-    static UpdateLayout = function(ctx) {
-        switch (hAlign) {
-            case fa_left:   xPos = ctx.x; break;
-            case fa_center: xPos = ctx.x + (ctx.w / 2) * ctx.scale; break;
-            case fa_right:  xPos = ctx.x + ctx.w * ctx.scale; break;
-        }
-        switch (vAlign) {
-            case fa_top:    yPos = ctx.y; break;
-            case fa_middle: yPos = ctx.y + (ctx.h / 2) * ctx.scale; break;
-            case fa_bottom: yPos = ctx.y + ctx.h * ctx.scale; break;
-        }
-        xPos += xOffAnim.GetValue();
-        yPos += yOffAnim.GetValue();
-        xScl  = xSclAnim.GetValue() * ctx.scale;
-        yScl  = ySclAnim.GetValue() * ctx.scale;
+    static __Enter = function(page) {
+        // Load
+        __page = page;
+        __manager = page.__manager;
+        __styleSource = MenuStyleResolve(page.__style);
+        __style = MenuStyleMerge(__styleSource, __styleOverride);
         
-        // Base zone — subclasses will override or extend this
-        zones = [
-            {
-                name: "body",
-                layer : 0,
-                x: ctx.x,
-                y: ctx.y,
-                w: ctx.w * ctx.scale,
-                h: ctx.h * ctx.scale,
-            },
-            {
-                name: "arrowLeft",
-                layer : 1,
-                x: ctx.x,
-                y: ctx.y,
-                w: ctx.w*0.2 * ctx.scale,
-                h: ctx.h * ctx.scale,
-            },
-            {
-                name: "arrowRight",
-                layer : 1,
-                x: ctx.x + ctx.w*0.8,
-                y: ctx.y,
-                w: ctx.w*0.2 * ctx.scale,
-                h: ctx.h * ctx.scale,
-            },
-        ];
+        // Animate
+        __xSclAnim.Snap(0.8).Play(1);
+        __ySclAnim.Snap(0.8).Play(1);
+        
+        // Custom
+        for (var i = 0, n = array_length(__onEnterCb); i < n; i++) {
+            var _entry = __onEnterCb[i];
+            _entry.callback(_entry.data);
+        }
+    }
+    static __Leave = function() {
+        __xOffAnim.Snap(0);
+        __yOffAnim.Snap(0);
+        __xSclAnim.Snap(1);
+        __ySclAnim.Snap(1);
+        
+        __focused   = false;
+        __pending   = false;
+        __dragging  = false;
+        
+        // Custom
+        for (var i = 0, n = array_length(__onLeaveCb); i < n; i++) {
+            var _entry = __onLeaveCb[i];
+            _entry.callback(_entry.data);
+        }
     }
     
     static ContainsPoint = function(px, py) {
-        for (var i = 0, n = array_length(zones); i < n; i++) {
-            var _z = zones[i];
-            if (point_in_rectangle(px, py, _z.x, _z.y, _z.x + _z.w, _z.y + _z.h)) {
+        for (var i = 0; i < __zoneCount; i++) {
+            var _zone = __zoneArray[i];
+            var _x1 = _zone.x;
+            var _y1 = _zone.y;
+            var _x2 = _x1+_zone.w;
+            var _y2 = _y1+_zone.h;
+            if (point_in_rectangle(px, py, _x1, _y1, _x2, _y2)) {
                 return true;
             }
         }
         return false;
     }
     
-    static ZoneGetActive = function() {
-        var _mx = mng.mx - mng.x;
-        var _my = mng.my - mng.y;
-        var _active = "";
-        var _layer  = -1;
-        for (var i = 0, n = array_length(zones); i < n; i++) {
-            var _z = zones[i];
-            if (point_in_rectangle(_mx, _my, _z.x, _z.y, _z.x + _z.w, _z.y + _z.h)) {
-                if (_z.layer > _layer) {
-                    _layer = _z.layer;
-                    _active = _z.name;
-                }
+    static GetZoneData = function(type) {
+        var _data = undefined
+        for (var i = 0; i < __zoneCount; i++) {
+            var _zone = __zoneArray[i];
+            if (_zone.type == type) {
+                _data = _zone;
+                break;
             }
         }
-        return _active;
+        return _data;
     }
     
     static SetFocused = function(focused) {
-        if (self.isFocused == focused) exit;
-        self.isFocused = focused;
-        if (focused) OnFocusIn();
-        else OnFocusOut();
+        if (__focused == focused) exit;
+        __focused = focused;
+        if (__focused) __OnFocusIn();
+        else __OnFocusOut();
     }
     
-    static OnFocusIn = function(){
-        xOffAnim.Play(0);
-        yOffAnim.Play(0);
-        xSclAnim.Play(1.2);
-        ySclAnim.Play(1.2);
+    static __OnFocusIn = function(){
+        __xOffAnim.Play(0);
+        __yOffAnim.Play(0);
+        __xSclAnim.Play(1.2);
+        __ySclAnim.Play(1.2);
     };
-    static OnFocusOut = function(){
-        xOffAnim.Play(0);
-        yOffAnim.Play(0);
-        xSclAnim.Play(1);
-        ySclAnim.Play(1);
-        pending = false;
+    static __OnFocusOut = function(){
+        __xOffAnim.Play(0);
+        __yOffAnim.Play(0);
+        __xSclAnim.Play(1);
+        __ySclAnim.Play(1);
+        __pending = false;
     };
     
-    static ActionLeft = function() {
-        
+    static __GetState = function() {
+        return __state;
     }
-    static ActionRight = function() {
+    static __SetState = function(state) {
+        if (__state == state) return;
+        __state = state;
+    }
+    static __ResolveState = function() {
+        if (!__enabled) return MENU_STATE.DISABLED;
+        if (__pending)  return MENU_STATE.PENDING;
+        if (__focused)  return MENU_STATE.FOCUSED;
+        return MENU_STATE.BASE;
+    }
+    static __UpdateState = function() {
+        __SetState(__ResolveState());
+    }
     
-    }
-    static ActionUp = function() {
+    static HandleAction = function(action) {};
+    static HandleMouse = function(mouse) {};
+    
+}
+
+function MenuNodeText(id, label, config = {}) : MenuNode(id, label, config) constructor {
+    __type = MENU_NODE_TEXT;
+    __label = label;
+    __interactive = false;
+    
+    OnRender(function() {
+        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _x = _body.x;
+        var _y = _body.y;
+        var _w = _body.w;
+        var _h = _body.h;
+        var _c = __style.__GetColor(__state);
+        var _a = __style.__GetAlpha(__state);
+        var _t = __label;
         
-    }
-    static ActionDown = function() {
+        // Background
+        var _col = __style.__GetBgColor(__state);
+        draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+        var _spr = __style.__GetBgSprite(__state);
+        if (!is_undefined(_spr)) {
+            draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+        }
         
+        // Label
+        scribble(_t, __id)
+            .align(__hAlign, __vAlign)
+            .blend(_c, _a)
+            .transform(__xScl, __yScl, __angle)
+            .draw(__xPos, __yPos);
+    });
+}
+
+function MenuNodeSeparator(id, label = id, config = {}) : MenuNode(id, label, config) constructor {
+    __type = MENU_NODE_SEPARATOR;
+    __label = label;
+    __interactive = false;
+    
+    __drawLine = config[$ "drawLine"] ?? true;
+    __height = config[$ "height"] ?? 4;
+    __width = config[$ "width"] ?? 1;
+    
+    OnRender(function() {
+        if (!__drawLine) return;;
+        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _x = _body.x;
+        var _y = _body.y;
+        var _w = _body.w;
+        var _h = _body.h;
+        var _c = __style.__GetColor(__state);
+        var _a = __style.__GetAlpha(__state);
+        draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _c, _a);
+    });
+}
+
+function MenuNodeSprite(id, label, sprite, config = {}) : MenuNode(id, label, config) constructor {
+    __type = MENU_NODE_SPRITE;
+    __label = label;
+}
+
+function MenuNodeButton(id, label, callback, config = {}) : MenuNode(id, label, config) constructor {
+    __type = MENU_NODE_BUTTON;
+    __label = label;
+    
+    Callback = method(self, callback ?? function(){});
+    
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) __Select();
+    }
+    static HandleAction = function(action) {
+        if (action.selectPressed) __Select();
     }
     
-    static InputHandle = function(select, xDelta, yDelta) {
-        if (xDelta < 0) ActionLeft();
-        if (xDelta > 0) ActionRight();
-        if (yDelta < 0) ActionUp();
-        if (yDelta > 0) ActionDown();
-        if (select) Select();
+    OnSelect(function() {
+        __xSclAnim.Snap(1).Play(1.2);
+        __ySclAnim.Snap(1).Play(1.2);
+        Callback();
+    });
+    OnRender(function() {
+        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _x = _body.x;
+        var _y = _body.y;
+        var _w = _body.w;
+        var _h = _body.h;
+        var _c = __style.__GetColor(__state);
+        var _a = __style.__GetAlpha(__state);
+        var _t = __label;
+        
+        // Background
+        var _col = __style.__GetBgColor(__state);
+        draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+        var _spr = __style.__GetBgSprite(__state);
+        if (!is_undefined(_spr)) {
+            draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+        }
+        
+        // Label
+        scribble(_t, __id)
+            .align(__hAlign, __vAlign)
+            .blend(_c, _a)
+            .transform(__xScl, __yScl, __angle)
+            .draw(__xPos, __yPos);
+    });
+}
+
+function MenuNodeConfirm(id, label, callback, config = {}) : MenuNode(id, label, config) constructor {
+    __type = MENU_NODE_SELECTOR;
+    __label = label;
+    __message = config[$ "message"] ?? label + "?";
+    
+    Callback = method(self, callback ?? function(){});
+    
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) __Select();
+    }
+    static HandleAction = function(action) {
+        if (action.selectPressed) __Select();
+    }
+    
+    OnSelect(function() {
+        __xSclAnim.Snap(1).Play(1.2);
+        __ySclAnim.Snap(1).Play(1.2);
+        if (__pending) {
+            Callback();
+            __pending = false;
+        } else {
+            __pending = true;
+        }
+    });
+    OnRender(function() {
+        var _body = GetZoneData(MENU_ZONE_BODY);
+        var _x = _body.x;
+        var _y = _body.y;
+        var _w = _body.w;
+        var _h = _body.h;
+        var _c = __style.__GetColor(__state);
+        var _a = __style.__GetAlpha(__state);
+        var _t = (__pending ? __message : __label);
+        
+        // Background
+        var _col = __style.__GetBgColor(__state);
+        draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+        var _spr = __style.__GetBgSprite(__state);
+        if (!is_undefined(_spr)) {
+            draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+        }
+        
+        // Label
+        scribble(_t, __id)
+            .align(__hAlign, __vAlign)
+            .blend(_c, _a)
+            .transform(__xScl, __yScl, __angle)
+            .draw(__xPos, __yPos);
+    });
+}
+
+function MenuNodeSelector(id, label, options, valueGetter, valueSetter, config = {}) : MenuNode(id, label, config) constructor {
+    __type = MENU_NODE_SELECTOR;
+    __label = label;
+    __optionArray = options;
+    __optionCount = array_length(options);
+    __optionIndex = undefined;
+    __optionCycle = config[$ "cycle"] ?? true;
+    
+    GetValue = method(self, valueGetter);
+    SetValue = method(self, valueSetter);
+
+    static GetActiveOption = function() {
+        return __optionArray[__optionIndex];
+    }
+    static CycleOptionLeft = function() {
+        if (__optionCycle) {
+            __optionIndex = ((__optionIndex - 1) % __optionCount + __optionCount) % __optionCount;
+        } else {
+            if (__optionIndex == 0) return false;
+            __optionIndex = max(0, __optionIndex - 1);
+        }
+        return true;
+    }
+    static CycleOptionRight = function() {
+        if (__optionCycle) {
+            __optionIndex = (__optionIndex + 1) % __optionCount;
+        } else {
+            if (__optionIndex == __optionCount-1) return false;
+            __optionIndex = min(__optionCount - 1, __optionIndex + 1);
+        }
         return true;
     }
     
-    static OnEnter     = config[$ "OnEnter"] ?? function(){
-        xSclAnim.Snap(0.8).Play(1);
-        ySclAnim.Snap(0.8).Play(1);
-    };
-    static OnLeave     = config[$ "OnLeave"] ?? function(){
-        
-    };
-    
-    static GetWidth    = config[$ "GetWidth"] ?? function() {
-        return string_width(name);
+    static SelectLeft = function() {
+        if (CycleOptionLeft()) {
+            __xOffAnim.Snap(-10).Play(0);
+            SetValue(GetActiveOption());
+        }
     }
-    static GetHeight   = config[$ "GetHeight"] ?? function(){
-        return string_height(name);
-    };
-}
-
-#region Visual Nodes --------------------------
-
-function MenuNodeLabel(name, config = {}) : MenuNode(name, config) constructor {
-    interactive = false;
+    static SelectRight = function() {
+        if (CycleOptionRight()) {
+            __xOffAnim.Snap(10).Play(0);
+            SetValue(GetActiveOption());
+        }
+    }
     
+    static HandleAction = function(action) {
+        if (action.leftPressed) SelectLeft();
+        if (action.rightPressed) SelectRight();
+    }
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) {
+            switch (__zoneActive) {
+                case MENU_ZONE_LEFT: SelectLeft(); break;
+                case MENU_ZONE_RIGHT: SelectRight(); break;
+            }
+        }
+    }
+    
+    OnEnter(function() {
+        var _value = GetValue();
+        for (var i = 0; i < __optionCount; i++) {
+            if (__optionArray[i][1] == _value) {
+                __optionIndex = i;
+                break;
+            }
+        }
+        if (__optionIndex == undefined) {
+            show_debug_message($"MenuNodeSelector: value '{_value}' not found in options. Defaulting to 0");
+            __optionIndex = 0;
+        }
+    });
     OnRender(function() {
-        var _c = colors.disabled;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
+        for (var i = 0; i < __zoneCount; i++) {
+            var _zone = __zoneArray[i];
+            var _x = _zone.x;
+            var _y = _zone.y;
+            var _w = _zone.w;
+            var _h = _zone.h;
+            var _c = __style.__GetColor(__state);
+            var _a = __style.__GetAlpha(__state);
+            var _t = __label;
+            
+            // Background
+            var _col = __style.__GetBgColor(__state);
+            draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+            var _spr = __style.__GetBgSprite(__state);
+            if (!is_undefined(_spr)) {
+                draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+            }
+            
+            // Content
+            switch (_zone.type) {
+                case MENU_ZONE_BODY: {
+                    // Label
+                    scribble(_t, __id)
+                        .align(__hAlign, __vAlign)
+                        .blend(_c, _a)
+                        .transform(__xScl, __yScl, __angle)
+                        .draw(__xPos, __yPos);
+                } break;
+                case MENU_ZONE_LEFT: {
+                    if (!__optionCycle && __optionIndex == 0) break;
+                    _c = __style.__GetColor(_zone.active ? MENU_STATE.FOCUSED : MENU_STATE.BASE);
+                    _t = "<";
+                    scribble(_t, __id)
+                        .align(1, 1)
+                        .blend(_c, _a)
+                        .transform(__xScl, __yScl, __angle)
+                        .draw(_x+_w/2, _y+_h/2);
+                } break;
+                case MENU_ZONE_RIGHT: {
+                    if (!__optionCycle && __optionIndex == __optionCount-1) break;
+                    _c = __style.__GetColor(_zone.active ? MENU_STATE.FOCUSED : MENU_STATE.BASE);
+                    _t = ">";
+                    scribble(_t, __id)
+                        .align(1, 1)
+                        .blend(_c, _a)
+                        .transform(__xScl, __yScl, __angle)
+                        .draw(_x+_w/2, _y+_h/2);
+                } break;
+                case MENU_ZONE_VALUE: {
+                    _t = string(GetActiveOption()[0]);
+                    scribble(_t, __id)
+                        .align(1, 1)
+                        .blend(_c, _a)
+                        .transform(__xScl, __yScl, __angle)
+                        .draw(_x+_w/2+__xOffAnim.GetValue(), _y+_h/2);
+                } break;
+            }
+        }
     });
 }
 
-function MenuNodeSeparator(config = {}) : MenuNode("separator", config) constructor {
-    interactive = false;
+function MenuNodeCheckbox(id, label, valueGetter, valueSetter, config = {}) : MenuNode(id, label, config) constructor {
+    __type = MENU_NODE_CHECKBOX;
+    __label = label;
     
-    drawLine    = config[$ "drawLine"] ?? true;
-    height      = config[$ "height"] ?? 4;
-    width       = config[$ "width"] ?? 1;
+    GetValue = method(self, valueGetter);
+    SetValue = method(self, valueSetter);
     
-    GetHeight   = function(){return height};
-    GetWidth    = function(){return 0};
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed) {
+            switch (__zoneActive) {
+                case MENU_ZONE_BOX: __Select(); break;
+            }
+        };
+    }
+    static HandleAction = function(action) {
+        if (action.selectPressed) __Select();
+    }
     
-    OnRender(function() {
-        if (!drawLine) exit;
-        var _y = yPos;
-        var _c = colors.base;
-        var _z = zones[0];
-        draw_set_alpha(alpha);
-        draw_rectangle_colour(_z.x, _y - height/2, _z.x + _z.w, _y + height/2, _c, _c, _c, _c, false);
-        draw_set_alpha(1);
+    OnEnter(function() {
+        var _value = GetValue();
+        if (is_real(_value) || is_bool(_value)) {
+            __value = _value;
+        }
+        if (is_undefined(_value)) {
+            show_debug_message($"MenuNodeCheckbox: bool '{_value}' could not be solved. Defaulting to false");
+            __value = false;
+        }
     });
-}
-
-function MenuNodeSameLine(config = {}) : MenuNode("sameLine", config) constructor {
-    
-}
-
-#endregion
-
-#region Functional Nodes --------------------------
-
-function MenuNodeButton(name, onSelect, config = {}) : MenuNode(name, config) constructor {
-    
-    if (is_callable(onSelect)) OnSelect(method(self, onSelect));
-    
     OnSelect(function() {
-        xSclAnim.Snap(1).Play(1.1);
-        ySclAnim.Snap(1).Play(1.1);
-    })
-    
-    OnRender(function() {
-        var _c = isFocused ? colors.focused : colors.base;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
-    })
-}
-
-function MenuNodeConfirm(name, onSelect, config = {}) : MenuNode(name, config) constructor {
-    pending = false;
-    msg     = config[$ "msg"] ?? name + "?";
-    
-    OnConfirm = is_callable(onSelect) ? method(self, onSelect) : undefined;
-    
-    OnSelect(function() {
-        if (pending) {
-            if (is_callable(OnConfirm)) OnConfirm();
-        } else {
-            pending = true;
-        }
-        xSclAnim.Snap(1).Play(1.1);
-        ySclAnim.Snap(1).Play(1.1);
+        __xSclAnim.Snap(1).Play(1.2);
+        __ySclAnim.Snap(1).Play(1.2);
+        __value = !__value;
+        SetValue(__value);
     });
-    
     OnRender(function() {
-        var _c = isFocused ? (pending ? colors.pending : colors.focused) : colors.base;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, pending ? msg : name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
-    })
-}
-
-function MenuNodeSelector(name, options, onChange, config = {}) : MenuNode(name, config) constructor {
-    self.options    = options;
-    self.cursor     = 0;
-    cycle           = config[$ "cycle"] ?? true;
-    
-    OnChange = is_callable(onChange) ? method(self, onChange) : undefined;
-    
-    static OptionGetActive = function() {
-        return options[cursor];
-    }
-    
-    static ActionLeft = function() {
-        var _len = array_length(options);
-        if (cycle) {
-            cursor = ((cursor - 1) % _len + _len) % _len;
-        } else {
-            cursor = max(0, cursor - 1);
-        }
-        if (is_callable(OnChange)) OnChange(OptionGetActive());
-        xOffAnim.Snap(-6).Play(0);
-    }
-    static ActionRight = function() {
-        var _len = array_length(options);
-        if (cycle) {
-            cursor = (cursor + 1) % _len;
-        } else {
-            cursor = min(_len - 1, cursor + 1);
-        }
-        if (is_callable(OnChange)) OnChange(OptionGetActive());
-        xOffAnim.Snap(6).Play(0);
-    }
-    
-    OnSelect(function(){
-        switch (ZoneGetActive()) {
-            case "arrowLeft": ActionLeft();  break;
-            case "arrowRight": ActionRight(); break;
+        for (var i = 0; i < __zoneCount; i++) {
+            var _zone = __zoneArray[i];
+            var _x = _zone.x;
+            var _y = _zone.y;
+            var _w = _zone.w;
+            var _h = _zone.h;
+            var _c = __style.__GetColor(__state);
+            var _a = __style.__GetAlpha(__state);
+            var _t = __label;
+            
+            // Background
+            var _col = __style.__GetBgColor(__state);
+            draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+            var _spr = __style.__GetBgSprite(__state);
+            if (!is_undefined(_spr)) {
+                draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+            }
+            
+            // Content
+            switch (_zone.type) {
+                case MENU_ZONE_BODY: {
+                    // Label
+                    scribble(_t, __id)
+                        .align(__hAlign, __vAlign)
+                        .blend(_c, _a)
+                        .transform(__xScl, __yScl, __angle)
+                        .draw(__xPos, __yPos);
+                } break;
+                case MENU_ZONE_BOX: {
+                    _t = (__value ? "[[X]" : "[[   ]");
+                    scribble(_t, __id)
+                        .align(1, 1)
+                        .blend(_c, _a)
+                        .transform(__xScl, __yScl, __angle)
+                        .draw(_x+_w/2, _y+_h/2);
+                } break
+            }
         }
     });
+}
+
+function MenuNodeSlider(id, label, valueGetter, valueSetter, valueMin, valueMax, valueStep, valueFormat = function(v){return string(v)}, config = {}) : MenuNode(id, label, config) constructor {
+    __type = MENU_NODE_SLIDER;
+    __valueMin = valueMin;
+    __valueMax = valueMax;
+    __valueStep = valueStep;
+    __valueNorm = undefined;
     
-    OnRender(function() {
-        var _c = isFocused ? colors.focused : colors.base;
-        draw_set_halign(fa_left);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
+    GetValue = method(self, valueGetter);
+    SetValue = method(self, valueSetter);
+    FormatValue = method(self, valueFormat);
+    
+    static SelectLeft = function() {
+        __value -= __valueStep ?? 1;
+        __value = clamp(__value, __valueMin, __valueMax);
+        SetValue(__value);
+    }
+    static SelectRight = function() {
+        __value += __valueStep ?? 1;
+        __value = clamp(__value, __valueMin, __valueMax);
+        SetValue(__value);
+    }
+    
+    static HandleAction = function(action) {
+        if (action.leftPressed) SelectLeft();
+        if (action.rightPressed) SelectRight();
+    }
+    static HandleMouse = function(mouse) {
+        if (mouse.leftPressed && __zoneActive == MENU_ZONE_BAR) {
+            __dragging = true;
+            __manager.LockNode(self);
+        }
+        if (__dragging) {
+            var _bar = GetZoneData(MENU_ZONE_BAR);
+            var _delta = clamp((__manager.__mouseX - _bar.x) / _bar.w, 0, 1);
+            var _value = __valueMin + _delta * (__valueMax - __valueMin);
+            if (!is_undefined(__valueStep)) _value = round(_value / __valueStep) * __valueStep;
+            _value = clamp(_value, __valueMin, __valueMax);
+            if (_value != __value) {
+                __value = _value;
+                SetValue(__value);
+            }
+            if (mouse.leftReleased) {
+                __dragging = false;
+                __manager.UnlockNode();
+            }
+        }
+    }
+    
+    OnEnter(function() {
+        var _value = GetValue();
+        __value = _value;
     })
-}
-
-#endregion
-
-// WIP --------------------------
-
-function MenuNodeToggle(name) : MenuNode(name) constructor {
     OnRender(function() {
-        var _c = isFocused ? colors.focused : colors.base;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
-    })
+        for (var i = 0; i < __zoneCount; i++) {
+            var _zone = __zoneArray[i];
+            var _x = _zone.x;
+            var _y = _zone.y;
+            var _w = _zone.w;
+            var _h = _zone.h;
+            var _c = __style.__GetColor(__state);
+            var _a = __style.__GetAlpha(__state);
+            var _t = __label;
+            
+            // Background
+            var _col = __style.__GetBgColor(__state);
+            draw_sprite_stretched_ext(spr_pixel, 0, _x, _y, _w, _h, _col, _a);
+            var _spr = __style.__GetBgSprite(__state);
+            if (!is_undefined(_spr)) {
+                draw_sprite_stretched_ext(_spr, 0, _x, _y, _w, _h, _c, _a);
+            }
+            
+            // Content
+            switch (_zone.type) {
+                case MENU_ZONE_BODY: {
+                    // Label
+                    scribble(_t, __id)
+                        .align(__hAlign, __vAlign)
+                        .blend(_c, _a)
+                        .transform(__xScl, __yScl, __angle)
+                        .draw(__xPos, __yPos);
+                } break;
+                case MENU_ZONE_VALUE: {
+                    scribble(FormatValue(__value), __id)
+                        .align(2, __vAlign)
+                        .blend(_c, _a)
+                        .transform(__xScl, __yScl, __angle)
+                        .draw(_x+_w, __yPos);
+                } break
+                case MENU_ZONE_BAR: {
+                    // Enable Edge Mask
+                    gpu_set_stencil_enable(true);
+                    draw_clear_stencil(0);
+                    gpu_set_stencil_func(cmpfunc_always);
+                    gpu_set_stencil_ref(1);
+                    gpu_set_stencil_pass(stencilop_replace);
+                    gpu_set_colorwriteenable(false, false, false, false);
+                    var _r = _h/2;
+                    draw_rectangle(_x+_r, _y, _x+_w-_r, _y+_h, false);
+                    draw_circle(_x+_r, _y+_r, _r, false);
+                    draw_circle(_x+_w-_r, _y+_r, _r,false);
+                    gpu_set_colorwriteenable(true, true, true, true);
+                    gpu_set_stencil_func(cmpfunc_equal);
+                    gpu_set_stencil_ref(1);
+                    gpu_set_stencil_pass(stencilop_keep);
+                    
+                    // Background
+                    var _cbg = __style.__GetColor(MENU_STATE.DISABLED);
+                    draw_rectangle_colour(_x, _y, _x+_w, _y+_h, _cbg, _cbg, _cbg, _cbg, false);
+                    
+                    // Slider
+                    var _n = (__value - (__valueMin)) / ((__valueMax) - (__valueMin));
+                    draw_rectangle_colour(_x, _y, _x+_w*_n, _y+_h, _c, _c, _c, _c, false);
+                    
+                    // Foreground
+                    
+                    // Disable Edge Mask
+                    gpu_set_stencil_enable(false);
+                } break
+            }
+        }
+    });
 }
-
-function MenuNodeSlider(name) : MenuNode(name) constructor {
-    OnRender(function() {
-        var _c = isFocused ? colors.focused : colors.base;
-        draw_set_halign(hAlign);
-        draw_set_valign(vAlign);
-        draw_text_transformed_color(xPos, yPos, name, xScl, yScl, angle, _c, _c, _c, _c, alpha);
-        draw_set_halign(fa_left);
-        draw_set_valign(fa_top);
-    })
-}
-

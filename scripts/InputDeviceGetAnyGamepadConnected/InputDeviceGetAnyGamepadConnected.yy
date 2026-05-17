@@ -6,7 +6,7 @@
   "name":"InputDeviceGetAnyGamepadConnected",
   "parent":{
     "name":"Device",
-    "path":"folders/Dependencies/Input/Device.yy",
+    "path":"folders/Slate/Dependencies/Input/Device.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

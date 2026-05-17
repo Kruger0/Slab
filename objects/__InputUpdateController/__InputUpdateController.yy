@@ -10,7 +10,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"(System)",
-    "path":"folders/Dependencies/Input/(System).yy",
+    "path":"folders/Slate/Dependencies/Input/(System).yy",
   },
   "parentObjectId":null,
   "persistent":true,

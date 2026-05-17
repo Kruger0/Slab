@@ -6,7 +6,7 @@
   "name":"InputReleased",
   "parent":{
     "name":"Basics",
-    "path":"folders/Dependencies/Input/Checkers/Basics.yy",
+    "path":"folders/Slate/Dependencies/Input/Checkers/Basics.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

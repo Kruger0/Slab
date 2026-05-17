@@ -6,7 +6,7 @@
   "name":"InputPlugInGamepadNullifyMapping",
   "parent":{
     "name":"Gamepads",
-    "path":"folders/Dependencies/Input/Plug-In API/Gamepads.yy",
+    "path":"folders/Slate/Dependencies/Input/Plug-In API/Gamepads.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

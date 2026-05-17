@@ -14,8 +14,8 @@
   "exportDir":"",
   "name":"snd_menu",
   "parent":{
-    "name":"MenuSystemv2.0",
-    "path":"MenuSystemv2.0.yyp",
+    "name":"Assets",
+    "path":"folders/Assets.yy",
   },
   "preload":false,
   "resourceType":"GMSound",

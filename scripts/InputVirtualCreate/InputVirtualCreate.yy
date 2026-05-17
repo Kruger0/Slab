@@ -6,7 +6,7 @@
   "name":"InputVirtualCreate",
   "parent":{
     "name":"Virtual Buttons",
-    "path":"folders/Dependencies/Input/Virtual Buttons.yy",
+    "path":"folders/Slate/Dependencies/Input/Virtual Buttons.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

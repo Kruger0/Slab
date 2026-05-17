@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"MenuManager",
   "parent":{
-    "name":"Menu System",
-    "path":"folders/Menu System.yy",
+    "name":"Classes",
+    "path":"folders/Slate/Private/Classes.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

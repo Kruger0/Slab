@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"MenuAnimTrack",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"MenuAnimTrack",
+  "parent":{
+    "name":"Classes",
+    "path":"folders/Slate/Private/Classes.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

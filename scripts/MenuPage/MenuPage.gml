@@ -1,121 +1,177 @@
 
-function MenuPage(name, nodes, config = {}) constructor{
-    self.name   = name;
-    self.nodes  = nodes;
+function __MenuPage(data, manager) constructor{
+    static cache = __SlateCache();
     
-    #region Public
-    xPad    = config[$ "xPad"] ?? 32;
-    yPad    = config[$ "yPad"] ?? 32;
-    xMarg   = config[$ "xMarg"] ?? 32;
-    yMarg   = config[$ "yMarg"] ?? 32;
-    xFactor = config[$ "xFactor"] ?? 0;
-    yFactor = config[$ "yFactor"] ?? 0;
-    spacing = config[$ "spacing"] ?? 8;
-    hAlign  = config[$ "hAlign"] ?? fa_center;
-    vAlign  = config[$ "vAlign"] ?? fa_middle;
-    cycle   = config[$ "cycle"] ?? true;
-    hFill   = config[$ "hFill"] ?? true;
-    vFill   = config[$ "vFill"] ?? true;
-    enabled = config[$ "enabled"] ?? true;
-    font    = config[$ "font"] ?? fnt_test;
-    scale   = config[$ "scale"] ?? 1;
-    #endregion
+    __layer         = data.layer;
+    __nodeArray     = data.nodes;
+    __cycle         = data.config[$ "cycle"] ?? true;
+    __manager       = manager;
+    __styleSource   = MenuStyleResolve(manager.__style);
+    __styleOverride = MenuStyleResolve(data.config[$ "style"]);
+    __style         = MenuStyleMerge(__styleSource, __styleOverride);;
+    __nodeOrder     = [];
+    __nodeActive    = 0;
     
-    #region Private
-    cursor  = 0;
-    #endregion
-    
-    // Methods
-    static NodeGetActive = function() {
-        return nodes[cursor];
+    static __SetNode = function(value) {
+        if (is_undefined(value)) return;
+        if (value != clamp(value, 0, array_length(__nodeOrder)-1)) return;
+        __nodeActive = value;
+        return self;
     }
     
-    static CursorFindFirst = function() {
-        var _count = array_length(nodes);
+    static __FlexNode = function(type, id, x, y, z, w, h) constructor {
+        self.type   = type;
+        self.id     = id;
+        self.x      = x;
+        self.y      = y;
+        self.z      = z;
+        self.w      = w;
+        self.h      = h;
+        self.active = false;
+    };
+    static __FlexParse = function(root, data = []) {
+        var _name = string_split(flexpanel_node_get_name(root), "_");
+        var _type = _name[0];
+        var _id = (array_length(_name) > 1 ? string_join_ext("_", _name, 1) : ""); 
+        var _z = 0;
+        var _isNode = true;
+        
+        switch (_type) {
+            // Body
+            case MENU_NODE_TEXT:
+            case MENU_NODE_SEPARATOR:
+            case MENU_NODE_BUTTON:
+            case MENU_NODE_SPRITE:
+            case MENU_NODE_SELECTOR:
+            case MENU_NODE_SLIDER:
+            case MENU_NODE_CONFIRM:
+            case MENU_NODE_CHECKBOX: {
+                _type = MENU_ZONE_BODY;
+            } break;
+            // Zones
+            case MENU_ZONE_VALUE: {
+                    
+            } break;
+            case MENU_ZONE_BAR:
+            case MENU_ZONE_BOX:
+            case MENU_ZONE_LEFT:
+            case MENU_ZONE_RIGHT: {
+                _z = 1;
+            } break;
+            default: {
+                _isNode = false;
+            }
+        }
+        
+        // Create a ref on the node
+        for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
+            var _node = __nodeArray[i];
+            if (_node.__id == _id) {
+                var _flexDisp = flexpanel_node_style_get_display(root);
+                var _nodeDisp = (_node.__visible ? flexpanel_display.flex : flexpanel_display.none);
+                if (_flexDisp != _nodeDisp) {
+                    flexpanel_node_style_set_display(root, _nodeDisp);
+                }
+                _node.__zoneNode = root;
+                break;
+            }
+        }
+        
+        // Push to node data
+        if (_isNode) {
+            var _n = flexpanel_node_layout_get_position(root, false);
+            array_push(data, new __FlexNode(_type, _id, _n.left, _n.top, _z, _n.width, _n.height));
+        }
+        
+        // Continue
+        var _childs = flexpanel_node_get_num_children(root);
+        for (var i = 0; i < _childs; i++) {
+            var _child = flexpanel_node_get_child(root, i);
+            __FlexParse(_child, data);
+        }
+        return data;
+    };
+    
+    static __InitPage = function() {
+        var _root = layer_get_flexpanel_node(__layer);
+        var _layout = __FlexParse(_root);
+        var _rootPos = flexpanel_node_layout_get_position(_root);
+        flexpanel_calculate_layout(_root, _rootPos.width, _rootPos.height, _rootPos.direction);
+        _layout = __FlexParse(_root);
+            
+        // Updates node navigation order
+        __nodeOrder = [];
+        for (var i = 0, n = array_length(_layout); i < n; i++) {
+            if (_layout[i].type != MENU_ZONE_BODY) continue;
+            var _id = _layout[i].id;
+            for (var j = 0, o = array_length(__nodeArray); j < o; j++) {
+                if (__nodeArray[j].__id == _id) {
+                    array_push(__nodeOrder, j);
+                    break;
+                }
+            }
+        }
+            
+        // Link nodes to their zones
+        for (var i = 0, n = array_length(__nodeArray); i < n ; i++) {
+            var _node = __nodeArray[i];
+            var _flex = _node.__zoneNode;
+            if (_flex == undefined) continue;
+            var _data = __FlexParse(_flex);
+            with (_node) {
+                __zoneArray = _data;
+                __zoneCount = array_length(_data);
+            }
+        }
+        
+        // Set first interactive node as active
         var _guard = 0;
-        while (!nodes[cursor].interactive && _guard < _count) {
-            cursor++;
+        var _count = array_length(__nodeOrder);
+        while (!__GetNodeActive().__interactive && _guard < _count) {
+            __nodeActive = (__nodeActive + 1) % _count;
             _guard++;
         }
     }
     
-    static OnEnter = function(){
-        CursorFindFirst();
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _node.OnEnter();
-            _node.mng = mng;
+    static __GetNodeActive = function() {
+        return __nodeArray[__nodeOrder[__nodeActive]];
+    }
+    static __GetNode = function(index) {
+        return __nodeArray[__nodeOrder[index]];
+    }
+
+    static __Update = function(mouseActive){
+        for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
+            var _node = __nodeArray[i];
+            _node.__Update(mouseActive ? undefined : (__GetNodeActive() == _node));
         }
     };
-    static OnLeave = function(resetCursor){
-        if (resetCursor) cursor = 0;
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _node.OnLeave();
+    static __Render = function(){
+        for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
+            var _node = __nodeArray[i];
+            _node.__Render()
         }
     };
-    
-    static Update = function(useMouse){
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _node.Update(useMouse ? undefined : (cursor == i));
-        }
-    };
-    static Render = function(ctx){
-        
-        // Page canvas
-        var _pageCtx = {
-           x:ctx.x + xPad, y:ctx.y + yPad,
-           w:ctx.w - xPad*2, h:ctx.h - yPad*2,
-        }
-        
-        // Node setup
-        draw_set_font(font);
-        
-        // Node measuring
-        var _nodeMaxW   = 0;
-        var _nodeMaxH   = 0;
-        var _totalH     = 0;
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node = nodes[i];
-            _nodeMaxW = max(_nodeMaxW, _node.GetWidth());
-            _nodeMaxH = max(_nodeMaxH, _node.GetHeight());
-            _totalH  += _node.GetHeight() + spacing;
-        }
-        _totalH = max(0, _totalH - spacing);
-        
-        var _scaledMaxW = _nodeMaxW * scale;
-        var _scaledTotalH = _totalH * scale;
-        
-        // Node alignment
-        var _nodeX, _nodeY;
-        switch (hAlign) {
-            case fa_left:   _nodeX = _pageCtx.x; break;
-            case fa_center: _nodeX = _pageCtx.x + (_pageCtx.w - _scaledMaxW) / 2; break;
-            case fa_right:  _nodeX = _pageCtx.x + (_pageCtx.w - _scaledMaxW); break;
-        }
-        switch (vAlign) {
-            case fa_top:    _nodeY = _pageCtx.y; break;
-            case fa_middle: _nodeY = _pageCtx.y + (_pageCtx.h - _scaledTotalH) / 2; break;
-            case fa_bottom: _nodeY = _pageCtx.y + (_pageCtx.h - _scaledTotalH); break;
-        }
-        
-        // Node drawing
-        for (var i = 0, n = array_length(nodes); i < n; i++) {
-            var _node   = nodes[i];
-            var _nodeH  = _node.GetHeight();
-            var _nodeW  = _node.GetWidth();
-            
-            // Node canvas
-            var _nodeCtx = {
-                x: _nodeX, y: _nodeY,
-                w: _nodeMaxW, h: _nodeH,
-                scale,
+    static __Enter = function(resetNode) {
+        __style = MenuStyleMerge(__styleSource, __styleOverride);
+        __InitPage();
+        for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
+            var _node = __nodeArray[i];
+            _node.__Enter(self);
+            if (resetNode) {
+                _node.__Update(false);
+            } else {
+                _node.__Update(__GetNodeActive() == _node);
             }
-            
-            _node.Render(_nodeCtx);
-            _nodeY += (_nodeH + spacing) * scale;
         }
-        draw_set_font(-1);
-    };
+    }
+    static __Leave = function(resetNode) {
+        if (resetNode) __nodeActive = 0;
+        for (var i = 0, n = array_length(__nodeArray); i < n; i++) {
+            var _node = __nodeArray[i];
+            _node.__Leave();
+        }
+    }
 }
+
+

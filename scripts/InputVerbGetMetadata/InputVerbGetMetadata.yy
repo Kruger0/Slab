@@ -6,7 +6,7 @@
   "name":"InputVerbGetMetadata",
   "parent":{
     "name":"Verb Interaction",
-    "path":"folders/Dependencies/Input/Verb Interaction.yy",
+    "path":"folders/Slate/Dependencies/Input/Verb Interaction.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -6,7 +6,7 @@
   "name":"InputGetBindingName",
   "parent":{
     "name":"Miscellaneous",
-    "path":"folders/Dependencies/Input/Miscellaneous.yy",
+    "path":"folders/Slate/Dependencies/Input/Miscellaneous.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

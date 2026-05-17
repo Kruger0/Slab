@@ -6,7 +6,7 @@
   "name":"InputLongPressed",
   "parent":{
     "name":"Advanced",
-    "path":"folders/Dependencies/Input/Checkers/Advanced.yy",
+    "path":"folders/Slate/Dependencies/Input/Checkers/Advanced.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

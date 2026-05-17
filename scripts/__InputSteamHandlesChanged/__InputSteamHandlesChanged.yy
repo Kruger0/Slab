@@ -6,7 +6,7 @@
   "name":"__InputSteamHandlesChanged",
   "parent":{
     "name":"(System)",
-    "path":"folders/Dependencies/Input/(System).yy",
+    "path":"folders/Slate/Dependencies/Input/(System).yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",
