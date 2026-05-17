@@ -10,8 +10,10 @@ function MenuManager(config = {}) constructor{
     __mouseActive   = false;
     __mouseFocus    = undefined;
     __lockedNode    = undefined;
-    __enabled       = true;
-    __style         = MenuBindStyle(config[$ "style"]);
+    __enabled       = false;
+    __styleSource   = new __MenuStyle();
+    __styleOverride = MenuBindStyle(config[$ "style"]);
+    __style         = MenuMergeStyle(__styleSource, __styleOverride);
     
     static __GetActionInput  = function() {
         return {
@@ -53,9 +55,11 @@ function MenuManager(config = {}) constructor{
     
     #region Public
     static Update = function(mx, my) {
+        if (!__enabled) return;
+        
+        // Get input data
         __mouseX = mx;
         __mouseY = my;
-        
         var _page = GetActivePage();
         if (is_undefined(_page)) return;
         
@@ -157,6 +161,7 @@ function MenuManager(config = {}) constructor{
         return self;
     }
     static Render = function() {
+        if (!__enabled) return;
         var _page = GetActivePage();
         if (is_undefined(_page)) return;
         _page.__Render();
@@ -185,6 +190,7 @@ function MenuManager(config = {}) constructor{
         array_push(__stackArray, name);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
+        __style = MenuMergeStyle(__styleSource, __styleOverride);
         _pageNext.__Enter(__mouseActive);
         return self;
     }
@@ -196,6 +202,7 @@ function MenuManager(config = {}) constructor{
         array_pop(__stackArray);
         var _pageNext = GetActivePage();
         if (is_undefined(_pageNext)) return;
+        __style = MenuMergeStyle(__styleSource, __styleOverride);
         _pageNext.__Enter(__mouseActive);
         return self;
     }
@@ -222,11 +229,22 @@ function MenuManager(config = {}) constructor{
         return self;
     }
     
-    static GetStyle = function(style) {
-        
+    static GetStyle = function() {
+        return __style;
     }
     static SetStyle = function(style) {
-        
+        __styleOverride = style;
+    }
+    static ResetStyle = function() {
+        __styleSource = new __MenuStyle();
+        __styleOverride = {};
+    }
+    
+    static GetEnabled = function() {
+        return __enabled;
+    }
+    static SetEnabled = function(enabled) {
+        __enabled = enabled;
     }
     #endregion
 }

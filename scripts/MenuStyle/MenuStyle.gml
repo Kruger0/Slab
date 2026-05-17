@@ -1,9 +1,7 @@
 
-function __MenuStyle(name, config = {}) constructor {
-    self.name = name;
-    
+function __MenuStyle(config = {}) constructor {    
     colorBase           = config[$ "colorBase"]         ?? #808080;
-    colorFocused        = config[$ "colorFocused"]      ?? #00FF00;
+    colorFocused        = config[$ "colorFocused"]      ?? #FFFFFF;
     colorDisabled       = config[$ "colorDisabled"]     ?? #444444;
     colorPending        = config[$ "colorPending"]      ?? #FF4444;
     
@@ -71,7 +69,7 @@ function MenuGetStyle(name) {
 
 function MenuCreateStyle(name, config = {}) {
     static cache = __MenuCache();
-    cache.styles[$ name] = new __MenuStyle(name, config);
+    cache.styles[$ name] = new __MenuStyle(config);
 }
 
 function MenuStyleDelete(name) {
@@ -83,13 +81,21 @@ function MenuStyleExists(name) {
     return (!is_undefined(cache.styles[$ name]));
 }
 
+// se for struct, passa normal, se for string, pega o template
 function MenuBindStyle(style) {
     static cache = __MenuCache();
-    if (is_undefined(style)) return MenuGetDefaultStyle();
-    if (is_struct(style)) return new __MenuStyle("style", style);
-    if (is_string(style)) return cache.styles[$ style] ?? new __MenuStyle("style");
+    if (is_string(style)) return variable_clone(cache.styles[$ style] ?? {});
+    if (is_struct(style)) return style;
+    return {};
 }
 
+// merge two structs
 function MenuMergeStyle(source, override) {
-    return source;
+    var _result = variable_clone(source);
+    var _keys = struct_get_names(override);
+    for (var i = 0, n = array_length(_keys); i < n; i++) {
+        var _key = _keys[i];
+        _result[$ _key] = override[$ _key];
+    }
+    return _result;
 }

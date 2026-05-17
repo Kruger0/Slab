@@ -6,9 +6,9 @@ function __MenuPage(data, manager) constructor{
     __nodeArray     = data.nodes;
     __cycle         = data.config[$ "cycle"] ?? true;
     __manager       = manager;
-    __style         = undefined;
     __styleSource   = MenuBindStyle(manager.__style);
     __styleOverride = MenuBindStyle(data.config[$ "style"]);
+    __style         = MenuMergeStyle(__styleSource, __styleOverride);;
     __nodeOrder     = [];
     __nodeActive    = 0;
     

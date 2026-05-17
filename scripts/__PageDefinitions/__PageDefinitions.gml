@@ -11,14 +11,14 @@ function MenuPageDefine(name, layer, nodes, config = {}) {
 
 // Main
 MenuPageDefine("page_main", "layerMain", [
-    new MenuNodeText("main", "Main Menu", {
-        style: {
-            colorBase: c_red
-        }
-    }),
+    new MenuNodeText("main", "Main Menu"),
     new MenuNodeButton("start", "Start", function(){
-        show_debug_message(id);
+        show_debug_message(__id);
         room_goto(rm_game);
+    }, {
+        style: {
+            colorBase: c_yellow,
+        }
     }),
     new MenuNodeButton("continue", "Continue"),
     new MenuNodeButton("credits", "Credits"),
@@ -33,21 +33,28 @@ MenuPageDefine("page_main", "layerMain", [
     })
 ], {
     style: {
-        colorBase: c_blue
-    }
+        colorBase: c_red
+    },
+    //cycle: false
 })
 
 // Pause
 MenuPageDefine("page_pause", "layerPause", [
     new MenuNodeText("pause", "Pause", {bgColorBase : c_ltgray}),
-    new MenuNodeButton("resume", "Resume", function(){show_debug_message(id)}),
+    new MenuNodeButton("resume", "Resume", function(){
+        __manager.SetEnabled(false)
+    }),
     new MenuNodeButton("restart", "Restart"),
     new MenuNodeButton("options", "Options", function(){PushPage("page_options")}),
     new MenuNodeSeparator("sep"),
     new MenuNodeConfirm("exit", "Leave", function(){
         room_goto(rm_menu);
     }, {message : "Leave Game?"}),
-])
+], {
+    style: {
+        colorBase: c_lime
+    }
+})
 
 // Options
 MenuPageDefine("page_options", "layerOptions", [

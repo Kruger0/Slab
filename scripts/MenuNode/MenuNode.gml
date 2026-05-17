@@ -4,9 +4,9 @@ function MenuNode(id, label, config = {}) constructor{
     #region Private
     __id            = id;
     __label         = label;
-    __style         = undefined;
-    __styleSource   = undefined;
+    __styleSource   = {};
     __styleOverride = MenuBindStyle(config[$ "style"]);
+    __style         = MenuMergeStyle(__styleSource, __styleOverride);;
     __type          = MENU_NODE_BLANK;
     __state         = MENU_STATE.BASE;
     
@@ -188,7 +188,7 @@ function MenuNode(id, label, config = {}) constructor{
         // Define
         __page = page;
         __manager = page.__manager;
-        __styleSource = page.__styleSource;
+        __styleSource = MenuBindStyle(page.__style);
         __style = MenuMergeStyle(__styleSource, __styleOverride);
         
         // Animate

@@ -4,7 +4,7 @@ function __MenuCache() {
     static data = {
         pages:  {},
         styles: {
-            base: new __MenuStyle("default"),
+            base: new __MenuStyle(),
         },
     }
     return data;
