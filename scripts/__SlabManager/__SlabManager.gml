@@ -122,19 +122,25 @@ function SlabManager(config = {}) constructor{
         } else {
             var _yDelta = (_inputAction.downPressed - _inputAction.upPressed);
             if (_yDelta != 0) {
-                var _next = _page.__nodeActive;
+                var _start = _page.__nodeActive;
+                var _next = _start;
                 var _count = array_length(_page.__nodeOrder);
                 var _guard = 0;
                 do {
+                    var _prev = _next;
                     _next += _yDelta;
                     if (_page.__cycle) {
                         _next = ((_next % _count) + _count) % _count;
                     } else {
                         _next = clamp(_next, 0, _count - 1);
+                        if (_next == _prev) break;
                     }
                     _guard++;
                 } until (_page.__nodeArray[_page.__nodeOrder[_next]].__interactive || _guard >= _count);
-                _page.__SetNode(_next);
+
+                if (_page.__nodeArray[_page.__nodeOrder[_next]].__interactive) {
+                    _page.__SetNode(_next);
+                }
             }
         }
         

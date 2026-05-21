@@ -8,7 +8,8 @@ function __SlabPage(data, manager) constructor{
     __manager       = manager;
     __styleSource   = SlabStyleResolve(manager.__style);
     __styleOverride = SlabStyleResolve(data.config[$ "style"]);
-    __style         = SlabStyleMerge(__styleSource, __styleOverride);;
+    __style         = SlabStyleMerge(__styleSource, __styleOverride);
+    __enabled       = true;
     __nodeOrder     = [];
     __nodeActive    = 0;
     
@@ -174,12 +175,10 @@ function __SlabPage(data, manager) constructor{
     }
 }
 
-
 function SlabPageDelete(name) {
     static cache = __SlabCache();
     delete cache.pages[$ name];
 }
-
 function SlabPageDefine(name, layer, nodes, config = {}) {
     static cache = __SlabCache();
     cache.pages[$ name] = {layer, nodes, config};

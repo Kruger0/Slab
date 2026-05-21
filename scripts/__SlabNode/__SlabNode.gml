@@ -47,7 +47,7 @@ function SlabNode(id, label, config = {}) constructor{
     __onLeaveCb     = [];
     #endregion
     
-    #region Style
+    #region Animation
     animSpeed       = config[$ "animSpeed"] ?? 0.5;
     __xOffAnim      = new __SlabAnimTrack(ac_test, "xOff", animSpeed);
     __yOffAnim      = new __SlabAnimTrack(ac_test, "yOff", animSpeed);
@@ -84,33 +84,15 @@ function SlabNode(id, label, config = {}) constructor{
         // Input
         if (!is_undefined(focused)) SetFocused(focused);
         
-        // State
-        __UpdateState();
-        
         // Animation
         __xOffAnim.Update();
         __yOffAnim.Update();
         __xSclAnim.Update();
         __ySclAnim.Update();
         __angleAnim.Update();
+        
         __xScl = __xSclAnim.GetValue();
         __yScl = __ySclAnim.GetValue();
-        
-        // Aligmnet
-        var _body = GetZoneData(SLAB_ZONE_BODY);
-        var _xOff = __xOffAnim.GetValue();
-        var _yOff = __yOffAnim.GetValue();
-        
-        switch (__hAlign) {
-            case fa_left:   __xPos = _body.x; break;
-            case fa_center: __xPos = _xOff + _body.x + (_body.w / 2); break;
-            case fa_right:  __xPos = _xOff + _body.x + _body.w; break;
-        }
-        switch (__vAlign) {
-            case fa_top:    __yPos = _yOff + _body.y; break;
-            case fa_middle: __yPos = _yOff + _body.y + (_body.h / 2); break;
-            case fa_bottom: __yPos = _yOff + _body.y + _body.n; break;
-        }
         
         // Active Zone
         __zoneActive = "";
@@ -168,11 +150,14 @@ function SlabNode(id, label, config = {}) constructor{
         }
     }
     static __Select = function() {
+        if (__GetState() == SLAB_STATE.DISABLED) return;
+        
         // Custom
         for (var i = 0, n = array_length(__onSelectCb); i < n; i++) {
             var _e = __onSelectCb[i];
             _e.callback(_e.data);
         }
+        __UpdateState();
         
         // Debug
         if (SlabDebugGetEnabled()) {
@@ -186,6 +171,22 @@ function SlabNode(id, label, config = {}) constructor{
         __styleSource = SlabStyleResolve(page.__style);
         __style = SlabStyleMerge(__styleSource, __styleOverride);
         
+        // Aligmnet
+        var _body = GetZoneData(SLAB_ZONE_BODY);
+        var _xOff = __xOffAnim.GetValue();
+        var _yOff = __yOffAnim.GetValue();
+        
+        switch (__hAlign) {
+            case fa_left:   __xPos = _body.x; break;
+            case fa_center: __xPos = _xOff + _body.x + (_body.w / 2); break;
+            case fa_right:  __xPos = _xOff + _body.x + _body.w; break;
+        }
+        switch (__vAlign) {
+            case fa_top:    __yPos = _yOff + _body.y; break;
+            case fa_middle: __yPos = _yOff + _body.y + (_body.h / 2); break;
+            case fa_bottom: __yPos = _yOff + _body.y + _body.n; break;
+        }
+        
         // Animate
         __xSclAnim.Snap(0.8).Play(1);
         __ySclAnim.Snap(0.8).Play(1);
@@ -195,6 +196,7 @@ function SlabNode(id, label, config = {}) constructor{
             var _entry = __onEnterCb[i];
             _entry.callback(_entry.data);
         }
+        __UpdateState();
     }
     static __Leave = function() {
         __xOffAnim.Snap(0);
@@ -206,13 +208,12 @@ function SlabNode(id, label, config = {}) constructor{
         __pending   = false;
         __dragging  = false;
         
-        __UpdateState();
-        
         // Custom
         for (var i = 0, n = array_length(__onLeaveCb); i < n; i++) {
             var _entry = __onLeaveCb[i];
             _entry.callback(_entry.data);
         }
+        __UpdateState();
     }
     
     static ContainsPoint = function(px, py) {
@@ -242,10 +243,11 @@ function SlabNode(id, label, config = {}) constructor{
     }
     
     static SetFocused = function(focused) {
-        if (__focused == focused) exit;
+        if (__focused == focused) return;
         __focused = focused;
         if (__focused) __OnFocusIn();
         else __OnFocusOut();
+        __UpdateState();
     }
     
     static __OnFocusIn = function(){
@@ -277,6 +279,13 @@ function SlabNode(id, label, config = {}) constructor{
     }
     static __UpdateState = function() {
         __SetState(__ResolveState());
+    }
+    
+    static GetEnabled = function() {
+        return __enabled;
+    }
+    static SetEnabled = function(enabled) {
+        __enabled = enabled;
     }
     
     static HandleAction = function(action) {};

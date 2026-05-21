@@ -2,22 +2,22 @@
 function __SlabStyle(config = {}) constructor {    
     colorBase           = config[$ "colorBase"]         ?? #808080;
     colorFocused        = config[$ "colorFocused"]      ?? #FFFFFF;
-    colorDisabled       = config[$ "colorDisabled"]     ?? #444444;
-    colorPending        = config[$ "colorPending"]      ?? #FF4444;
+    colorDisabled       = config[$ "colorDisabled"]     ?? #808080;
+    colorPending        = config[$ "colorPending"]      ?? #FF4040;
     
     bgColorBase         = config[$ "bgColorBase"]       ?? #202020;
-    bgColorFocused      = config[$ "bgColorFocused"]    ?? #202020;
+    bgColorFocused      = config[$ "bgColorFocused"]    ?? #404040;
     bgColorDisabled     = config[$ "bgColorDisabled"]   ?? #202020;
-    bgColorPending      = config[$ "bgColorPending"]    ?? #202020;
+    bgColorPending      = config[$ "bgColorPending"]    ?? #402020;
     
     bgSpriteBase        = config[$ "bgSpriteBase"]      ?? undefined;
     bgSpriteFocused     = config[$ "bgSpriteFocused"]   ?? undefined;
     bgSpriteDisabled    = config[$ "bgSpriteDisabled"]  ?? undefined;
     bgSpritePending     = config[$ "bgSpritePending"]   ?? undefined;
     
-    alphaBase           = config[$ "alphaBase"]         ?? 1.5;
+    alphaBase           = config[$ "alphaBase"]         ?? 1.0;
     alphaFocused        = config[$ "alphaFocused"]      ?? 1.0;
-    alphaDisabled       = config[$ "alphaDisabled"]     ?? 0.4;
+    alphaDisabled       = config[$ "alphaDisabled"]     ?? 0.5;
     alphaPending        = config[$ "alphaPending"]      ?? 1.0;
     
     scaleBase           = config[$ "scaleBase"]         ?? [1.0, 1.0];
@@ -81,7 +81,7 @@ function SlabStyleGetId(name) {
 
 function SlabStyleCreate(name, config = {}) {
     static cache = __SlabCache();
-    cache.styles[$ name] = new __SlabStyle(config);
+    cache.styles[$ name] = (config);
     return cache.styles[$ name];
 }
 

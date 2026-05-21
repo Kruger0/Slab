@@ -1,13 +1,18 @@
 
 // ==================================================== STYLES
 
+SlabStyleCreate("main", {
+    colorBase: c_gray,
+    colorFocused: c_yellow
+})
+
 SlabStyleCreate("text", {
     colorBase: c_dkgray,
     bgColorBase: c_ltgray,
 })
 
 SlabStyleCreate("button", {
-    colorBase: c_yellow,
+    colorBase: c_aqua,
 })
 
 // ==================================================== PAGES
@@ -18,7 +23,7 @@ SlabPageDefine("page_main", "layerMain", [
         show_debug_message(__id);
         room_goto(rm_game);
     }, {style: "button"}),
-    new SlabNodeButton("continue", "Continue"),
+    new SlabNodeButton("continue", "Continue", function(){SetEnabled(false)}),
     new SlabNodeButton("credits", "Credits"),
     new SlabNodeButton("options", "Options", function(){
         PushPage("page_options");
@@ -27,7 +32,7 @@ SlabPageDefine("page_main", "layerMain", [
     new SlabNodeConfirm("exit", "Exit", function(){
         game_end();
     }, {message : "Exit Game?"})
-])
+], {cycle: true})
 
 SlabPageDefine("page_pause", "layerPause", [
     new SlabNodeText("pause", "Pause", {style: "text"}),

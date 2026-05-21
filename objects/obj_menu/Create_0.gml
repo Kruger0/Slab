@@ -1,5 +1,5 @@
 
-mainMenu = new SlabManager()
+mainMenu = new SlabManager({style: "main"})
     .AddPage("page_main")
     .AddPage("page_options")
     .AddPage("page_audio")
